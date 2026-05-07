@@ -307,3 +307,176 @@ function extractStoragePath(url: string): string | null {
   if (i === -1) return null;
   return url.slice(i + marker.length);
 }
+
+// ========== UNIT ==========
+
+function asNumber(v: FormDataEntryValue | null): number | null {
+  if (typeof v !== "string" || v.trim() === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+export async function updateUnit(
+  unitId: string,
+  propertyId: string,
+  formData: FormData,
+): Promise<ActionResult> {
+  const name = trimOrNull(formData.get("name"));
+  const slug = trimOrNull(formData.get("slug"));
+  const description = trimOrNull(formData.get("description"));
+  const bedrooms = asNumber(formData.get("bedrooms"));
+  const bathrooms = asNumber(formData.get("bathrooms"));
+  const max_guests = asNumber(formData.get("max_guests"));
+  const size_m2 = asNumber(formData.get("size_m2"));
+  const base_price_eur = asNumber(formData.get("base_price_eur"));
+  const cleaning_fee_eur = asNumber(formData.get("cleaning_fee_eur"));
+  const min_short_stay_nights = asNumber(formData.get("min_short_stay_nights"));
+  const min_long_stay_months = asNumber(formData.get("min_long_stay_months"));
+  const long_stay_monthly_price_eur = asNumber(
+    formData.get("long_stay_monthly_price_eur"),
+  );
+  const status = trimOrNull(formData.get("status")) ?? "active";
+
+  if (!name || !slug || base_price_eur === null) {
+    return { ok: false, error: "Name, slug and base price are required." };
+  }
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    return { ok: false, error: "Slug: lowercase, numbers, hyphens only." };
+  }
+  if (base_price_eur < 0 || (cleaning_fee_eur ?? 0) < 0) {
+    return { ok: false, error: "Prices cannot be negative." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("units")
+    .update({
+      name,
+      slug,
+      description,
+      bedrooms: bedrooms ?? 1,
+      bathrooms: bathrooms ?? 1,
+      max_guests: max_guests ?? 2,
+      size_m2,
+      base_price_eur,
+      cleaning_fee_eur: cleaning_fee_eur ?? 0,
+      min_short_stay_nights: min_short_stay_nights ?? 1,
+      min_long_stay_months: min_long_stay_months ?? 4,
+      long_stay_monthly_price_eur,
+      status,
+    })
+    .eq("id", unitId);
+
+  if (error) return { ok: false, error: error.message };
+
+  await revalidatePropertyAndPublic(supabase, propertyId);
+  return { ok: true };
+}
+
+// ========== UNIT AMENITIES ==========
+
+export async function updateUnitAmenities(
+  unitId: string,
+  propertyId: string,
+  amenityIds: string[],
+): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  // Replace strategy: delete all existing, insert the new set.
+  const { error: delErr } = await supabase
+    .from("unit_amenities")
+    .delete()
+    .eq("unit_id", unitId);
+  if (delErr) return { ok: false, error: delErr.message };
+
+  if (amenityIds.length > 0) {
+    const rows = amenityIds.map((aid) => ({ unit_id: unitId, amenity_id: aid }));
+    const { error: insErr } = await supabase.from("unit_amenities").insert(rows);
+    if (insErr) return { ok: false, error: insErr.message };
+  }
+
+  await revalidatePropertyAndPublic(supabase, propertyId);
+  return { ok: true };
+}
+
+// ========== PRICING SEASONS ==========
+
+type SeasonInput = {
+  id?: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  price_multiplier: number | null;
+  fixed_price_eur: number | null;
+};
+
+export async function savePricingSeasons(
+  unitId: string,
+  propertyId: string,
+  seasons: SeasonInput[],
+  deletedIds: string[],
+): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  if (deletedIds.length > 0) {
+    const { error: delErr } = await supabase
+      .from("pricing_seasons")
+      .delete()
+      .in("id", deletedIds);
+    if (delErr) return { ok: false, error: delErr.message };
+  }
+
+  for (let i = 0; i < seasons.length; i++) {
+    const s = seasons[i];
+    if (!s.name || !s.start_date || !s.end_date) {
+      return { ok: false, error: `Season #${i + 1}: name and dates required.` };
+    }
+    if (s.price_multiplier === null && s.fixed_price_eur === null) {
+      return {
+        ok: false,
+        error: `Season "${s.name}": either a multiplier or a fixed price is required.`,
+      };
+    }
+
+    const payload = {
+      unit_id: unitId,
+      name: s.name,
+      start_date: s.start_date,
+      end_date: s.end_date,
+      price_multiplier: s.price_multiplier,
+      fixed_price_eur: s.fixed_price_eur,
+      position: i,
+    };
+
+    if (s.id) {
+      const { error } = await supabase
+        .from("pricing_seasons")
+        .update(payload)
+        .eq("id", s.id);
+      if (error) return { ok: false, error: error.message };
+    } else {
+      const { error } = await supabase.from("pricing_seasons").insert(payload);
+      if (error) return { ok: false, error: error.message };
+    }
+  }
+
+  await revalidatePropertyAndPublic(supabase, propertyId);
+  return { ok: true };
+}
+
+async function revalidatePropertyAndPublic(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  propertyId: string,
+) {
+  const { data } = await supabase
+    .from("properties")
+    .select("slug")
+    .eq("id", propertyId)
+    .single();
+  const slug = (data as { slug: string } | null)?.slug;
+  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath("/admin/properties");
+  revalidatePath("/admin/units");
+  revalidatePath("/");
+  if (slug) revalidatePath(`/${slug}`);
+}

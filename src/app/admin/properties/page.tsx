@@ -38,6 +38,12 @@ export default async function PropertiesListPage() {
             availability.
           </p>
         </div>
+        <Link
+          href="/admin/properties/new"
+          className="px-5 py-2.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition"
+        >
+          + Add residence
+        </Link>
       </div>
 
       {properties.length === 0 ? (
