@@ -15,7 +15,10 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Not signed in: render the route bare (this is how /admin/login renders).
+  // Middleware should redirect anon users to /admin/login before they
+  // reach the layout. The login page itself short-circuits there too.
+  // We still defensively render bare for the rare case where a public
+  // route (login) reaches this layout.
   if (!user) {
     return <>{children}</>;
   }
