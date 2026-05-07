@@ -18,13 +18,11 @@ export default async function LoginPage() {
   }
 
   // Detect whether any admin exists yet → only show bootstrap if 0 admins.
+  // Uses a SECURITY DEFINER RPC because anon RLS hides admin_users entirely.
   // After the first admin is created, public sign-up is disabled at the
   // Supabase level too; new admins are added via /admin/team.
-  const { count } = await supabase
-    .from("admin_users")
-    .select("*", { count: "exact", head: true });
-
-  const allowSignUp = (count ?? 0) === 0;
+  const { data: countData } = await supabase.rpc("admin_users_count");
+  const allowSignUp = ((countData as number | null) ?? 0) === 0;
 
   return (
     <main className="min-h-screen grid place-items-center px-6 py-16 bg-neutral-50 dark:bg-neutral-950">

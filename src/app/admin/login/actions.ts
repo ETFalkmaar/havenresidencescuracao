@@ -36,13 +36,13 @@ export async function signUpFirstAdmin(formData: FormData): Promise<AuthResult> 
   const supabase = await createClient();
 
   // Refuse if any admin already exists (defense in depth — RPC also enforces this).
-  const { count, error: countErr } = await supabase
-    .from("admin_users")
-    .select("*", { count: "exact", head: true });
+  const { data: countData, error: countErr } = await supabase.rpc(
+    "admin_users_count",
+  );
   if (countErr) {
     return { ok: false, error: "Could not verify admin status." };
   }
-  if ((count ?? 0) > 0) {
+  if (((countData as number | null) ?? 0) > 0) {
     return {
       ok: false,
       error: "An admin already exists. Ask the existing admin to invite you.",
