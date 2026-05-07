@@ -3,9 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { Header } from "@/components/Header";
+import { AnimatedHeader } from "@/components/AnimatedHeader";
 import { Footer } from "@/components/Footer";
 import { InquiryForm } from "@/components/InquiryForm";
+import { PhotoGallery } from "@/components/PhotoGallery";
+import { Reveal } from "@/components/Reveal";
 import { formatEur, formatDate } from "@/lib/format";
 import type {
   Property,
@@ -21,16 +23,23 @@ export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
   const { data } = await supabase
     .from("properties")
     .select("name, tagline, short_description, hero_image_url")
     .eq("slug", slug)
-    .single();
+    .maybeSingle();
 
-  const property = data as Pick<Property, "name" | "tagline" | "short_description" | "hero_image_url"> | null;
+  const property = data as Pick<
+    Property,
+    "name" | "tagline" | "short_description" | "hero_image_url"
+  > | null;
   if (!property) return { title: "Not found" };
 
   return {
@@ -57,7 +66,10 @@ const utilitiesLabel: Record<string, string> = {
   prepaid_card: "Prepaid utility cards",
 };
 
-type AmenityRow = { amenity_id: string; amenities: Pick<Amenity, "name" | "slug" | "category"> | null };
+type AmenityRow = {
+  amenity_id: string;
+  amenities: Pick<Amenity, "name" | "slug" | "category"> | null;
+};
 
 export default async function PropertyPage({ params }: { params: Params }) {
   const { slug } = await params;
@@ -67,7 +79,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
     .from("properties")
     .select("*")
     .eq("slug", slug)
-    .single();
+    .maybeSingle();
   const property = propertyRes.data as Property | null;
 
   if (!property || property.status === "draft" || property.status === "archived") {
@@ -86,7 +98,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
       .select("*")
       .eq("property_id", property.id)
       .order("position"),
-    supabase.from("site_settings").select("*").eq("id", 1).single(),
+    supabase.from("site_settings").select("*").eq("id", 1).maybeSingle(),
   ]);
 
   const units = (unitsRes.data ?? []) as Unit[];
@@ -117,12 +129,18 @@ export default async function PropertyPage({ params }: { params: Params }) {
   const accent = property.color_hex ?? "#1E5FBF";
   const isComingSoon = property.status === "coming_soon";
 
+  const galleryPhotos = photos.slice(1).map((p) => ({
+    id: p.id,
+    url: p.url,
+    alt_text: p.alt_text,
+  }));
+
   return (
     <>
-      <Header brandName={settings?.brand_name ?? "Haven Residence"} />
+      <AnimatedHeader brandName={settings?.brand_name ?? "Haven Residence"} />
 
       {/* Hero */}
-      <section className="relative h-[80vh] min-h-[500px] w-full overflow-hidden">
+      <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden">
         {property.hero_image_url && (
           <Image
             src={property.hero_image_url}
@@ -133,30 +151,43 @@ export default async function PropertyPage({ params }: { params: Params }) {
             className="object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/80" />
 
         <div className="relative h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-16 lg:pb-24 text-white">
-          <Link href="/" className="text-xs uppercase tracking-[0.3em] text-white/70 mb-6 hover:text-white transition">
-            ← All residences
-          </Link>
-          <div
-            className="h-0.5 w-16 mb-5"
-            style={{ backgroundColor: accent }}
-          />
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extralight leading-[1.05]">
-            {property.name}
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/85 max-w-2xl font-light">
-            {property.tagline}
-          </p>
-          <p className="mt-2 text-sm text-white/60">
-            {property.address} · {property.city}, {property.country}
-          </p>
+          <Reveal delay={0.1}>
+            <Link
+              href="/"
+              className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition inline-block mb-6"
+            >
+              ← All residences
+            </Link>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <div
+              className="h-0.5 w-16 mb-5"
+              style={{ backgroundColor: accent }}
+            />
+          </Reveal>
+          <Reveal delay={0.3}>
+            <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-extralight leading-[1.05] tracking-tight">
+              {property.name}
+            </h1>
+          </Reveal>
+          <Reveal delay={0.45}>
+            <p className="mt-4 text-lg md:text-xl text-white/85 max-w-2xl font-light">
+              {property.tagline}
+            </p>
+          </Reveal>
+          <Reveal delay={0.55}>
+            <p className="mt-2 text-sm text-white/60">
+              {property.address} · {property.city}, {property.country}
+            </p>
+          </Reveal>
 
           {isComingSoon && (
-            <div className="mt-6">
+            <Reveal delay={0.7}>
               <span
-                className="inline-block text-[11px] tracking-widest uppercase px-4 py-2 rounded-full text-white"
+                className="inline-block mt-6 text-[11px] tracking-widest uppercase px-4 py-2 rounded-full text-white shadow-xl"
                 style={{ backgroundColor: accent }}
               >
                 Coming soon
@@ -164,84 +195,80 @@ export default async function PropertyPage({ params }: { params: Params }) {
                   ? ` · ${formatDate(property.available_from)}`
                   : ""}
               </span>
-            </div>
+            </Reveal>
           )}
         </div>
       </section>
 
       {/* Description */}
       <section className="max-w-5xl mx-auto px-6 lg:px-10 py-20 lg:py-28 grid md:grid-cols-3 gap-10">
-        <div className="md:col-span-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-3">
+        <Reveal className="md:col-span-2">
+          <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
             About this residence
           </p>
           <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-lg whitespace-pre-line">
             {property.description ?? property.short_description}
           </p>
-        </div>
+        </Reveal>
         {unit && !isComingSoon && (
-          <aside className="md:col-span-1">
-            <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 sticky top-6 space-y-3 text-sm">
+          <Reveal delay={0.2} as="div" className="md:col-span-1">
+            <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 sticky top-24 space-y-3 text-sm bg-white/50 dark:bg-neutral-950/50 backdrop-blur">
               <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">
                 From
               </p>
               <p>
-                <span className="text-3xl font-light">{formatEur(unit.base_price_eur)}</span>
+                <span className="text-3xl font-light">
+                  {formatEur(unit.base_price_eur)}
+                </span>
                 <span className="text-neutral-500"> / night</span>
               </p>
               {unit.long_stay_monthly_price_eur && (
                 <p className="text-neutral-600 dark:text-neutral-400">
-                  {formatEur(unit.long_stay_monthly_price_eur)} / month for {unit.min_long_stay_months}+ month stays
+                  {formatEur(unit.long_stay_monthly_price_eur)} / month for{" "}
+                  {unit.min_long_stay_months}+ month stays
                 </p>
               )}
               <ul className="pt-3 space-y-1 text-neutral-600 dark:text-neutral-400">
-                <li>{unit.bedrooms} bedrooms · {unit.bathrooms} baths</li>
+                <li>
+                  {unit.bedrooms} bedrooms · {unit.bathrooms} baths
+                </li>
                 <li>Up to {unit.max_guests} guests</li>
                 {unit.size_m2 && <li>{unit.size_m2} m²</li>}
                 <li>Cleaning fee: {formatEur(unit.cleaning_fee_eur)}</li>
               </ul>
               <a
                 href="#inquire"
-                className="block text-center mt-4 px-5 py-3 rounded-lg text-white text-sm font-medium tracking-wide transition"
+                className="block text-center mt-4 px-5 py-3 rounded-lg text-white text-sm font-medium tracking-wide transition hover:opacity-90"
                 style={{ backgroundColor: accent }}
               >
                 Request to book
               </a>
             </div>
-          </aside>
+          </Reveal>
         )}
       </section>
 
       {/* Photo gallery */}
-      {photos.length > 1 && (
+      {galleryPhotos.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 lg:px-10 pb-20">
-          <div className="grid md:grid-cols-3 gap-3">
-            {photos.slice(1, 7).map((photo) => (
-              <div
-                key={photo.id}
-                className="relative aspect-[4/3] rounded-xl overflow-hidden bg-neutral-200 dark:bg-neutral-900"
-              >
-                <Image
-                  src={photo.url}
-                  alt={photo.alt_text ?? property.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
+          <PhotoGallery
+            photos={galleryPhotos}
+            propertyName={property.name}
+            accent={accent}
+          />
         </section>
       )}
 
       {/* Amenities + property features */}
       <section className="bg-neutral-50 dark:bg-neutral-950 border-y border-neutral-200 dark:border-neutral-900 py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-16">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-3">
+          <Reveal>
+            <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
               Features
             </p>
-            <h2 className="text-3xl font-extralight mb-8">What this residence offers</h2>
+            <h2 className="text-3xl font-extralight mb-8">
+              What this residence offers
+            </h2>
             <ul className="grid grid-cols-2 gap-3 text-sm text-neutral-700 dark:text-neutral-300">
               {amenities.map((row) => {
                 const a = row.amenities;
@@ -257,10 +284,10 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 );
               })}
             </ul>
-          </div>
+          </Reveal>
 
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-3">
+          <Reveal delay={0.15}>
+            <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
               The details
             </p>
             <h2 className="text-3xl font-extralight mb-8">Practical info</h2>
@@ -300,43 +327,50 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 </div>
               )}
             </dl>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Pricing seasons */}
       {seasons.length > 0 && (
         <section className="max-w-5xl mx-auto px-6 lg:px-10 py-20">
-          <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-3">
-            Seasonal rates
-          </p>
-          <h2 className="text-3xl font-extralight mb-8">High season periods</h2>
+          <Reveal>
+            <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
+              Seasonal rates
+            </p>
+            <h2 className="text-3xl font-extralight mb-8">
+              High season periods
+            </h2>
+          </Reveal>
           <ul className="space-y-3">
-            {seasons.map((s) => (
-              <li
-                key={s.id}
-                className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-900 py-3 text-sm"
-              >
-                <div>
-                  <p className="font-medium">{s.name}</p>
-                  <p className="text-neutral-500 text-xs">
-                    {formatDate(s.start_date)} — {formatDate(s.end_date)}
-                  </p>
+            {seasons.map((s, i) => (
+              <Reveal key={s.id} delay={i * 0.05} as="li">
+                <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-900 py-3 text-sm">
+                  <div>
+                    <p className="font-medium">{s.name}</p>
+                    <p className="text-neutral-500 text-xs">
+                      {formatDate(s.start_date)} — {formatDate(s.end_date)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    {s.fixed_price_eur ? (
+                      <span className="font-medium">
+                        {formatEur(s.fixed_price_eur)} / night
+                      </span>
+                    ) : s.price_multiplier && unit ? (
+                      <span className="font-medium">
+                        {formatEur(unit.base_price_eur * Number(s.price_multiplier))} /
+                        night
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="text-right">
-                  {s.fixed_price_eur ? (
-                    <span className="font-medium">{formatEur(s.fixed_price_eur)} / night</span>
-                  ) : s.price_multiplier && unit ? (
-                    <span className="font-medium">
-                      {formatEur(unit.base_price_eur * Number(s.price_multiplier))} / night
-                    </span>
-                  ) : null}
-                </div>
-              </li>
+              </Reveal>
             ))}
           </ul>
           <p className="mt-4 text-xs text-neutral-500">
-            All other dates: {unit ? formatEur(unit.base_price_eur) : "—"} per night.
+            All other dates: {unit ? formatEur(unit.base_price_eur) : "—"} per
+            night.
           </p>
         </section>
       )}
@@ -347,18 +381,22 @@ export default async function PropertyPage({ params }: { params: Params }) {
         className="border-t border-neutral-200 dark:border-neutral-900 py-20 lg:py-28"
       >
         <div className="max-w-3xl mx-auto px-6 lg:px-10">
-          <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-3">
-            Inquire
-          </p>
-          <h2 className="text-3xl md:text-4xl font-extralight mb-4">
-            {isComingSoon ? "Reserve early access" : `Stay at ${property.name}`}
-          </h2>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8">
-            {isComingSoon
-              ? "We'll notify you the moment bookings open."
-              : "Tell us your dates and we'll come back with availability and a personal welcome."}
-          </p>
-          <InquiryForm propertyId={property.id} accent={accent} />
+          <Reveal>
+            <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
+              Inquire
+            </p>
+            <h2 className="text-3xl md:text-4xl font-extralight mb-4 tracking-tight">
+              {isComingSoon ? "Reserve early access" : `Stay at ${property.name}`}
+            </h2>
+            <p className="text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
+              {isComingSoon
+                ? "We'll notify you the moment bookings open."
+                : "Tell us your dates and we'll come back with availability and a personal welcome."}
+            </p>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <InquiryForm propertyId={property.id} accent={accent} />
+          </Reveal>
         </div>
       </section>
 
