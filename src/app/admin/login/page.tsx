@@ -17,7 +17,9 @@ export default async function LoginPage() {
     redirect("/admin");
   }
 
-  // Detect whether any admin exists yet → decide whether to show the bootstrap option.
+  // Detect whether any admin exists yet → only show bootstrap if 0 admins.
+  // After the first admin is created, public sign-up is disabled at the
+  // Supabase level too; new admins are added via /admin/team.
   const { count } = await supabase
     .from("admin_users")
     .select("*", { count: "exact", head: true });
@@ -36,7 +38,9 @@ export default async function LoginPage() {
           </Link>
           <h1 className="mt-6 text-3xl font-extralight">Admin</h1>
           <p className="text-sm text-neutral-500 mt-2">
-            Sign in to manage Haven Residence.
+            {allowSignUp
+              ? "Sign in to manage Haven Residence."
+              : "Sign in with the credentials your admin shared with you."}
           </p>
         </div>
 
