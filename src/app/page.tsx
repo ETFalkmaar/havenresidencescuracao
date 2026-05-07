@@ -5,12 +5,16 @@ import { AnimatedPropertyCard } from "@/components/AnimatedPropertyCard";
 import { InquiryForm } from "@/components/InquiryForm";
 import { HeroVideo } from "@/components/HeroVideo";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
+import { getTranslations, getLocale } from "@/lib/i18n/server";
 import type { Property, SiteSettings, Unit } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const supabase = await createClient();
+  const { lang, t } = await getTranslations();
+  const locale = getLocale(lang);
 
   const [settingsRes, propertiesRes, unitsRes] = await Promise.all([
     supabase.from("site_settings").select("*").eq("id", 1).single(),
@@ -42,13 +46,14 @@ export default async function Home() {
 
   return (
     <>
-      <AnimatedHeader brandName={brandName} />
+      <AnimatedHeader brandName={brandName} lang={lang} t={t.nav} />
 
       <HeroVideo
         videoUrl={heroProperty?.hero_video_url ?? null}
         posterUrl={heroProperty?.hero_image_url ?? null}
         brandName={brandName}
         tagline={brandTagline}
+        t={t.hero}
       />
 
       {/* Residences */}
@@ -59,10 +64,10 @@ export default async function Home() {
       >
         <Reveal className="mb-14 lg:mb-20 max-w-2xl">
           <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-            The collection
+            {t.home.collection}
           </p>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-extralight leading-[1.05] tracking-tight">
-            Each Haven, a different shade of Curaçao.
+            {t.home.collectionTitle}
           </h2>
         </Reveal>
 
@@ -73,6 +78,8 @@ export default async function Home() {
           {properties.map((p) => (
             <StaggerItem key={p.id}>
               <AnimatedPropertyCard
+                t={t.card}
+                locale={locale}
                 property={{
                   slug: p.slug,
                   name: p.name,
@@ -96,7 +103,6 @@ export default async function Home() {
         id="about"
         className="py-28 lg:py-40 bg-neutral-50 dark:bg-neutral-950 border-y border-neutral-200 dark:border-neutral-900 relative overflow-hidden"
       >
-        {/* Subtle decorative gradient orb */}
         <div
           aria-hidden
           className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-20 blur-3xl"
@@ -109,23 +115,18 @@ export default async function Home() {
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-14 lg:gap-24">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              Our story
+              {t.home.ourStory}
             </p>
             <h2 className="text-4xl md:text-5xl font-extralight leading-tight tracking-tight mb-6">
-              Local hospitality, residential calm.
+              {t.home.ourStoryTitle}
             </h2>
           </Reveal>
           <Reveal delay={0.15}>
             <div className="space-y-5 text-neutral-700 dark:text-neutral-300 leading-relaxed text-[17px]">
               <p>
-                {settings?.brand_description ??
-                  "Haven Residence is a small, owner-run collection of stays across Curaçao. Each residence has its own character — from beachfront resort living to leafy island neighborhoods — but all share the same standard: thoughtful interiors, genuine local welcome, and the kind of details that turn a holiday into a return."}
+                {settings?.brand_description ?? t.home.ourStoryFallback}
               </p>
-              <p>
-                We host short escapes and longer winter residencies. Whatever
-                the length, you&apos;re welcomed in person, given the keys to
-                the island, and reachable around the clock if you need us.
-              </p>
+              <p>{t.home.ourStoryParagraph2}</p>
             </div>
           </Reveal>
         </div>
@@ -135,22 +136,21 @@ export default async function Home() {
       <section id="contact" className="py-28 lg:py-40 max-w-4xl mx-auto px-6 lg:px-10">
         <Reveal className="mb-12 text-center">
           <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-            Inquire
+            {t.home.inquire}
           </p>
           <h2 className="text-4xl md:text-5xl font-extralight leading-tight tracking-tight">
-            Plan your stay.
+            {t.home.planYourStay}
           </h2>
           <p className="mt-5 text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-xl mx-auto">
-            Tell us when you&apos;d like to come and which residence speaks to
-            you. We typically reply within 24 hours.
+            {t.home.planSubtext}
           </p>
         </Reveal>
         <Reveal delay={0.2}>
-          <InquiryForm />
+          <InquiryForm t={t.inquiry} />
         </Reveal>
       </section>
 
-      <Footer settings={settings ?? null} />
+      <Footer settings={settings ?? null} t={t.footer} />
     </>
   );
 }

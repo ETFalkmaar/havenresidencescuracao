@@ -3,8 +3,18 @@
 import Link from "next/link";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { useState } from "react";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import type { Lang, Translations } from "@/lib/i18n/translations";
 
-export function AnimatedHeader({ brandName }: { brandName: string }) {
+export function AnimatedHeader({
+  brandName,
+  lang,
+  t,
+}: {
+  brandName: string;
+  lang: Lang;
+  t: Translations["nav"];
+}) {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
 
@@ -23,27 +33,30 @@ export function AnimatedHeader({ brandName }: { brandName: string }) {
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex items-center justify-between gap-6">
         <Link
           href="/"
           className="text-white font-light text-lg tracking-wide hover:opacity-80 transition"
         >
           {brandName}
         </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-white/85">
-          <Link href="/#residences" className="hover:text-white transition relative group">
-            Residences
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
-          </Link>
-          <Link href="/#about" className="hover:text-white transition relative group">
-            About
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
-          </Link>
-          <Link href="/#contact" className="hover:text-white transition relative group">
-            Contact
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
-          </Link>
-        </nav>
+        <div className="flex items-center gap-6 lg:gap-8">
+          <nav className="hidden md:flex items-center gap-7 text-sm text-white/85">
+            <Link href="/#residences" className="hover:text-white transition relative group">
+              {t.residences}
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
+            </Link>
+            <Link href="/#about" className="hover:text-white transition relative group">
+              {t.about}
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
+            </Link>
+            <Link href="/#contact" className="hover:text-white transition relative group">
+              {t.contact}
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
+            </Link>
+          </nav>
+          <LanguageSwitcher current={lang} variant="light" />
+        </div>
       </div>
     </motion.header>
   );

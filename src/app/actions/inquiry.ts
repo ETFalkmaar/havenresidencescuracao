@@ -1,10 +1,14 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "@/lib/i18n/server";
 
 export type InquiryResult = { ok: true } | { ok: false; error: string };
 
 export async function submitInquiry(formData: FormData): Promise<InquiryResult> {
+  const { t } = await getTranslations();
+  const tr = t.inquiry;
+
   const name = (formData.get("name") as string | null)?.trim();
   const email = (formData.get("email") as string | null)?.trim();
   const phone = (formData.get("phone") as string | null)?.trim() || null;
@@ -14,13 +18,13 @@ export async function submitInquiry(formData: FormData): Promise<InquiryResult> 
   const property_id = (formData.get("property_id") as string | null) || null;
 
   if (!name || !email || !message) {
-    return { ok: false, error: "Name, email and message are required." };
+    return { ok: false, error: tr.validationRequired };
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { ok: false, error: "Please enter a valid email address." };
+    return { ok: false, error: tr.validationEmail };
   }
   if (message.length > 5000) {
-    return { ok: false, error: "Message is too long (max 5000 characters)." };
+    return { ok: false, error: tr.validationLong };
   }
 
   try {
@@ -35,11 +39,11 @@ export async function submitInquiry(formData: FormData): Promise<InquiryResult> 
     });
     if (error) {
       console.error("inquiry insert error", error);
-      return { ok: false, error: "Could not submit. Please try again later." };
+      return { ok: false, error: tr.error };
     }
     return { ok: true };
   } catch (err) {
     console.error("submitInquiry exception", err);
-    return { ok: false, error: "Unexpected error. Please try again." };
+    return { ok: false, error: tr.error };
   }
 }

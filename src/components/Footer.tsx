@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Translations } from "@/lib/i18n/translations";
 
 type Settings = {
   brand_name: string;
@@ -9,7 +10,13 @@ type Settings = {
   whatsapp_number: string | null;
 };
 
-export function Footer({ settings }: { settings: Settings | null }) {
+export function Footer({
+  settings,
+  t,
+}: {
+  settings: Settings | null;
+  t: Translations["footer"];
+}) {
   const year = new Date().getFullYear();
 
   return (
@@ -28,22 +35,22 @@ export function Footer({ settings }: { settings: Settings | null }) {
 
         <div>
           <h4 className="text-white text-xs font-semibold uppercase tracking-widest mb-4">
-            Explore
+            {t.explore}
           </h4>
           <ul className="space-y-2 text-sm">
             <li>
               <Link href="/#residences" className="hover:text-white transition">
-                Residences
+                {t.residences}
               </Link>
             </li>
             <li>
               <Link href="/#about" className="hover:text-white transition">
-                About
+                {t.about}
               </Link>
             </li>
             <li>
               <Link href="/#contact" className="hover:text-white transition">
-                Contact
+                {t.contact}
               </Link>
             </li>
           </ul>
@@ -51,7 +58,7 @@ export function Footer({ settings }: { settings: Settings | null }) {
 
         <div>
           <h4 className="text-white text-xs font-semibold uppercase tracking-widest mb-4">
-            Get in touch
+            {t.getInTouch}
           </h4>
           <ul className="space-y-2 text-sm">
             {settings?.contact_email && (
@@ -70,7 +77,7 @@ export function Footer({ settings }: { settings: Settings | null }) {
                   href={`https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`}
                   className="hover:text-white transition"
                 >
-                  WhatsApp
+                  {t.whatsapp}
                 </a>
               </li>
             )}
@@ -102,7 +109,9 @@ export function Footer({ settings }: { settings: Settings | null }) {
 
       <div className="border-t border-neutral-900">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 text-xs text-neutral-500 flex flex-col md:flex-row md:justify-between gap-2">
-          <p>© {year} {settings?.brand_name ?? "Haven Residence"}. All rights reserved.</p>
+          <p>
+            © {year} {settings?.brand_name ?? "Haven Residence"}. {t.allRights}
+          </p>
           <p>Curaçao</p>
         </div>
       </div>

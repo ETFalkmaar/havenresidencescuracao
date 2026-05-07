@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { type ReactNode } from "react";
 import { formatEur } from "@/lib/format";
+import type { Translations } from "@/lib/i18n/translations";
 
 type PropertyCardData = {
   slug: string;
@@ -20,7 +21,6 @@ type PropertyCardData = {
 };
 
 function CardInner({ children }: { children: ReactNode }) {
-  // 3D tilt on mouse move
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [6, -6]), {
@@ -59,10 +59,14 @@ function CardBody({
   property,
   isComingSoon,
   accent,
+  t,
+  locale,
 }: {
   property: PropertyCardData;
   isComingSoon: boolean;
   accent: string;
+  t: Translations["card"];
+  locale: string;
 }) {
   return (
     <div
@@ -88,9 +92,9 @@ function CardBody({
             className="text-[11px] tracking-widest uppercase px-3 py-1.5 rounded-full text-white shadow-lg"
             style={{ backgroundColor: accent }}
           >
-            Coming soon
+            {t.comingSoon}
             {property.available_from
-              ? ` · ${new Date(property.available_from).toLocaleString("en-GB", {
+              ? ` · ${new Date(property.available_from).toLocaleString(locale, {
                   month: "long",
                   year: "numeric",
                 })}`
@@ -116,20 +120,20 @@ function CardBody({
         <div className="flex items-center justify-between">
           {property.from_price_eur !== null && !isComingSoon ? (
             <span className="text-sm">
-              <span className="text-white/55">from </span>
+              <span className="text-white/55">{t.from} </span>
               <span className="font-medium">
-                {formatEur(property.from_price_eur)}
+                {formatEur(property.from_price_eur, locale)}
               </span>
-              <span className="text-white/55"> / night</span>
+              <span className="text-white/55"> {t.perNight}</span>
             </span>
           ) : (
             <span className="text-sm text-white/55">
-              {isComingSoon ? "Pricing announced soon" : ""}
+              {isComingSoon ? t.pricingSoon : ""}
             </span>
           )}
           {!isComingSoon && (
             <span className="text-xs uppercase tracking-[0.25em] opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 transition">
-              Discover →
+              {t.discover} →
             </span>
           )}
         </div>
@@ -140,8 +144,12 @@ function CardBody({
 
 export function AnimatedPropertyCard({
   property,
+  t,
+  locale,
 }: {
   property: PropertyCardData;
+  t: Translations["card"];
+  locale: string;
 }) {
   const isComingSoon = property.status === "coming_soon";
   const accent = property.color_hex ?? "#1E5FBF";
@@ -150,7 +158,13 @@ export function AnimatedPropertyCard({
     return (
       <CardInner>
         <div className="group relative overflow-hidden rounded-2xl bg-neutral-200 dark:bg-neutral-900 cursor-default shadow-xl">
-          <CardBody property={property} isComingSoon accent={accent} />
+          <CardBody
+            property={property}
+            isComingSoon
+            accent={accent}
+            t={t}
+            locale={locale}
+          />
         </div>
       </CardInner>
     );
@@ -162,7 +176,13 @@ export function AnimatedPropertyCard({
         href={`/${property.slug}`}
         className="group block relative overflow-hidden rounded-2xl bg-neutral-200 dark:bg-neutral-900 shadow-xl hover:shadow-2xl transition-shadow duration-500"
       >
-        <CardBody property={property} isComingSoon={false} accent={accent} />
+        <CardBody
+          property={property}
+          isComingSoon={false}
+          accent={accent}
+          t={t}
+          locale={locale}
+        />
       </Link>
     </CardInner>
   );

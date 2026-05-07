@@ -2,13 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { submitInquiry } from "@/app/actions/inquiry";
+import type { Translations } from "@/lib/i18n/translations";
 
 export function InquiryForm({
   propertyId,
   accent = "#111111",
+  t,
 }: {
   propertyId?: string;
   accent?: string;
+  t: Translations["inquiry"];
 }) {
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
@@ -29,7 +32,7 @@ export function InquiryForm({
             (e.target as HTMLFormElement).reset();
           } else {
             setStatus("error");
-            setErrorMsg(result.error ?? "Something went wrong.");
+            setErrorMsg(result.error ?? t.error);
           }
         });
       }}
@@ -38,7 +41,7 @@ export function InquiryForm({
         <input
           name="name"
           required
-          placeholder="Your name"
+          placeholder={t.yourName}
           className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-1 transition"
           style={{ ["--tw-ring-color" as string]: accent }}
         />
@@ -46,7 +49,7 @@ export function InquiryForm({
           name="email"
           type="email"
           required
-          placeholder="Email"
+          placeholder={t.email}
           className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-1"
           style={{ ["--tw-ring-color" as string]: accent }}
         />
@@ -54,13 +57,13 @@ export function InquiryForm({
       <div className="grid sm:grid-cols-2 gap-4">
         <input
           name="phone"
-          placeholder="Phone (optional)"
+          placeholder={t.phoneOptional}
           className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-1"
           style={{ ["--tw-ring-color" as string]: accent }}
         />
         <input
           name="preferred_dates"
-          placeholder="Preferred dates (optional)"
+          placeholder={t.preferredDates}
           className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-1"
           style={{ ["--tw-ring-color" as string]: accent }}
         />
@@ -69,7 +72,7 @@ export function InquiryForm({
         name="message"
         required
         rows={4}
-        placeholder="Tell us about your stay…"
+        placeholder={t.tellUs}
         className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-1 resize-y"
         style={{ ["--tw-ring-color" as string]: accent }}
       />
@@ -81,17 +84,17 @@ export function InquiryForm({
           className="px-6 py-3 rounded-lg text-white text-sm font-medium tracking-wide transition disabled:opacity-50"
           style={{ backgroundColor: accent }}
         >
-          {pending ? "Sending…" : "Send inquiry"}
+          {pending ? t.sending : t.send}
         </button>
 
         {status === "ok" && (
           <span className="text-sm text-emerald-600 dark:text-emerald-400">
-            Thank you — we&apos;ll be in touch within 24 hours.
+            {t.success}
           </span>
         )}
         {status === "error" && (
           <span className="text-sm text-red-600 dark:text-red-400">
-            {errorMsg ?? "Could not send. Please try again."}
+            {errorMsg ?? t.error}
           </span>
         )}
       </div>

@@ -3,17 +3,20 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
+import type { Translations } from "@/lib/i18n/translations";
 
 export function HeroVideo({
   videoUrl,
   posterUrl,
   brandName,
   tagline,
+  t,
 }: {
   videoUrl: string | null;
   posterUrl: string | null;
   brandName: string;
   tagline: string | null;
+  t: Translations["hero"];
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -21,7 +24,6 @@ export function HeroVideo({
     offset: ["start start", "end start"],
   });
 
-  // Parallax: video moves slower than scroll, text drifts up & fades
   const yMedia = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const yText = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
   const opacityText = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
@@ -71,7 +73,7 @@ export function HeroVideo({
           transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="text-xs lg:text-sm uppercase tracking-[0.4em] text-white/85 mb-5"
         >
-          Curaçao · since 2026
+          {t.since}
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 24 }}
@@ -101,25 +103,24 @@ export function HeroVideo({
             href="#residences"
             className="group inline-flex items-center gap-2 px-7 py-3.5 bg-white text-neutral-900 rounded-full text-sm font-medium tracking-wide hover:bg-white/95 transition shadow-2xl"
           >
-            Explore residences
+            {t.explore}
             <span className="transition-transform group-hover:translate-x-0.5">→</span>
           </a>
           <a
             href="#contact"
             className="px-7 py-3.5 border border-white/40 backdrop-blur-sm rounded-full text-sm font-medium tracking-wide hover:bg-white/10 transition"
           >
-            Get in touch
+            {t.getInTouch}
           </a>
         </motion.div>
 
-        {/* Scroll cue */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4, duration: 0.6 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-white/60 text-[10px] tracking-[0.3em] uppercase"
         >
-          <span>Scroll</span>
+          <span>{t.scroll}</span>
           <motion.span
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}

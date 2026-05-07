@@ -9,6 +9,8 @@ import { InquiryForm } from "@/components/InquiryForm";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { Reveal } from "@/components/Reveal";
 import { formatEur, formatDate } from "@/lib/format";
+import { getTranslations, getLocale } from "@/lib/i18n/server";
+import { fmt } from "@/lib/i18n/translations";
 import type {
   Property,
   Unit,
@@ -18,7 +20,7 @@ import type {
   SiteSettings,
 } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
@@ -53,19 +55,6 @@ export async function generateMetadata({
   };
 }
 
-const parkingLabel: Record<string, string> = {
-  private: "Private parking inside gated grounds",
-  public: "Public street parking",
-  street: "Street parking",
-  none: "No parking",
-};
-
-const utilitiesLabel: Record<string, string> = {
-  included: "Utilities included",
-  metered: "Metered — settled at end of stay",
-  prepaid_card: "Prepaid utility cards",
-};
-
 type AmenityRow = {
   amenity_id: string;
   amenities: Pick<Amenity, "name" | "slug" | "category"> | null;
@@ -74,6 +63,8 @@ type AmenityRow = {
 export default async function PropertyPage({ params }: { params: Params }) {
   const { slug } = await params;
   const supabase = await createClient();
+  const { lang, t } = await getTranslations();
+  const locale = getLocale(lang);
 
   const propertyRes = await supabase
     .from("properties")
@@ -128,6 +119,20 @@ export default async function PropertyPage({ params }: { params: Params }) {
 
   const accent = property.color_hex ?? "#1E5FBF";
   const isComingSoon = property.status === "coming_soon";
+  const td = t.detail;
+
+  const parkingLabel: Record<string, string> = {
+    private: td.parkingPrivate,
+    public: td.parkingPublic,
+    street: td.parkingStreet,
+    none: td.parkingNone,
+  };
+
+  const utilitiesLabel: Record<string, string> = {
+    included: td.utilitiesIncluded,
+    metered: td.utilitiesMetered,
+    prepaid_card: td.utilitiesPrepaid,
+  };
 
   const galleryPhotos = photos.slice(1).map((p) => ({
     id: p.id,
@@ -137,7 +142,11 @@ export default async function PropertyPage({ params }: { params: Params }) {
 
   return (
     <>
-      <AnimatedHeader brandName={settings?.brand_name ?? "Haven Residence"} />
+      <AnimatedHeader
+        brandName={settings?.brand_name ?? "Haven Residence"}
+        lang={lang}
+        t={t.nav}
+      />
 
       {/* Hero */}
       <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden">
@@ -159,7 +168,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
               href="/"
               className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition inline-block mb-6"
             >
-              ← All residences
+              ← {td.allResidences}
             </Link>
           </Reveal>
           <Reveal delay={0.2}>
@@ -190,9 +199,9 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 className="inline-block mt-6 text-[11px] tracking-widest uppercase px-4 py-2 rounded-full text-white shadow-xl"
                 style={{ backgroundColor: accent }}
               >
-                Coming soon
+                {td.comingSoon}
                 {property.available_from
-                  ? ` · ${formatDate(property.available_from)}`
+                  ? ` · ${formatDate(property.available_from, locale)}`
                   : ""}
               </span>
             </Reveal>
@@ -204,7 +213,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
       <section className="max-w-5xl mx-auto px-6 lg:px-10 py-20 lg:py-28 grid md:grid-cols-3 gap-10">
         <Reveal className="md:col-span-2">
           <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-            About this residence
+            {td.aboutResidence}
           </p>
           <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-lg whitespace-pre-line">
             {property.description ?? property.short_description}
@@ -214,34 +223,36 @@ export default async function PropertyPage({ params }: { params: Params }) {
           <Reveal delay={0.2} as="div" className="md:col-span-1">
             <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 sticky top-24 space-y-3 text-sm bg-white/50 dark:bg-neutral-950/50 backdrop-blur">
               <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">
-                From
+                {td.from}
               </p>
               <p>
                 <span className="text-3xl font-light">
-                  {formatEur(unit.base_price_eur)}
+                  {formatEur(unit.base_price_eur, locale)}
                 </span>
-                <span className="text-neutral-500"> / night</span>
+                <span className="text-neutral-500"> {td.perNight}</span>
               </p>
               {unit.long_stay_monthly_price_eur && (
                 <p className="text-neutral-600 dark:text-neutral-400">
-                  {formatEur(unit.long_stay_monthly_price_eur)} / month for{" "}
-                  {unit.min_long_stay_months}+ month stays
+                  {formatEur(unit.long_stay_monthly_price_eur, locale)}{" "}
+                  {td.perMonth} {fmt(td.forLongStays, { n: unit.min_long_stay_months })}
                 </p>
               )}
               <ul className="pt-3 space-y-1 text-neutral-600 dark:text-neutral-400">
                 <li>
-                  {unit.bedrooms} bedrooms · {unit.bathrooms} baths
+                  {unit.bedrooms} {td.bedrooms} · {unit.bathrooms} {td.bathrooms}
                 </li>
-                <li>Up to {unit.max_guests} guests</li>
+                <li>{fmt(td.upToGuests, { n: unit.max_guests })}</li>
                 {unit.size_m2 && <li>{unit.size_m2} m²</li>}
-                <li>Cleaning fee: {formatEur(unit.cleaning_fee_eur)}</li>
+                <li>
+                  {td.cleaningFee} {formatEur(unit.cleaning_fee_eur, locale)}
+                </li>
               </ul>
               <a
                 href="#inquire"
                 className="block text-center mt-4 px-5 py-3 rounded-lg text-white text-sm font-medium tracking-wide transition hover:opacity-90"
                 style={{ backgroundColor: accent }}
               >
-                Request to book
+                {td.requestToBook}
               </a>
             </div>
           </Reveal>
@@ -264,10 +275,10 @@ export default async function PropertyPage({ params }: { params: Params }) {
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-16">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              Features
+              {td.features}
             </p>
             <h2 className="text-3xl font-extralight mb-8">
-              What this residence offers
+              {td.whatThisOffers}
             </h2>
             <ul className="grid grid-cols-2 gap-3 text-sm text-neutral-700 dark:text-neutral-300">
               {amenities.map((row) => {
@@ -288,26 +299,28 @@ export default async function PropertyPage({ params }: { params: Params }) {
 
           <Reveal delay={0.15}>
             <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              The details
+              {td.details}
             </p>
-            <h2 className="text-3xl font-extralight mb-8">Practical info</h2>
+            <h2 className="text-3xl font-extralight mb-8">{td.practicalInfo}</h2>
             <dl className="space-y-5 text-sm">
               <div className="flex justify-between gap-6 border-b border-neutral-200 dark:border-neutral-900 pb-4">
-                <dt className="text-neutral-500">Parking</dt>
+                <dt className="text-neutral-500">{td.parking}</dt>
                 <dd className="text-right">{parkingLabel[property.parking]}</dd>
               </div>
               <div className="flex justify-between gap-6 border-b border-neutral-200 dark:border-neutral-900 pb-4">
-                <dt className="text-neutral-500">Gated property</dt>
-                <dd className="text-right">{property.is_gated ? "Yes" : "No"}</dd>
-              </div>
-              <div className="flex justify-between gap-6 border-b border-neutral-200 dark:border-neutral-900 pb-4">
-                <dt className="text-neutral-500">Pets</dt>
+                <dt className="text-neutral-500">{td.gatedProperty}</dt>
                 <dd className="text-right">
-                  {property.pets_allowed ? "Allowed" : "Not allowed"}
+                  {property.is_gated ? td.yes : td.no}
                 </dd>
               </div>
               <div className="flex justify-between gap-6 border-b border-neutral-200 dark:border-neutral-900 pb-4">
-                <dt className="text-neutral-500">Utilities</dt>
+                <dt className="text-neutral-500">{td.pets}</dt>
+                <dd className="text-right">
+                  {property.pets_allowed ? td.allowed : td.notAllowed}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-6 border-b border-neutral-200 dark:border-neutral-900 pb-4">
+                <dt className="text-neutral-500">{td.utilities}</dt>
                 <dd className="text-right">
                   {utilitiesLabel[property.utilities]}
                   {property.utilities_notes && (
@@ -319,10 +332,10 @@ export default async function PropertyPage({ params }: { params: Params }) {
               </div>
               {unit && (
                 <div className="flex justify-between gap-6 border-b border-neutral-200 dark:border-neutral-900 pb-4">
-                  <dt className="text-neutral-500">Minimum stay</dt>
+                  <dt className="text-neutral-500">{td.minStay}</dt>
                   <dd className="text-right">
-                    {unit.min_short_stay_nights} nights (short) ·{" "}
-                    {unit.min_long_stay_months} months (long)
+                    {unit.min_short_stay_nights} {td.nightsShort} ·{" "}
+                    {unit.min_long_stay_months} {td.monthsLong}
                   </dd>
                 </div>
               )}
@@ -336,10 +349,10 @@ export default async function PropertyPage({ params }: { params: Params }) {
         <section className="max-w-5xl mx-auto px-6 lg:px-10 py-20">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              Seasonal rates
+              {td.seasonalRates}
             </p>
             <h2 className="text-3xl font-extralight mb-8">
-              High season periods
+              {td.highSeasonPeriods}
             </h2>
           </Reveal>
           <ul className="space-y-3">
@@ -349,18 +362,22 @@ export default async function PropertyPage({ params }: { params: Params }) {
                   <div>
                     <p className="font-medium">{s.name}</p>
                     <p className="text-neutral-500 text-xs">
-                      {formatDate(s.start_date)} — {formatDate(s.end_date)}
+                      {formatDate(s.start_date, locale)} —{" "}
+                      {formatDate(s.end_date, locale)}
                     </p>
                   </div>
                   <div className="text-right">
                     {s.fixed_price_eur ? (
                       <span className="font-medium">
-                        {formatEur(s.fixed_price_eur)} / night
+                        {formatEur(s.fixed_price_eur, locale)} {td.perNight}
                       </span>
                     ) : s.price_multiplier && unit ? (
                       <span className="font-medium">
-                        {formatEur(unit.base_price_eur * Number(s.price_multiplier))} /
-                        night
+                        {formatEur(
+                          unit.base_price_eur * Number(s.price_multiplier),
+                          locale,
+                        )}{" "}
+                        {td.perNight}
                       </span>
                     ) : null}
                   </div>
@@ -369,8 +386,9 @@ export default async function PropertyPage({ params }: { params: Params }) {
             ))}
           </ul>
           <p className="mt-4 text-xs text-neutral-500">
-            All other dates: {unit ? formatEur(unit.base_price_eur) : "—"} per
-            night.
+            {fmt(td.otherDates, {
+              price: unit ? formatEur(unit.base_price_eur, locale) : "—",
+            })}
           </p>
         </section>
       )}
@@ -383,24 +401,28 @@ export default async function PropertyPage({ params }: { params: Params }) {
         <div className="max-w-3xl mx-auto px-6 lg:px-10">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              Inquire
+              {t.home.inquire}
             </p>
             <h2 className="text-3xl md:text-4xl font-extralight mb-4 tracking-tight">
-              {isComingSoon ? "Reserve early access" : `Stay at ${property.name}`}
+              {isComingSoon
+                ? td.reserveEarlyAccess
+                : fmt(td.stayAt, { name: property.name })}
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
-              {isComingSoon
-                ? "We'll notify you the moment bookings open."
-                : "Tell us your dates and we'll come back with availability and a personal welcome."}
+              {isComingSoon ? td.reserveSubtext : td.staySubtext}
             </p>
           </Reveal>
           <Reveal delay={0.2}>
-            <InquiryForm propertyId={property.id} accent={accent} />
+            <InquiryForm
+              propertyId={property.id}
+              accent={accent}
+              t={t.inquiry}
+            />
           </Reveal>
         </div>
       </section>
 
-      <Footer settings={settings ?? null} />
+      <Footer settings={settings ?? null} t={t.footer} />
     </>
   );
 }
