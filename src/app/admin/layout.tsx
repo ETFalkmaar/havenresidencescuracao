@@ -38,8 +38,17 @@ export default async function AdminLayout({
     const { data, error } = await supabase.rpc("bootstrap_first_admin");
     const result = data as { ok: boolean; error?: string } | null;
     if (!error && result?.ok) {
+      // Re-read the row so we use the actual password_set the RPC inserted
+      // (defaults to false → forces a password change for users who came in
+      // via a temp password set in the Supabase dashboard).
+      const { data: refetched } = await supabase
+        .from("admin_users")
+        .select("password_set")
+        .eq("user_id", user.id)
+        .maybeSingle();
       isAdmin = true;
-      passwordSet = true; // Bootstrapping owner already chose their password during signup
+      passwordSet =
+        (refetched as { password_set: boolean } | null)?.password_set ?? false;
     }
   }
 
