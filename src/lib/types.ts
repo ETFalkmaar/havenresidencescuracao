@@ -23,6 +23,7 @@ export type Property = {
   utilities: UtilitiesSystem;
   utilities_notes: string | null;
   hero_image_url: string | null;
+  hero_video_url: string | null;
   available_from: string | null;
   position: number;
   created_at: string;
