@@ -27,38 +27,45 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refresh session if expired and validate the user against the auth server.
-  // If the user has been deleted in Supabase, getUser() returns null even if
-  // the cookie still holds an old JWT.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
-  // Gate /admin/* routes
+  // ===== Admin gate =====
   if (pathname.startsWith("/admin")) {
     const isLogin = pathname === "/admin/login";
-    const isApi = pathname.startsWith("/admin/api/");
-
-    if (!user && !isLogin && !isApi) {
-      // Anonymous trying to access protected admin → bounce to login.
-      // Also ACTIVELY clear any stale cookies so a deleted user can't reuse them.
+    if (!user && !isLogin) {
       const loginUrl = new URL("/admin/login", request.url);
       const redirect = NextResponse.redirect(loginUrl);
-
-      // Forward the cookie clears that updateSession may have queued (e.g. when
-      // getUser invalidates a stale JWT).
       for (const c of response.cookies.getAll()) {
         redirect.cookies.set(c.name, c.value, c);
       }
       return redirect;
     }
-
     if (user && isLogin) {
-      // Already signed in: send them to the dashboard.
       return NextResponse.redirect(new URL("/admin", request.url));
     }
+  }
+
+  // ===== Account gate =====
+  if (pathname.startsWith("/account")) {
+    if (!user) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
+      const redirect = NextResponse.redirect(loginUrl);
+      for (const c of response.cookies.getAll()) {
+        redirect.cookies.set(c.name, c.value, c);
+      }
+      return redirect;
+    }
+  }
+
+  // ===== Public auth pages: bounce signed-in users =====
+  if ((pathname === "/login" || pathname === "/signup") && user) {
+    const next = request.nextUrl.searchParams.get("next") || "/account";
+    return NextResponse.redirect(new URL(next, request.url));
   }
 
   return response;

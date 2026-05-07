@@ -10,10 +10,12 @@ export function AnimatedHeader({
   brandName,
   lang,
   t,
+  signedIn = false,
 }: {
   brandName: string;
   lang: Lang;
   t: Translations["nav"];
+  signedIn?: boolean;
 }) {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
@@ -40,7 +42,7 @@ export function AnimatedHeader({
         >
           {brandName}
         </Link>
-        <div className="flex items-center gap-6 lg:gap-8">
+        <div className="flex items-center gap-5 lg:gap-8">
           <nav className="hidden md:flex items-center gap-7 text-sm text-white/85">
             <Link href="/#residences" className="hover:text-white transition relative group">
               {t.residences}
@@ -55,6 +57,23 @@ export function AnimatedHeader({
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
             </Link>
           </nav>
+
+          {signedIn ? (
+            <Link
+              href="/account"
+              className="text-xs uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/40 text-white/85 hover:bg-white/10 hover:text-white transition"
+            >
+              Account
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="text-xs uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/40 text-white/85 hover:bg-white/10 hover:text-white transition"
+            >
+              Sign in
+            </Link>
+          )}
+
           <LanguageSwitcher current={lang} variant="light" />
         </div>
       </div>

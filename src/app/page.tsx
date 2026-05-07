@@ -16,6 +16,10 @@ export default async function Home() {
   const { lang, t } = await getTranslations();
   const locale = getLocale(lang);
 
+  const {
+    data: { user: signedInUser },
+  } = await supabase.auth.getUser();
+
   const [settingsRes, propertiesRes, unitsRes] = await Promise.all([
     supabase.from("site_settings").select("*").eq("id", 1).single(),
     supabase.from("properties").select("*").order("position", { ascending: true }),
@@ -46,7 +50,12 @@ export default async function Home() {
 
   return (
     <>
-      <AnimatedHeader brandName={brandName} lang={lang} t={t.nav} />
+      <AnimatedHeader
+        brandName={brandName}
+        lang={lang}
+        t={t.nav}
+        signedIn={Boolean(signedInUser)}
+      />
 
       <HeroVideo
         videoUrl={heroProperty?.hero_video_url ?? null}

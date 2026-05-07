@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AnimatedHeader } from "@/components/AnimatedHeader";
 import { Footer } from "@/components/Footer";
 import { InquiryForm } from "@/components/InquiryForm";
+import { BookingForm } from "@/components/BookingForm";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { Reveal } from "@/components/Reveal";
 import { formatEur, formatDate } from "@/lib/format";
@@ -60,11 +61,17 @@ type AmenityRow = {
   amenities: Pick<Amenity, "name" | "slug" | "category"> | null;
 };
 
+type BlockedRange = { check_in: string; check_out: string };
+
 export default async function PropertyPage({ params }: { params: Params }) {
   const { slug } = await params;
   const supabase = await createClient();
   const { lang, t } = await getTranslations();
   const locale = getLocale(lang);
+
+  const {
+    data: { user: signedInUser },
+  } = await supabase.auth.getUser();
 
   const propertyRes = await supabase
     .from("properties")
@@ -98,7 +105,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
 
   const unit = units[0];
 
-  const [amenitiesRes, seasonsRes] = await Promise.all([
+  const [amenitiesRes, seasonsRes, blockedRes, profileRes] = await Promise.all([
     unit
       ? supabase
           .from("unit_amenities")
@@ -112,10 +119,24 @@ export default async function PropertyPage({ params }: { params: Params }) {
           .eq("unit_id", unit.id)
           .order("start_date")
       : Promise.resolve({ data: [] as PricingSeason[] }),
+    unit
+      ? supabase.rpc("unit_blocked_ranges", { p_unit_id: unit.id })
+      : Promise.resolve({ data: [] as BlockedRange[] }),
+    signedInUser
+      ? supabase
+          .from("profiles")
+          .select("full_name, phone")
+          .eq("user_id", signedInUser.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   const amenities = (amenitiesRes.data ?? []) as AmenityRow[];
   const seasons = (seasonsRes.data ?? []) as PricingSeason[];
+  const blocked = (blockedRes.data ?? []) as BlockedRange[];
+  const profile = (profileRes.data ?? null) as
+    | { full_name: string | null; phone: string | null }
+    | null;
 
   const accent = property.color_hex ?? "#1E5FBF";
   const isComingSoon = property.status === "coming_soon";
@@ -140,12 +161,15 @@ export default async function PropertyPage({ params }: { params: Params }) {
     alt_text: p.alt_text,
   }));
 
+  const canBook = !isComingSoon && unit !== undefined;
+
   return (
     <>
       <AnimatedHeader
         brandName={settings?.brand_name ?? "Haven Residence"}
         lang={lang}
         t={t.nav}
+        signedIn={Boolean(signedInUser)}
       />
 
       {/* Hero */}
@@ -248,7 +272,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 </li>
               </ul>
               <a
-                href="#inquire"
+                href="#book"
                 className="block text-center mt-4 px-5 py-3 rounded-lg text-white text-sm font-medium tracking-wide transition hover:opacity-90"
                 style={{ backgroundColor: accent }}
               >
@@ -393,15 +417,15 @@ export default async function PropertyPage({ params }: { params: Params }) {
         </section>
       )}
 
-      {/* Inquiry */}
+      {/* Booking or inquiry */}
       <section
-        id="inquire"
+        id="book"
         className="border-t border-neutral-200 dark:border-neutral-900 py-20 lg:py-28"
       >
         <div className="max-w-3xl mx-auto px-6 lg:px-10">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              {t.home.inquire}
+              {canBook ? "Book online" : t.home.inquire}
             </p>
             <h2 className="text-3xl md:text-4xl font-extralight mb-4 tracking-tight">
               {isComingSoon
@@ -409,15 +433,54 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 : fmt(td.stayAt, { name: property.name })}
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
-              {isComingSoon ? td.reserveSubtext : td.staySubtext}
+              {isComingSoon
+                ? td.reserveSubtext
+                : "Pick your dates, see the price including any high-season uplift, and confirm — we'll get back within 24 hours with arrival details."}
             </p>
           </Reveal>
           <Reveal delay={0.2}>
-            <InquiryForm
-              propertyId={property.id}
-              accent={accent}
-              t={t.inquiry}
-            />
+            {canBook && unit ? (
+              <BookingForm
+                unit={{
+                  id: unit.id,
+                  base_price_eur: Number(unit.base_price_eur),
+                  cleaning_fee_eur: Number(unit.cleaning_fee_eur),
+                  long_stay_monthly_price_eur:
+                    unit.long_stay_monthly_price_eur === null
+                      ? null
+                      : Number(unit.long_stay_monthly_price_eur),
+                  min_long_stay_months: unit.min_long_stay_months,
+                  max_guests: unit.max_guests,
+                }}
+                seasons={seasons.map((s) => ({
+                  start_date: s.start_date,
+                  end_date: s.end_date,
+                  price_multiplier:
+                    s.price_multiplier === null ? null : Number(s.price_multiplier),
+                  fixed_price_eur:
+                    s.fixed_price_eur === null ? null : Number(s.fixed_price_eur),
+                }))}
+                blocked={blocked}
+                signedInUser={
+                  signedInUser
+                    ? {
+                        email: signedInUser.email!,
+                        fullName: profile?.full_name ?? null,
+                        phone: profile?.phone ?? null,
+                      }
+                    : null
+                }
+                accent={accent}
+                propertySlug={property.slug}
+                locale={locale}
+              />
+            ) : (
+              <InquiryForm
+                propertyId={property.id}
+                accent={accent}
+                t={t.inquiry}
+              />
+            )}
           </Reveal>
         </div>
       </section>
