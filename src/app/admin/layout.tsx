@@ -88,10 +88,16 @@ export default async function AdminLayout({
                 Dashboard
               </Link>
               <Link href="/admin/properties" className="hover:text-neutral-900 dark:hover:text-neutral-100">
-                Properties
+                Residences
+              </Link>
+              <Link href="/admin/units" className="hover:text-neutral-900 dark:hover:text-neutral-100">
+                Units
               </Link>
               <Link href="/admin/inquiries" className="hover:text-neutral-900 dark:hover:text-neutral-100">
                 Inquiries
+              </Link>
+              <Link href="/admin/bookings" className="hover:text-neutral-900 dark:hover:text-neutral-100">
+                Bookings
               </Link>
               <Link href="/admin/settings" className="hover:text-neutral-900 dark:hover:text-neutral-100">
                 Settings

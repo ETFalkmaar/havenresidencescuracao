@@ -23,8 +23,8 @@ export default async function AdminDashboard() {
     ]);
 
   const stats = [
-    { label: "Properties", value: propertiesRes.count ?? 0, href: "/admin/properties" },
-    { label: "Units", value: unitsRes.count ?? 0, href: "/admin/properties" },
+    { label: "Residences", value: propertiesRes.count ?? 0, href: "/admin/properties" },
+    { label: "Units", value: unitsRes.count ?? 0, href: "/admin/units" },
     { label: "New inquiries", value: inquiriesRes.count ?? 0, href: "/admin/inquiries" },
     { label: "Bookings", value: bookingsRes.count ?? 0, href: "/admin/bookings" },
   ];
