@@ -7,6 +7,11 @@ const nextConfig = {
       { protocol: "https", hostname: "pcdojiarpptcgeoddfeg.supabase.co" },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "12mb",
+    },
+  },
 };
 
 export default nextConfig;
