@@ -1,10 +1,35 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
+  const { lang } = await getTranslations();
+  const tr = lang === "nl"
+    ? {
+        title: "Overzicht",
+        welcome: "Welkom terug. Hier is een snapshot van Haven Residence.",
+        residences: "Residenties",
+        units: "Units",
+        newInquiries: "Nieuwe aanvragen",
+        bookings: "Boekingen",
+        recentInquiries: "Recente aanvragen",
+        viewAll: "Bekijk alles →",
+        noInquiries: "Nog geen aanvragen. Ze verschijnen hier zodra gasten het formulier invullen.",
+      }
+    : {
+        title: "Dashboard",
+        welcome: "Welcome back. Here's a snapshot of Haven Residence.",
+        residences: "Residences",
+        units: "Units",
+        newInquiries: "New inquiries",
+        bookings: "Bookings",
+        recentInquiries: "Recent inquiries",
+        viewAll: "View all →",
+        noInquiries: "No inquiries yet. They'll appear here as guests submit the form.",
+      };
 
   const [propertiesRes, unitsRes, inquiriesRes, bookingsRes, recentInquiriesRes] =
     await Promise.all([
@@ -23,10 +48,10 @@ export default async function AdminDashboard() {
     ]);
 
   const stats = [
-    { label: "Residences", value: propertiesRes.count ?? 0, href: "/admin/properties" },
-    { label: "Units", value: unitsRes.count ?? 0, href: "/admin/units" },
-    { label: "New inquiries", value: inquiriesRes.count ?? 0, href: "/admin/inquiries" },
-    { label: "Bookings", value: bookingsRes.count ?? 0, href: "/admin/bookings" },
+    { label: tr.residences, value: propertiesRes.count ?? 0, href: "/admin/properties" },
+    { label: tr.units, value: unitsRes.count ?? 0, href: "/admin/units" },
+    { label: tr.newInquiries, value: inquiriesRes.count ?? 0, href: "/admin/inquiries" },
+    { label: tr.bookings, value: bookingsRes.count ?? 0, href: "/admin/bookings" },
   ];
 
   type InquiryRow = {
@@ -41,10 +66,8 @@ export default async function AdminDashboard() {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
-      <h1 className="text-3xl font-extralight mb-2">Dashboard</h1>
-      <p className="text-sm text-neutral-500 mb-10">
-        Welcome back. Here&apos;s a snapshot of Haven Residence.
-      </p>
+      <h1 className="text-3xl font-extralight mb-2">{tr.title}</h1>
+      <p className="text-sm text-neutral-500 mb-10">{tr.welcome}</p>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         {stats.map((s) => (
@@ -63,17 +86,17 @@ export default async function AdminDashboard() {
 
       <section className="rounded-xl border border-neutral-200 dark:border-neutral-900 bg-white dark:bg-neutral-950 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium">Recent inquiries</h2>
+          <h2 className="text-lg font-medium">{tr.recentInquiries}</h2>
           <Link
             href="/admin/inquiries"
             className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
           >
-            View all →
+            {tr.viewAll}
           </Link>
         </div>
         {recent.length === 0 ? (
           <p className="text-sm text-neutral-500 py-8 text-center">
-            No inquiries yet. They&apos;ll appear here as guests submit the form.
+            {tr.noInquiries}
           </p>
         ) : (
           <ul className="divide-y divide-neutral-200 dark:divide-neutral-900">
