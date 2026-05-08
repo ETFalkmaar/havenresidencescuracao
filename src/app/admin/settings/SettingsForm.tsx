@@ -6,7 +6,9 @@ import { updateSiteSettings } from "./actions";
 type Settings = {
   brand_name: string;
   brand_tagline: string | null;
+  brand_tagline_nl: string | null;
   brand_description: string | null;
+  brand_description_nl: string | null;
   contact_email: string | null;
   whatsapp_number: string | null;
   emergency_phone: string | null;
@@ -103,19 +105,36 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           defaultValue={settings.brand_name}
           required
         />
-        <Field
-          name="brand_tagline"
-          label="Tagline"
-          defaultValue={settings.brand_tagline}
-          placeholder="Premium stays on the island of Curaçao"
-        />
-        <Field
-          name="brand_description"
-          label="Short description"
-          defaultValue={settings.brand_description}
-          textarea
-          hint="Shown in the about section on the homepage."
-        />
+        <div className="grid sm:grid-cols-2 gap-5">
+          <Field
+            name="brand_tagline"
+            label="Tagline (EN)"
+            defaultValue={settings.brand_tagline}
+            placeholder="Premium stays on the island of Curaçao"
+          />
+          <Field
+            name="brand_tagline_nl"
+            label="Tagline (NL)"
+            defaultValue={settings.brand_tagline_nl}
+            placeholder="Premium verblijven op het eiland Curaçao"
+          />
+        </div>
+        <div className="grid sm:grid-cols-2 gap-5">
+          <Field
+            name="brand_description"
+            label="Short description (EN)"
+            defaultValue={settings.brand_description}
+            textarea
+            hint="Shown in the about section on the homepage."
+          />
+          <Field
+            name="brand_description_nl"
+            label="Short description (NL)"
+            defaultValue={settings.brand_description_nl}
+            textarea
+            hint="Getoond in de over-sectie op de homepage."
+          />
+        </div>
       </section>
 
       <section className="space-y-5">

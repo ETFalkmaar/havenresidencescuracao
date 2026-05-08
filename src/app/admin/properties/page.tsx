@@ -1,15 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "@/lib/i18n/server";
 import type { Property } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-const statusLabels: Record<Property["status"], string> = {
-  active: "Active",
-  coming_soon: "Coming soon",
-  draft: "Draft",
-  archived: "Archived",
+const statusLabelsByLang: Record<"en" | "nl", Record<Property["status"], string>> = {
+  en: {
+    active: "Active",
+    coming_soon: "Coming soon",
+    draft: "Draft",
+    archived: "Archived",
+  },
+  nl: {
+    active: "Actief",
+    coming_soon: "Binnenkort",
+    draft: "Concept",
+    archived: "Gearchiveerd",
+  },
 };
 
 const statusStyles: Record<Property["status"], string> = {
@@ -21,6 +30,24 @@ const statusStyles: Record<Property["status"], string> = {
 
 export default async function PropertiesListPage() {
   const supabase = await createClient();
+  const { lang } = await getTranslations();
+  const tr = lang === "nl"
+    ? {
+        title: "Residenties",
+        subtitle:
+          "Beheer je Haven Residenties — foto's, prijzen, beschrijvingen en beschikbaarheid.",
+        addResidence: "+ Residentie toevoegen",
+        empty: "Nog geen residenties.",
+      }
+    : {
+        title: "Residences",
+        subtitle:
+          "Manage your Haven Residences — photos, prices, descriptions, and availability.",
+        addResidence: "+ Add residence",
+        empty: "No residences yet.",
+      };
+  const statusLabels = statusLabelsByLang[lang];
+
   const { data } = await supabase
     .from("properties")
     .select("*")
@@ -32,23 +59,20 @@ export default async function PropertiesListPage() {
     <main className="max-w-7xl mx-auto px-6 py-12">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-extralight">Residences</h1>
-          <p className="text-sm text-neutral-500 mt-1">
-            Manage your Haven Residences — photos, prices, descriptions, and
-            availability.
-          </p>
+          <h1 className="text-3xl font-extralight">{tr.title}</h1>
+          <p className="text-sm text-neutral-500 mt-1">{tr.subtitle}</p>
         </div>
         <Link
           href="/admin/properties/new"
           className="px-5 py-2.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition"
         >
-          + Add residence
+          {tr.addResidence}
         </Link>
       </div>
 
       {properties.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-12 text-center">
-          <p className="text-neutral-500">No residences yet.</p>
+          <p className="text-neutral-500">{tr.empty}</p>
         </div>
       ) : (
         <ul className="grid sm:grid-cols-2 gap-6">

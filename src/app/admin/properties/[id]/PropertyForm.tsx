@@ -62,35 +62,68 @@ export function PropertyForm({ property }: { property: Property }) {
           </label>
         </div>
 
-        <label>
-          <Label>Tagline</Label>
-          <input
-            name="tagline"
-            defaultValue={property.tagline ?? ""}
-            placeholder="Beachfront living on Blue Bay"
-            className={inputCls}
-          />
-        </label>
+        <div className="grid sm:grid-cols-2 gap-5">
+          <label>
+            <Label>Tagline (EN)</Label>
+            <input
+              name="tagline"
+              defaultValue={property.tagline ?? ""}
+              placeholder="Beachfront living on Blue Bay"
+              className={inputCls}
+            />
+          </label>
+          <label>
+            <Label>Tagline (NL)</Label>
+            <input
+              name="tagline_nl"
+              defaultValue={property.tagline_nl ?? ""}
+              placeholder="Strandverblijf aan de Blue Bay"
+              className={inputCls}
+            />
+          </label>
+        </div>
 
-        <label>
-          <Label>Short description</Label>
-          <textarea
-            name="short_description"
-            defaultValue={property.short_description ?? ""}
-            rows={2}
-            className={inputCls}
-          />
-        </label>
+        <div className="grid sm:grid-cols-2 gap-5">
+          <label>
+            <Label>Short description (EN)</Label>
+            <textarea
+              name="short_description"
+              defaultValue={property.short_description ?? ""}
+              rows={2}
+              className={inputCls}
+            />
+          </label>
+          <label>
+            <Label>Short description (NL)</Label>
+            <textarea
+              name="short_description_nl"
+              defaultValue={property.short_description_nl ?? ""}
+              rows={2}
+              className={inputCls}
+            />
+          </label>
+        </div>
 
-        <label>
-          <Label>Long description</Label>
-          <textarea
-            name="description"
-            defaultValue={property.description ?? ""}
-            rows={6}
-            className={inputCls}
-          />
-        </label>
+        <div className="grid sm:grid-cols-2 gap-5">
+          <label>
+            <Label>Long description (EN)</Label>
+            <textarea
+              name="description"
+              defaultValue={property.description ?? ""}
+              rows={6}
+              className={inputCls}
+            />
+          </label>
+          <label>
+            <Label>Long description (NL)</Label>
+            <textarea
+              name="description_nl"
+              defaultValue={property.description_nl ?? ""}
+              rows={6}
+              className={inputCls}
+            />
+          </label>
+        </div>
       </section>
 
       <section className="space-y-5">

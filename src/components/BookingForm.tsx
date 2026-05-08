@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { calculatePrice, type StayType, type Season, type UnitForPricing } from "@/lib/pricing";
 import { formatEur } from "@/lib/format";
 import { createBooking } from "@/app/actions/bookings";
+import { fmt, type Translations } from "@/lib/i18n/translations";
 
 type Unit = UnitForPricing & {
   id: string;
@@ -30,6 +31,7 @@ export function BookingForm({
   accent,
   propertySlug,
   locale,
+  t,
 }: {
   unit: Unit;
   seasons: Season[];
@@ -38,6 +40,7 @@ export function BookingForm({
   accent: string;
   propertySlug: string;
   locale: string;
+  t: Translations["booking"];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -103,15 +106,15 @@ export function BookingForm({
       return;
     }
     if (!range?.from || !range?.to) {
-      setError("Pick check-in and check-out dates.");
+      setError(t.pickDatesError);
       return;
     }
     if (!name.trim()) {
-      setError("Please enter the name for the booking.");
+      setError(t.nameRequired);
       return;
     }
     if (guests < 1 || guests > unit.max_guests) {
-      setError(`Guests must be between 1 and ${unit.max_guests}.`);
+      setError(fmt(t.guestsRange, { n: unit.max_guests }));
       return;
     }
     startTransition(async () => {
@@ -149,16 +152,18 @@ export function BookingForm({
         style={{ borderColor: accent }}
       >
         <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
-          Booking received
+          {t.bookingReceived}
         </p>
-        <h3 className="text-2xl font-light">Thank you{name ? `, ${name.split(" ")[0]}` : ""}.</h3>
+        <h3 className="text-2xl font-light">
+          {t.thankYou}
+          {name ? `, ${name.split(" ")[0]}` : ""}.
+        </h3>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-md mx-auto">
-          Your reservation reference is{" "}
+          {t.referenceLine1}{" "}
           <span className="font-mono font-medium">{confirmation.reference}</span>
-          . We&apos;ve recorded the request and a host will confirm by email
-          within 24 hours. You can check status under{" "}
+          . {t.referenceLine2}{" "}
           <Link href="/account" className="underline">
-            My stays
+            {t.myStays}
           </Link>
           .
         </p>
@@ -172,7 +177,7 @@ export function BookingForm({
 
       <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-5 space-y-5">
         <p className="text-xs uppercase tracking-widest text-neutral-500">
-          Pick your dates
+          {t.pickDates}
         </p>
         <DayPicker
           mode="range"
@@ -188,7 +193,7 @@ export function BookingForm({
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4 space-y-3">
           <label className="block text-xs uppercase tracking-widest text-neutral-500">
-            Guests
+            {t.guests}
           </label>
           <input
             type="number"
@@ -198,22 +203,24 @@ export function BookingForm({
             onChange={(e) => setGuests(Math.max(1, parseInt(e.target.value) || 1))}
             className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
           />
-          <p className="text-xs text-neutral-500">Max {unit.max_guests}</p>
+          <p className="text-xs text-neutral-500">
+            {t.max} {unit.max_guests}
+          </p>
         </div>
 
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4 space-y-3">
           <label className="block text-xs uppercase tracking-widest text-neutral-500">
-            Stay type
+            {t.stayType}
           </label>
           <select
             value={stayPref}
             onChange={(e) => setStayPref(e.target.value as "auto" | "short" | "long")}
             className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
           >
-            <option value="auto">Auto (best fit)</option>
-            <option value="short">Short stay (per night)</option>
+            <option value="auto">{t.stayAuto}</option>
+            <option value="short">{t.stayShort}</option>
             <option value="long">
-              Long stay ({unit.min_long_stay_months}+ months)
+              {fmt(t.stayLong, { n: unit.min_long_stay_months })}
             </option>
           </select>
         </div>
@@ -222,33 +229,38 @@ export function BookingForm({
       {breakdown && (
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-5 space-y-3">
           <p className="text-xs uppercase tracking-widest text-neutral-500">
-            Price breakdown
+            {t.priceBreakdown}
           </p>
           <ul className="text-sm space-y-1.5 text-neutral-700 dark:text-neutral-300">
             {breakdown.stay_type === "long" ? (
               <li className="flex justify-between">
                 <span>
-                  {breakdown.months} months ×{" "}
-                  {formatEur(breakdown.per_month ?? 0, locale)}
+                  {fmt(t.months, {
+                    n: breakdown.months,
+                    price: formatEur(breakdown.per_month ?? 0, locale),
+                  })}
                 </span>
                 <span>{formatEur(breakdown.subtotal, locale)}</span>
               </li>
             ) : (
               <li className="flex justify-between">
                 <span>
-                  {breakdown.nights} night{breakdown.nights === 1 ? "" : "s"}{" "}
-                  (avg {formatEur(breakdown.per_night, locale)})
+                  {fmt(t.nightAvg, {
+                    n: breakdown.nights,
+                    plural: breakdown.nights === 1 ? "" : locale === "nl-NL" ? "en" : "s",
+                    price: formatEur(breakdown.per_night, locale),
+                  })}
                 </span>
                 <span>{formatEur(breakdown.subtotal, locale)}</span>
               </li>
             )}
             <li className="flex justify-between text-neutral-500">
-              <span>Cleaning fee</span>
+              <span>{t.cleaningFee}</span>
               <span>{formatEur(breakdown.cleaning_fee, locale)}</span>
             </li>
           </ul>
           <div className="pt-3 border-t border-neutral-200 dark:border-neutral-900 flex justify-between text-sm font-medium">
-            <span>Total</span>
+            <span>{t.total}</span>
             <span>{formatEur(breakdown.total, locale)}</span>
           </div>
         </div>
@@ -256,17 +268,17 @@ export function BookingForm({
 
       <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-5 space-y-4">
         <p className="text-xs uppercase tracking-widest text-neutral-500">
-          Booking details
+          {t.bookingDetails}
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <input
-            placeholder="Your name"
+            placeholder={t.yourName}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
           />
           <input
-            placeholder="Phone (optional)"
+            placeholder={t.phoneOptional}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
@@ -274,7 +286,7 @@ export function BookingForm({
         </div>
         <textarea
           rows={3}
-          placeholder="Anything we should know? (optional)"
+          placeholder={t.notesPlaceholder}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 resize-y"
@@ -294,15 +306,13 @@ export function BookingForm({
           style={{ backgroundColor: accent }}
         >
           {pending
-            ? "Booking…"
+            ? t.booking
             : signedInUser
-              ? "Confirm booking"
-              : "Sign in to book"}
+              ? t.confirmBooking
+              : t.signInToBook}
         </button>
         {!signedInUser && (
-          <p className="text-xs text-neutral-500">
-            You&apos;ll be sent to sign in, then back here to confirm.
-          </p>
+          <p className="text-xs text-neutral-500">{t.signInHint}</p>
         )}
       </div>
     </div>

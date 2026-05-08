@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatEur, formatDate } from "@/lib/format";
+import { getTranslations } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,37 @@ const statusStyles: Record<BookingRow["status"], string> = {
 
 export default async function BookingsListPage() {
   const supabase = await createClient();
+  const { lang } = await getTranslations();
+  const tr = lang === "nl"
+    ? {
+        title: "Boekingen",
+        subtitle: "Reserveringgeschiedenis en lopende aanvragen.",
+        empty: "Nog geen boekingen",
+        emptyBody:
+          "De volledige self-service-boekingsflow met online betalen volgt in de volgende fase (Stripe-integratie, vereist je Stripe-abonnement). Tot die tijd accepteer je boekingen handmatig via het aanvraagformulier op de publieke site — elke aanvraag verschijnt onder",
+        emptyBodyEnd: ".",
+        inquiriesLabel: "Aanvragen",
+        guest: "gast",
+        guests: "gasten",
+        shortStay: "kort",
+        longStay: "lang",
+        total: "totaal",
+      }
+    : {
+        title: "Bookings",
+        subtitle: "Reservation history and pending requests.",
+        empty: "No bookings yet",
+        emptyBody:
+          "The full self-service booking flow with online payment will be wired in the next phase (Stripe integration, requires the Stripe subscription on your end). Until then, accept bookings manually via the inquiry form on the public site — every inquiry shows up in",
+        emptyBodyEnd: ".",
+        inquiriesLabel: "Inquiries",
+        guest: "guest",
+        guests: "guests",
+        shortStay: "short",
+        longStay: "long",
+        total: "total",
+      };
+
   const { data } = await supabase
     .from("bookings")
     .select("*")
@@ -38,21 +70,17 @@ export default async function BookingsListPage() {
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-extralight">Bookings</h1>
-        <p className="text-sm text-neutral-500 mt-1">
-          Reservation history and pending requests.
-        </p>
+        <h1 className="text-3xl font-extralight">{tr.title}</h1>
+        <p className="text-sm text-neutral-500 mt-1">{tr.subtitle}</p>
       </div>
 
       {bookings.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-10 text-center space-y-3">
-          <p className="text-base font-medium">No bookings yet</p>
+          <p className="text-base font-medium">{tr.empty}</p>
           <p className="text-sm text-neutral-500 max-w-md mx-auto leading-relaxed">
-            The full self-service booking flow with online payment will be
-            wired in the next phase (Stripe integration, requires the Stripe
-            subscription on your end). Until then, accept bookings manually
-            via the inquiry form on the public site — every inquiry shows up
-            in <span className="font-medium">Inquiries</span>.
+            {tr.emptyBody}{" "}
+            <span className="font-medium">{tr.inquiriesLabel}</span>
+            {tr.emptyBodyEnd}
           </p>
         </div>
       ) : (
@@ -76,7 +104,9 @@ export default async function BookingsListPage() {
                   </div>
                   <p className="text-xs text-neutral-500 mt-1">
                     {formatDate(b.check_in)} — {formatDate(b.check_out)} ·{" "}
-                    {b.num_guests} guest{b.num_guests === 1 ? "" : "s"} · {b.stay_type} stay
+                    {b.num_guests}{" "}
+                    {b.num_guests === 1 ? tr.guest : tr.guests} ·{" "}
+                    {b.stay_type === "short" ? tr.shortStay : tr.longStay}
                   </p>
                   <p className="text-xs text-neutral-500 mt-0.5">
                     {b.guest_email}
@@ -85,7 +115,7 @@ export default async function BookingsListPage() {
                 </div>
                 <div className="text-right whitespace-nowrap">
                   <p className="font-medium">{formatEur(b.total_eur)}</p>
-                  <p className="text-xs text-neutral-500">total</p>
+                  <p className="text-xs text-neutral-500">{tr.total}</p>
                 </div>
               </div>
             </li>

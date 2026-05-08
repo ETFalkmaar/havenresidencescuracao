@@ -65,7 +65,9 @@ export async function updateSiteSettings(formData: FormData): Promise<ActionResu
   const payload = {
     brand_name,
     brand_tagline: trimOrNull(formData.get("brand_tagline")),
+    brand_tagline_nl: trimOrNull(formData.get("brand_tagline_nl")),
     brand_description: trimOrNull(formData.get("brand_description")),
+    brand_description_nl: trimOrNull(formData.get("brand_description_nl")),
     contact_email: trimOrNull(formData.get("contact_email")),
     whatsapp_number: trimOrNull(formData.get("whatsapp_number")),
     emergency_phone: trimOrNull(formData.get("emergency_phone")),

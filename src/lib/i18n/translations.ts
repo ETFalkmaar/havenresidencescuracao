@@ -102,6 +102,38 @@ export type Translations = {
     validationEmail: string;
     validationLong: string;
   };
+  booking: {
+    bookOnline: string;
+    bookSubtext: string;
+    pickDates: string;
+    guests: string;
+    max: string;
+    stayType: string;
+    stayAuto: string;
+    stayShort: string;
+    stayLong: string;
+    priceBreakdown: string;
+    nightAvg: string;
+    months: string;
+    cleaningFee: string;
+    total: string;
+    bookingDetails: string;
+    yourName: string;
+    phoneOptional: string;
+    notesPlaceholder: string;
+    confirmBooking: string;
+    booking: string;
+    signInToBook: string;
+    signInHint: string;
+    pickDatesError: string;
+    nameRequired: string;
+    guestsRange: string;
+    bookingReceived: string;
+    thankYou: string;
+    referenceLine1: string;
+    referenceLine2: string;
+    myStays: string;
+  };
   footer: {
     explore: string;
     residences: string;
@@ -242,6 +274,40 @@ export const translations: Record<Lang, Translations> = {
       validationRequired: "Name, email and message are required.",
       validationEmail: "Please enter a valid email address.",
       validationLong: "Message is too long (max 5000 characters).",
+    },
+    booking: {
+      bookOnline: "Book online",
+      bookSubtext:
+        "Pick your dates, see the price including any high-season uplift, and confirm — we'll get back within 24 hours with arrival details.",
+      pickDates: "Pick your dates",
+      guests: "Guests",
+      max: "Max",
+      stayType: "Stay type",
+      stayAuto: "Auto (best fit)",
+      stayShort: "Short stay (per night)",
+      stayLong: "Long stay ({n}+ months)",
+      priceBreakdown: "Price breakdown",
+      nightAvg: "{n} night{plural} (avg {price})",
+      months: "{n} months × {price}",
+      cleaningFee: "Cleaning fee",
+      total: "Total",
+      bookingDetails: "Booking details",
+      yourName: "Your name",
+      phoneOptional: "Phone (optional)",
+      notesPlaceholder: "Anything we should know? (optional)",
+      confirmBooking: "Confirm booking",
+      booking: "Booking…",
+      signInToBook: "Sign in to book",
+      signInHint: "You'll be sent to sign in, then back here to confirm.",
+      pickDatesError: "Pick check-in and check-out dates.",
+      nameRequired: "Please enter the name for the booking.",
+      guestsRange: "Guests must be between 1 and {n}.",
+      bookingReceived: "Booking received",
+      thankYou: "Thank you",
+      referenceLine1: "Your reservation reference is",
+      referenceLine2:
+        "We've recorded the request and a host will confirm by email within 24 hours. You can check status under",
+      myStays: "My stays",
     },
     footer: {
       explore: "Explore",
@@ -387,6 +453,40 @@ export const translations: Record<Lang, Translations> = {
       validationRequired: "Naam, e-mail en bericht zijn verplicht.",
       validationEmail: "Voer een geldig e-mailadres in.",
       validationLong: "Bericht is te lang (max 5000 tekens).",
+    },
+    booking: {
+      bookOnline: "Online boeken",
+      bookSubtext:
+        "Kies je data, bekijk de prijs inclusief eventuele hoogseizoentoeslag en bevestig — we komen binnen 24 uur terug met de aankomstdetails.",
+      pickDates: "Kies je data",
+      guests: "Gasten",
+      max: "Max",
+      stayType: "Verblijfstype",
+      stayAuto: "Automatisch (best passend)",
+      stayShort: "Korte verblijf (per nacht)",
+      stayLong: "Lang verblijf ({n}+ maanden)",
+      priceBreakdown: "Prijsoverzicht",
+      nightAvg: "{n} nacht{plural} (gemiddeld {price})",
+      months: "{n} maanden × {price}",
+      cleaningFee: "Schoonmaakkosten",
+      total: "Totaal",
+      bookingDetails: "Boekingsgegevens",
+      yourName: "Je naam",
+      phoneOptional: "Telefoon (optioneel)",
+      notesPlaceholder: "Iets dat we moeten weten? (optioneel)",
+      confirmBooking: "Bevestig boeking",
+      booking: "Bezig met boeken…",
+      signInToBook: "Log in om te boeken",
+      signInHint: "Je gaat eerst naar inloggen, dan terug hierheen om te bevestigen.",
+      pickDatesError: "Kies een aankomst- en vertrekdatum.",
+      nameRequired: "Vul de naam voor de boeking in.",
+      guestsRange: "Gasten moet tussen 1 en {n} liggen.",
+      bookingReceived: "Boeking ontvangen",
+      thankYou: "Bedankt",
+      referenceLine1: "Je boekingsreferentie is",
+      referenceLine2:
+        "We hebben de aanvraag genoteerd en de host bevestigt binnen 24 uur per e-mail. Je kunt de status volgen onder",
+      myStays: "Mijn verblijven",
     },
     footer: {
       explore: "Verkennen",

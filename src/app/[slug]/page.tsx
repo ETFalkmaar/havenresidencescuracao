@@ -12,13 +12,14 @@ import { Reveal } from "@/components/Reveal";
 import { formatEur, formatDate } from "@/lib/format";
 import { getTranslations, getLocale } from "@/lib/i18n/server";
 import { fmt } from "@/lib/i18n/translations";
-import type {
-  Property,
-  Unit,
-  Photo,
-  Amenity,
-  PricingSeason,
-  SiteSettings,
+import {
+  localized,
+  type Property,
+  type Unit,
+  type Photo,
+  type Amenity,
+  type PricingSeason,
+  type SiteSettings,
 } from "@/lib/types";
 
 export const revalidate = 0;
@@ -35,22 +36,33 @@ export async function generateMetadata({
   const supabase = await createClient();
   const { data } = await supabase
     .from("properties")
-    .select("name, tagline, short_description, hero_image_url")
+    .select(
+      "name, tagline, tagline_nl, short_description, short_description_nl, hero_image_url",
+    )
     .eq("slug", slug)
     .maybeSingle();
 
   const property = data as Pick<
     Property,
-    "name" | "tagline" | "short_description" | "hero_image_url"
+    | "name"
+    | "tagline"
+    | "tagline_nl"
+    | "short_description"
+    | "short_description_nl"
+    | "hero_image_url"
   > | null;
   if (!property) return { title: "Not found" };
 
+  // Metadata is rendered for both languages — pick best-available text.
+  const tagline = property.tagline ?? property.tagline_nl;
+  const shortDesc = property.short_description ?? property.short_description_nl;
+
   return {
     title: property.name,
-    description: property.tagline ?? property.short_description ?? undefined,
+    description: tagline ?? shortDesc ?? undefined,
     openGraph: {
       title: property.name,
-      description: property.tagline ?? property.short_description ?? undefined,
+      description: tagline ?? shortDesc ?? undefined,
       images: property.hero_image_url ? [property.hero_image_url] : undefined,
     },
   };
@@ -208,7 +220,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
           </Reveal>
           <Reveal delay={0.45}>
             <p className="mt-4 text-lg md:text-xl text-white/85 max-w-2xl font-light">
-              {property.tagline}
+              {localized(property.tagline, property.tagline_nl, lang)}
             </p>
           </Reveal>
           <Reveal delay={0.55}>
@@ -240,7 +252,12 @@ export default async function PropertyPage({ params }: { params: Params }) {
             {td.aboutResidence}
           </p>
           <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-lg whitespace-pre-line">
-            {property.description ?? property.short_description}
+            {localized(property.description, property.description_nl, lang) ??
+              localized(
+                property.short_description,
+                property.short_description_nl,
+                lang,
+              )}
           </p>
         </Reveal>
         {unit && !isComingSoon && (
@@ -425,7 +442,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
         <div className="max-w-3xl mx-auto px-6 lg:px-10">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              {canBook ? "Book online" : t.home.inquire}
+              {canBook ? t.booking.bookOnline : t.home.inquire}
             </p>
             <h2 className="text-3xl md:text-4xl font-extralight mb-4 tracking-tight">
               {isComingSoon
@@ -433,9 +450,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 : fmt(td.stayAt, { name: property.name })}
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
-              {isComingSoon
-                ? td.reserveSubtext
-                : "Pick your dates, see the price including any high-season uplift, and confirm — we'll get back within 24 hours with arrival details."}
+              {isComingSoon ? td.reserveSubtext : t.booking.bookSubtext}
             </p>
           </Reveal>
           <Reveal delay={0.2}>
@@ -473,6 +488,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 accent={accent}
                 propertySlug={property.slug}
                 locale={locale}
+                t={t.booking}
               />
             ) : (
               <InquiryForm

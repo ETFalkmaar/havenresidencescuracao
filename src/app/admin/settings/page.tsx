@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "@/lib/i18n/server";
 import { SettingsForm } from "./SettingsForm";
 import { AirbnbConnectCard } from "./AirbnbConnectCard";
 
@@ -7,7 +8,9 @@ export const dynamic = "force-dynamic";
 type Settings = {
   brand_name: string;
   brand_tagline: string | null;
+  brand_tagline_nl: string | null;
   brand_description: string | null;
+  brand_description_nl: string | null;
   contact_email: string | null;
   whatsapp_number: string | null;
   emergency_phone: string | null;
@@ -27,6 +30,17 @@ type UnitWithProperty = {
 
 export default async function SettingsPage() {
   const supabase = await createClient();
+  const { lang } = await getTranslations();
+  const tr = lang === "nl"
+    ? {
+        title: "Instellingen",
+        subtitle: "Merkinformatie, contactgegevens, sociale links en integraties.",
+      }
+    : {
+        title: "Settings",
+        subtitle: "Brand info, contact details, social links, and integrations.",
+      };
+
   const [settingsRes, unitsRes] = await Promise.all([
     supabase.from("site_settings").select("*").eq("id", 1).single(),
     supabase
@@ -38,7 +52,9 @@ export default async function SettingsPage() {
   const settings = (settingsRes.data ?? {
     brand_name: "Haven Residence",
     brand_tagline: null,
+    brand_tagline_nl: null,
     brand_description: null,
+    brand_description_nl: null,
     contact_email: null,
     whatsapp_number: null,
     emergency_phone: null,
@@ -65,10 +81,8 @@ export default async function SettingsPage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-12 space-y-12">
       <header>
-        <h1 className="text-3xl font-extralight">Settings</h1>
-        <p className="text-sm text-neutral-500 mt-1">
-          Brand info, contact details, social links, and integrations.
-        </p>
+        <h1 className="text-3xl font-extralight">{tr.title}</h1>
+        <p className="text-sm text-neutral-500 mt-1">{tr.subtitle}</p>
       </header>
 
       <AirbnbConnectCard units={units} />
