@@ -44,6 +44,11 @@ export function Footer({
               </Link>
             </li>
             <li>
+              <Link href="/beheer" className="hover:text-white transition">
+                Beheer
+              </Link>
+            </li>
+            <li>
               <Link href="/#about" className="hover:text-white transition">
                 {t.about}
               </Link>

@@ -1,7 +1,31 @@
 export type Lang = "en" | "nl";
 
 export type Translations = {
-  nav: { residences: string; about: string; contact: string };
+  nav: { residences: string; about: string; contact: string; management: string };
+  management: {
+    eyebrow: string;
+    title: string;
+    intro1: string;
+    intro2: string;
+    servicesTitle: string;
+    services: string[];
+    personalTitle: string;
+    personalBody: string;
+    returnsTitle: string;
+    returnsBody: string;
+    interestedTitle: string;
+    interestedBody: string;
+    formTitle: string;
+    formNamePlaceholder: string;
+    formEmailPlaceholder: string;
+    formPhonePlaceholder: string;
+    formAddressPlaceholder: string;
+    formMessagePlaceholder: string;
+    formSubmit: string;
+    formSubmitting: string;
+    formSuccess: string;
+    formError: string;
+  };
   hero: { since: string; explore: string; getInTouch: string; scroll: string };
   home: {
     collection: string;
@@ -96,6 +120,43 @@ export const translations: Record<Lang, Translations> = {
       residences: "Residences",
       about: "About",
       contact: "Contact",
+      management: "Management",
+    },
+    management: {
+      eyebrow: "Property management",
+      title: "Have your home on Curaçao managed without a worry.",
+      intro1:
+        "Do you own a vacation home, apartment or villa on Curaçao and are you looking for someone to handle the management — professionally and personally? You're in the right place.",
+      intro2:
+        "We take the full management of your home off your hands so you have nothing to worry about — bookings, guests, cleaning or maintenance. Whether you live on Curaçao or in the Netherlands, we keep your home cared for, profitable and welcoming.",
+      servicesTitle: "What we take care of",
+      services: [
+        "Booking management and guest contact",
+        "Check-ins and check-outs",
+        "Professional cleaning",
+        "Inspection and maintenance of the property",
+        "Quick communication for any questions or issues",
+        "Optimal presentation of your home for rental",
+      ],
+      personalTitle: "A personal approach",
+      personalBody:
+        "Not a one-size-fits-all service, but real attention to your home as if it were our own place. We believe in clear communication, reliability and a pleasant experience for both owner and guest.",
+      returnsTitle: "More peace and more return",
+      returnsBody:
+        "Professional management means more than peace of mind — you'll often see better reviews and a higher return on your home as well.",
+      interestedTitle: "Interested?",
+      interestedBody:
+        "Curious what we could mean for your home on Curaçao? Get in touch for an obligation-free conversation.",
+      formTitle: "Tell us about your home",
+      formNamePlaceholder: "Your name",
+      formEmailPlaceholder: "Email",
+      formPhonePlaceholder: "Phone (optional)",
+      formAddressPlaceholder: "Property address or area on Curaçao",
+      formMessagePlaceholder: "Tell us about your home and what you're looking for…",
+      formSubmit: "Send inquiry",
+      formSubmitting: "Sending…",
+      formSuccess: "Thank you — we'll be in touch within 24 hours.",
+      formError: "Could not send. Please try again.",
     },
     hero: {
       since: "Curaçao · since 2026",
@@ -204,6 +265,43 @@ export const translations: Record<Lang, Translations> = {
       residences: "Residenties",
       about: "Over ons",
       contact: "Contact",
+      management: "Beheer",
+    },
+    management: {
+      eyebrow: "Beheer",
+      title: "Laat jouw woning op Curaçao zorgeloos beheren.",
+      intro1:
+        "Heb jij een vakantiewoning, appartement of villa op Curaçao en zoek je iemand die het beheer professioneel én persoonlijk oppakt? Dan ben je bij ons aan het juiste adres.",
+      intro2:
+        "Wij nemen het volledige beheer van jouw woning uit handen, zodat jij geen omkijken hebt naar boekingen, gasten, schoonmaak of onderhoud. Of je nu op Curaçao woont of in Nederland — wij zorgen dat jouw woning verzorgd, winstgevend en gastvrij blijft.",
+      servicesTitle: "Wat wij voor je regelen",
+      services: [
+        "Beheer van boekingen en gastencontact",
+        "Check-ins en check-outs",
+        "Professionele schoonmaak",
+        "Controle en onderhoud van de woning",
+        "Snelle communicatie bij vragen of problemen",
+        "Optimale presentatie van jouw woning voor verhuur",
+      ],
+      personalTitle: "Persoonlijke aanpak",
+      personalBody:
+        "Geen standaard service, maar aandacht voor jouw woning alsof het onze eigen plek is. We geloven in duidelijke communicatie, betrouwbaarheid en een prettige ervaring voor zowel eigenaar als gast.",
+      returnsTitle: "Meer rust én rendement",
+      returnsBody:
+        "Met professioneel beheer haal je niet alleen meer rust uit het verhuren van jouw woning, maar vaak ook betere beoordelingen en een hoger rendement.",
+      interestedTitle: "Interesse?",
+      interestedBody:
+        "Benieuwd wat wij voor jouw woning op Curaçao kunnen betekenen? Neem vrijblijvend contact met ons op voor een kennismaking.",
+      formTitle: "Vertel ons over je woning",
+      formNamePlaceholder: "Je naam",
+      formEmailPlaceholder: "E-mail",
+      formPhonePlaceholder: "Telefoon (optioneel)",
+      formAddressPlaceholder: "Adres of wijk van de woning op Curaçao",
+      formMessagePlaceholder: "Vertel ons over je woning en wat je zoekt…",
+      formSubmit: "Verstuur aanvraag",
+      formSubmitting: "Versturen…",
+      formSuccess: "Bedankt — we nemen binnen 24 uur contact op.",
+      formError: "Versturen mislukt. Probeer het opnieuw.",
     },
     hero: {
       since: "Curaçao · sinds 2026",

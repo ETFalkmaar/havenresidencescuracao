@@ -48,6 +48,10 @@ export function AnimatedHeader({
               {t.residences}
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
             </Link>
+            <Link href="/beheer" className="hover:text-white transition relative group">
+              {t.management}
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
+            </Link>
             <Link href="/#about" className="hover:text-white transition relative group">
               {t.about}
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
