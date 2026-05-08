@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "./SettingsForm";
+import { AirbnbConnectCard } from "./AirbnbConnectCard";
 
 export const dynamic = "force-dynamic";
 
@@ -16,15 +17,25 @@ type Settings = {
   trustpilot_url: string | null;
 };
 
+type UnitWithProperty = {
+  id: string;
+  name: string;
+  airbnb_ical_url: string | null;
+  property_id: string;
+  properties: { name: string } | { name: string }[] | null;
+};
+
 export default async function SettingsPage() {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("site_settings")
-    .select("*")
-    .eq("id", 1)
-    .single();
+  const [settingsRes, unitsRes] = await Promise.all([
+    supabase.from("site_settings").select("*").eq("id", 1).single(),
+    supabase
+      .from("units")
+      .select("id, name, airbnb_ical_url, property_id, properties(name)")
+      .order("created_at", { ascending: true }),
+  ]);
 
-  const settings = (data ?? {
+  const settings = (settingsRes.data ?? {
     brand_name: "Haven Residence",
     brand_tagline: null,
     brand_description: null,
@@ -37,12 +48,30 @@ export default async function SettingsPage() {
     trustpilot_url: null,
   }) as Settings;
 
+  const units = ((unitsRes.data ?? []) as UnitWithProperty[]).map((u) => {
+    // Supabase typings sometimes hand back a single object, sometimes an
+    // array, depending on relationship hints. Normalise to a string.
+    const propName = Array.isArray(u.properties)
+      ? u.properties[0]?.name
+      : u.properties?.name;
+    return {
+      id: u.id,
+      name: u.name,
+      airbnb_ical_url: u.airbnb_ical_url,
+      property_name: propName ?? "",
+    };
+  });
+
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
-      <h1 className="text-3xl font-extralight">Settings</h1>
-      <p className="text-sm text-neutral-500 mt-1 mb-10">
-        Brand info, contact details, and social links shown across the site.
-      </p>
+    <main className="max-w-3xl mx-auto px-6 py-12 space-y-12">
+      <header>
+        <h1 className="text-3xl font-extralight">Settings</h1>
+        <p className="text-sm text-neutral-500 mt-1">
+          Brand info, contact details, social links, and integrations.
+        </p>
+      </header>
+
+      <AirbnbConnectCard units={units} />
 
       <SettingsForm settings={settings} />
     </main>
