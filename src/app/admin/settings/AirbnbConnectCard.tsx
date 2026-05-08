@@ -9,6 +9,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { setUnitAirbnbIcal } from "./actions";
 
 type UnitRow = {
@@ -71,6 +72,22 @@ export function AirbnbConnectCard({ units }: { units: UnitRow[] }) {
             }
           />
         ))}
+
+        {/* Catch-all CTA for spinning up a brand new residence — its unit
+            will appear in this list automatically and gets its own Airbnb
+            connect wizard. */}
+        <Link
+          href="/admin/properties/new"
+          className="flex items-center justify-center gap-2 w-full p-4 rounded-lg border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-400 dark:hover:border-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition"
+        >
+          <span
+            aria-hidden
+            className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-base font-light leading-none"
+          >
+            +
+          </span>
+          <span>Add another residence</span>
+        </Link>
       </div>
 
       <p className="text-xs text-neutral-500">
