@@ -6,7 +6,7 @@ import { InquiryForm } from "@/components/InquiryForm";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getTranslations, getLocale } from "@/lib/i18n/server";
-import type { Property, SiteSettings, Unit } from "@/lib/types";
+import { localized, type Property, type SiteSettings, type Unit } from "@/lib/types";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
@@ -64,7 +64,16 @@ export default async function Home() {
   }
 
   const brandName = settings?.brand_name ?? "Haven Residence";
-  const brandTagline = settings?.brand_tagline ?? null;
+  const brandTagline = localized(
+    settings?.brand_tagline ?? null,
+    settings?.brand_tagline_nl ?? null,
+    lang,
+  );
+  const brandDescription = localized(
+    settings?.brand_description ?? null,
+    settings?.brand_description_nl ?? null,
+    lang,
+  );
 
   return (
     <>
@@ -109,8 +118,12 @@ export default async function Home() {
                 property={{
                   slug: p.slug,
                   name: p.name,
-                  tagline: p.tagline,
-                  short_description: p.short_description,
+                  tagline: localized(p.tagline, p.tagline_nl, lang),
+                  short_description: localized(
+                    p.short_description,
+                    p.short_description_nl,
+                    lang,
+                  ),
                   city: p.city,
                   status: p.status,
                   color_hex: p.color_hex,
@@ -149,9 +162,7 @@ export default async function Home() {
           </Reveal>
           <Reveal delay={0.15}>
             <div className="space-y-5 text-neutral-700 dark:text-neutral-300 leading-relaxed text-[17px]">
-              <p>
-                {settings?.brand_description ?? t.home.ourStoryFallback}
-              </p>
+              <p>{brandDescription ?? t.home.ourStoryFallback}</p>
               <p>{t.home.ourStoryParagraph2}</p>
             </div>
           </Reveal>

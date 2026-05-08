@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "@/lib/i18n/server";
 import { StatusBadge } from "./StatusBadge";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,28 @@ export default async function InquiriesListPage({
 }) {
   const { status: statusFilter = "all" } = await searchParams;
   const supabase = await createClient();
+  const { lang } = await getTranslations();
+  const tr = lang === "nl"
+    ? {
+        title: "Aanvragen",
+        subtitle: "Berichten ingediend via het contactformulier op de site.",
+        all: "Alle",
+        new: "Nieuw",
+        replied: "Beantwoord",
+        closed: "Gesloten",
+        empty: "Nog geen aanvragen.",
+        emptyFiltered: (s: string) => `Geen aanvragen met status "${s}".`,
+      }
+    : {
+        title: "Inquiries",
+        subtitle: "Messages submitted via the website's contact form.",
+        all: "All",
+        new: "New",
+        replied: "Replied",
+        closed: "Closed",
+        empty: "No inquiries yet.",
+        emptyFiltered: (s: string) => `No inquiries with status "${s}".`,
+      };
 
   let query = supabase
     .from("inquiries")
@@ -45,20 +68,18 @@ export default async function InquiriesListPage({
   const propertyById = new Map(propertiesList.map((p) => [p.id, p]));
 
   const filters: { key: string; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "new", label: "New" },
-    { key: "replied", label: "Replied" },
-    { key: "closed", label: "Closed" },
+    { key: "all", label: tr.all },
+    { key: "new", label: tr.new },
+    { key: "replied", label: tr.replied },
+    { key: "closed", label: tr.closed },
   ];
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-extralight">Inquiries</h1>
-          <p className="text-sm text-neutral-500 mt-1">
-            Messages submitted via the website&apos;s contact form.
-          </p>
+          <h1 className="text-3xl font-extralight">{tr.title}</h1>
+          <p className="text-sm text-neutral-500 mt-1">{tr.subtitle}</p>
         </div>
         <nav className="flex gap-1 text-xs">
           {filters.map((f) => {
@@ -84,8 +105,8 @@ export default async function InquiriesListPage({
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-12 text-center">
           <p className="text-neutral-500">
             {statusFilter === "all"
-              ? "No inquiries yet."
-              : `No inquiries with status "${statusFilter}".`}
+              ? tr.empty
+              : tr.emptyFiltered(statusFilter)}
           </p>
         </div>
       ) : (

@@ -11,8 +11,11 @@ export type Property = {
   color_name: string;
   color_hex: string | null;
   tagline: string | null;
+  tagline_nl: string | null;
   short_description: string | null;
+  short_description_nl: string | null;
   description: string | null;
+  description_nl: string | null;
   address: string;
   city: string;
   country: string;
@@ -29,6 +32,12 @@ export type Property = {
   created_at: string;
   updated_at: string;
 };
+
+/** Pick the right text for the active language, falling back gracefully. */
+export function localized<T>(en: T | null, nl: T | null, lang: "en" | "nl"): T | null {
+  if (lang === "nl") return nl ?? en;
+  return en ?? nl;
+}
 
 export type Unit = {
   id: string;
@@ -83,7 +92,9 @@ export type SiteSettings = {
   id: number;
   brand_name: string;
   brand_tagline: string | null;
+  brand_tagline_nl: string | null;
   brand_description: string | null;
+  brand_description_nl: string | null;
   whatsapp_number: string | null;
   emergency_phone: string | null;
   contact_email: string | null;
