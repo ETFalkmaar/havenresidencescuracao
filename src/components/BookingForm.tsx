@@ -86,8 +86,14 @@ export function BookingForm({
     return calculatePrice(unit, seasons, range.from, range.to, computedStayType);
   }, [unit, seasons, range, computedStayType]);
 
+  // Format YYYY-MM-DD using LOCAL date components. Date.toISOString() would
+  // serialize via UTC which silently shifts the calendar day for any timezone
+  // east of UTC — e.g. picking June 15 in CEST stored as June 14.
   function isoDate(d: Date) {
-    return d.toISOString().slice(0, 10);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
   }
 
   function submit() {
