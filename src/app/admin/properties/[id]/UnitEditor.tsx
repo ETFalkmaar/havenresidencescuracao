@@ -206,6 +206,27 @@ export function UnitEditor({
         </div>
       </div>
 
+      <div>
+        <p className="text-xs uppercase tracking-widest text-neutral-500 mb-3">
+          Airbnb calendar sync
+        </p>
+        <label className="block">
+          <Label>Airbnb iCal URL</Label>
+          <input
+            name="airbnb_ical_url"
+            type="url"
+            defaultValue={unit.airbnb_ical_url ?? ""}
+            placeholder="https://www.airbnb.com/calendar/ical/…"
+            className={inputCls}
+          />
+          <p className="text-xs text-neutral-500 mt-2 leading-relaxed">
+            Paste the iCal export URL from your Airbnb listing. The site polls
+            it once an hour and grays out booked dates in the public booking
+            calendar so you never get a double booking.
+          </p>
+        </label>
+      </div>
+
       <div className="flex items-center gap-4 pt-2">
         <button
           type="submit"

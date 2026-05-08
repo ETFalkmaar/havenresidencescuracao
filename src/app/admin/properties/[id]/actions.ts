@@ -388,6 +388,7 @@ export async function updateUnit(
     formData.get("long_stay_monthly_price_eur"),
   );
   const status = trimOrNull(formData.get("status")) ?? "active";
+  const airbnb_ical_url = trimOrNull(formData.get("airbnb_ical_url"));
 
   if (!name || !slug || base_price_eur === null) {
     return { ok: false, error: "Name, slug and base price are required." };
@@ -397,6 +398,9 @@ export async function updateUnit(
   }
   if (base_price_eur < 0 || (cleaning_fee_eur ?? 0) < 0) {
     return { ok: false, error: "Prices cannot be negative." };
+  }
+  if (airbnb_ical_url && !/^https?:\/\//i.test(airbnb_ical_url)) {
+    return { ok: false, error: "Airbnb iCal URL must start with http(s)://" };
   }
 
   const supabase = await createClient();
@@ -416,6 +420,7 @@ export async function updateUnit(
       min_long_stay_months: min_long_stay_months ?? 4,
       long_stay_monthly_price_eur,
       status,
+      airbnb_ical_url,
     })
     .eq("id", unitId);
 

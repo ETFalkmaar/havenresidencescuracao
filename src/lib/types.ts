@@ -47,6 +47,7 @@ export type Unit = {
   long_stay_monthly_price_eur: number | null;
   status: string;
   position: number;
+  airbnb_ical_url: string | null;
 };
 
 export type Photo = {
