@@ -11,6 +11,51 @@ function trimOrNull(v: FormDataEntryValue | null): string | null {
   return t.length > 0 ? t : null;
 }
 
+async function ensureAdmin(): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+  const { data: row } = await supabase
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!row) return { ok: false, error: "Not authorized." };
+  return { ok: true };
+}
+
+/**
+ * Save just the Airbnb iCal URL on a unit. Used by the
+ * "Connect Airbnb" wizard on /admin/settings — a lighter alternative
+ * to the full UnitEditor form.
+ */
+export async function setUnitAirbnbIcal(
+  unitId: string,
+  url: string,
+): Promise<ActionResult> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+
+  const trimmed = url.trim();
+  if (trimmed && !/^https?:\/\//i.test(trimmed)) {
+    return { ok: false, error: "URL must start with http(s)://" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("units")
+    .update({ airbnb_ical_url: trimmed || null })
+    .eq("id", unitId);
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/admin/settings");
+  revalidatePath(`/admin/properties`);
+  return { ok: true };
+}
+
 export async function updateSiteSettings(formData: FormData): Promise<ActionResult> {
   const brand_name = (formData.get("brand_name") as string | null)?.trim();
   if (!brand_name) {
