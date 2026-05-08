@@ -308,6 +308,58 @@ function extractStoragePath(url: string): string | null {
   return url.slice(i + marker.length);
 }
 
+// ========== HERO VIDEO ==========
+
+export async function setHeroVideo({
+  propertyId,
+  url,
+}: {
+  propertyId: string;
+  url: string;
+}): Promise<ActionResult> {
+  if (!url) return { ok: false, error: "Missing URL." };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("properties")
+    .update({ hero_video_url: url })
+    .eq("id", propertyId);
+  if (error) return { ok: false, error: error.message };
+  await revalidatePropertyAndPublic(supabase, propertyId);
+  return { ok: true };
+}
+
+export async function removeHeroVideo({
+  propertyId,
+}: {
+  propertyId: string;
+}): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  // Read current URL so we can delete the underlying Storage object too.
+  const { data: prop } = await supabase
+    .from("properties")
+    .select("hero_video_url")
+    .eq("id", propertyId)
+    .single();
+  const propRow = prop as { hero_video_url: string | null } | null;
+
+  if (propRow?.hero_video_url) {
+    const path = extractStoragePath(propRow.hero_video_url);
+    if (path) {
+      await supabase.storage.from("property-media").remove([path]);
+    }
+  }
+
+  const { error } = await supabase
+    .from("properties")
+    .update({ hero_video_url: null })
+    .eq("id", propertyId);
+  if (error) return { ok: false, error: error.message };
+
+  await revalidatePropertyAndPublic(supabase, propertyId);
+  return { ok: true };
+}
+
 // ========== UNIT ==========
 
 function asNumber(v: FormDataEntryValue | null): number | null {

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PropertyForm } from "./PropertyForm";
 import { PhotoManager } from "./PhotoManager";
+import { HeroVideoManager } from "./HeroVideoManager";
 import { UnitEditor } from "./UnitEditor";
 import { AmenitiesPicker } from "./AmenitiesPicker";
 import { PricingSeasonsEditor } from "./PricingSeasonsEditor";
@@ -108,6 +109,17 @@ export default async function PropertyEditPage({
           </div>
         </div>
       </header>
+
+      <section className="space-y-5">
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-500">
+          Hero video
+        </h2>
+        <HeroVideoManager
+          propertyId={property.id}
+          propertySlug={property.slug}
+          currentUrl={property.hero_video_url}
+        />
+      </section>
 
       <section className="space-y-5">
         <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-500">
