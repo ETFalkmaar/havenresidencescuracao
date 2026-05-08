@@ -8,6 +8,7 @@ export function PromoteForm() {
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [createdEmail, setCreatedEmail] = useState<string | null>(null);
   const router = useRouter();
 
   return (
@@ -17,12 +18,15 @@ export function PromoteForm() {
         e.preventDefault();
         setStatus("idle");
         setErrorMsg(null);
+        setCreatedEmail(null);
         const formData = new FormData(e.currentTarget);
+        const email = (formData.get("email") as string | null) ?? "";
         const form = e.currentTarget;
         startTransition(async () => {
           const result = await promoteAdmin(formData);
           if (result.ok) {
             setStatus("ok");
+            setCreatedEmail(email);
             form.reset();
             router.refresh();
           } else {
@@ -33,23 +37,12 @@ export function PromoteForm() {
       }}
     >
       <div>
-        <h3 className="text-lg font-medium">Invite an admin</h3>
-        <p className="text-sm text-neutral-500 mt-1">
-          Two-step process for security:
+        <h3 className="text-lg font-medium">Add an admin</h3>
+        <p className="text-sm text-neutral-500 mt-1 leading-relaxed">
+          Type their email and click <em>Add admin</em>. We&apos;ll create
+          their account with a temporary password and force them to choose a
+          real one on first sign-in.
         </p>
-        <ol className="text-xs text-neutral-500 mt-2 space-y-1 list-decimal pl-5">
-          <li>
-            In Supabase Dashboard → Authentication → Users → <em>Add user</em>,
-            create the account with their email and a temporary password
-            (e.g. <code className="text-neutral-400">welkom123</code>). Tick
-            &quot;Auto Confirm User&quot; so they don&apos;t need to verify
-            their email.
-          </li>
-          <li>
-            Come back here, enter their email, and click <em>Promote</em>.
-            They&apos;ll be forced to choose a new password on first sign-in.
-          </li>
-        </ol>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-3">
@@ -70,25 +63,35 @@ export function PromoteForm() {
         </select>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         <button
           type="submit"
           disabled={pending}
           className="px-5 py-2.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
         >
-          {pending ? "Promoting…" : "Promote to admin"}
+          {pending ? "Adding…" : "Add admin"}
         </button>
-        {status === "ok" && (
-          <span className="text-sm text-emerald-600 dark:text-emerald-400">
-            Promoted. Tell them to sign in with the temp password.
-          </span>
-        )}
         {status === "error" && (
           <span className="text-sm text-red-600 dark:text-red-400">
-            {errorMsg ?? "Could not promote."}
+            {errorMsg ?? "Could not add admin."}
           </span>
         )}
       </div>
+
+      {status === "ok" && createdEmail && (
+        <div className="rounded-lg border border-emerald-300 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/40 p-4 text-sm text-emerald-900 dark:text-emerald-200 space-y-1">
+          <p className="font-medium">Done — admin added.</p>
+          <p>
+            Tell <strong>{createdEmail}</strong> they can sign in at{" "}
+            <code className="text-xs">/admin/login</code> with the temporary
+            password{" "}
+            <code className="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100">
+              welkom123
+            </code>
+            . The site will force them to choose a new one immediately.
+          </p>
+        </div>
+      )}
     </form>
   );
 }

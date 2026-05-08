@@ -22,6 +22,11 @@ async function ensureAdmin(): Promise<ActionResult> {
   return { ok: true };
 }
 
+// Temporary password every new admin gets on creation. They are FORCED to
+// change it on first sign-in by the password_set=false flag in admin_users
+// (the admin layout intercepts and shows SetPasswordForm before any UI).
+const TEMP_PASSWORD = "welkom123";
+
 export async function promoteAdmin(formData: FormData): Promise<ActionResult> {
   const guard = await ensureAdmin();
   if (!guard.ok) return guard;
@@ -34,25 +39,39 @@ export async function promoteAdmin(formData: FormData): Promise<ActionResult> {
 
   const admin = createAdminClient();
 
-  // Find the auth.users row by email via the Auth Admin API.
+  // 1) Try to find an existing auth.users row by email.
   const { data: list, error: listErr } = await admin.auth.admin.listUsers({
     perPage: 200,
     page: 1,
   });
   if (listErr) return { ok: false, error: listErr.message };
 
-  const target = list.users.find(
+  let target = list.users.find(
     (u) => (u.email ?? "").toLowerCase() === email,
   );
+
+  // 2) Auto-create the user if they don't exist yet — no need for the owner
+  //    to open Supabase Dashboard. One form, one click.
   if (!target) {
-    return {
-      ok: false,
-      error: `No Supabase user with email ${email}. Create the user in Supabase Dashboard → Authentication → Users first, set a temporary password (e.g. welkom123), then come back and promote them here.`,
-    };
+    const { data: created, error: createErr } =
+      await admin.auth.admin.createUser({
+        email,
+        password: TEMP_PASSWORD,
+        email_confirm: true, // skip mail verification for owner-trusted invite
+      });
+    if (createErr || !created.user) {
+      return {
+        ok: false,
+        error:
+          createErr?.message ??
+          "Could not create the Supabase user. Check the email is not already registered.",
+      };
+    }
+    target = created.user;
   }
 
-  // Insert into admin_users with password_set=false → forces them to change
-  // password on first sign-in.
+  // 3) Upsert into admin_users with password_set=false → forces them to
+  //    choose a new password on first sign-in.
   const { error: insErr } = await admin.from("admin_users").upsert({
     user_id: target.id,
     email,
