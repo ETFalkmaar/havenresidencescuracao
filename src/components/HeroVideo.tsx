@@ -32,7 +32,7 @@ export function HeroVideo({
   return (
     <section
       ref={ref}
-      className="relative h-screen min-h-[640px] w-full overflow-hidden bg-neutral-950"
+      className="relative h-[78vh] min-h-[540px] w-full overflow-hidden bg-neutral-950"
     >
       <motion.div
         className="absolute inset-0 will-change-transform"
@@ -65,7 +65,7 @@ export function HeroVideo({
 
       <motion.div
         style={{ y: yText, opacity: opacityText }}
-        className="relative h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-24 lg:pb-32 text-white"
+        className="relative h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-14 lg:pb-20 text-white"
       >
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -118,7 +118,7 @@ export function HeroVideo({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-white/60 text-[10px] tracking-[0.3em] uppercase"
+          className="absolute bottom-5 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-white/60 text-[10px] tracking-[0.3em] uppercase"
         >
           <span>{t.scroll}</span>
           <motion.span
