@@ -53,10 +53,11 @@ export function AirbnbConnectCard({ units }: { units: UnitRow[] }) {
       </header>
 
       <p className="text-xs text-neutral-500 -mt-3">
-        <em>Note:</em> Airbnb doesn&apos;t offer "Login with Airbnb" for
-        individual hosts — only certified channel-manager partners can use
-        their API. The button above opens your Airbnb hosting dashboard in
-        a new tab; the wizard below walks you through the iCal paste-back.
+        <em>Note:</em> Airbnb doesn&apos;t offer &ldquo;Login with
+        Airbnb&rdquo; for individual hosts — only certified channel-manager
+        partners can use their API. The button above opens your Airbnb
+        hosting dashboard in a new tab; the wizard below walks you through
+        the iCal paste-back.
       </p>
 
       <div className="space-y-3">
