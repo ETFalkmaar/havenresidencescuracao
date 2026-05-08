@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Tilt3D } from "./Tilt3D";
 
 type Photo = {
   id: string;
@@ -40,12 +41,13 @@ export function PhotoGallery({
 
   return (
     <>
-      <div className="grid md:grid-cols-3 gap-3">
+      <div
+        className="grid md:grid-cols-3 gap-3"
+        style={{ perspective: 1200 }}
+      >
         {photos.map((photo, i) => (
-          <motion.button
+          <motion.div
             key={photo.id}
-            type="button"
-            onClick={() => setActiveIndex(i)}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
@@ -54,18 +56,25 @@ export function PhotoGallery({
               delay: i * 0.06,
               ease: [0.22, 1, 0.36, 1],
             }}
-            whileHover={{ scale: 1.015 }}
-            className="relative aspect-[4/3] rounded-xl overflow-hidden bg-neutral-200 dark:bg-neutral-900 group cursor-zoom-in will-change-transform"
           >
-            <Image
-              src={photo.url}
-              alt={photo.alt_text ?? propertyName}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition" />
-          </motion.button>
+            <Tilt3D intensity={5}>
+              <button
+                type="button"
+                onClick={() => setActiveIndex(i)}
+                className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-neutral-200 dark:bg-neutral-900 group cursor-zoom-in will-change-transform shadow-lg hover:shadow-2xl transition-shadow duration-500"
+                style={{ transform: "translateZ(0)" }}
+              >
+                <Image
+                  src={photo.url}
+                  alt={photo.alt_text ?? propertyName}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition" />
+              </button>
+            </Tilt3D>
+          </motion.div>
         ))}
       </div>
 

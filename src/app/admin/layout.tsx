@@ -1,9 +1,33 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./login/actions";
 import { SetPasswordForm } from "./set-password/SetPasswordForm";
+import { AdminModeToggle } from "./AdminModeToggle";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { getTranslations } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
+
+type AdminMode = "easy" | "advanced";
+
+// Easy mode = the 3 sections owners use 99% of the time.
+// Advanced mode = full menu.
+const EASY_NAV = [
+  { href: "/admin", labelEn: "Dashboard", labelNl: "Overzicht" },
+  { href: "/admin/properties", labelEn: "Residences", labelNl: "Residenties" },
+  { href: "/admin/inquiries", labelEn: "Inquiries", labelNl: "Aanvragen" },
+];
+
+const ADVANCED_NAV = [
+  { href: "/admin", labelEn: "Dashboard", labelNl: "Overzicht" },
+  { href: "/admin/properties", labelEn: "Residences", labelNl: "Residenties" },
+  { href: "/admin/units", labelEn: "Units", labelNl: "Units" },
+  { href: "/admin/inquiries", labelEn: "Inquiries", labelNl: "Aanvragen" },
+  { href: "/admin/bookings", labelEn: "Bookings", labelNl: "Boekingen" },
+  { href: "/admin/team", labelEn: "Team", labelNl: "Team" },
+  { href: "/admin/settings", labelEn: "Settings", labelNl: "Instellingen" },
+];
 
 export default async function AdminLayout({
   children,
@@ -107,6 +131,16 @@ export default async function AdminLayout({
     );
   }
 
+  // Read mode + language from cookies
+  const cookieStore = await cookies();
+  const modeCookie = cookieStore.get("admin_mode")?.value;
+  const mode: AdminMode = modeCookie === "advanced" ? "advanced" : "easy";
+  const { lang } = await getTranslations();
+
+  const navItems = mode === "easy" ? EASY_NAV : ADVANCED_NAV;
+  const navLabel = (item: (typeof navItems)[number]) =>
+    lang === "nl" ? item.labelNl : item.labelEn;
+
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950">
       <header className="border-b border-neutral-200 dark:border-neutral-900 bg-white/80 dark:bg-neutral-950/80 backdrop-blur sticky top-0 z-30">
@@ -119,52 +153,21 @@ export default async function AdminLayout({
               Haven Residence · Admin
             </Link>
             <nav className="hidden md:flex gap-6 text-sm text-neutral-600 dark:text-neutral-400">
-              <Link
-                href="/admin"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/admin/properties"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100"
-              >
-                Residences
-              </Link>
-              <Link
-                href="/admin/units"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100"
-              >
-                Units
-              </Link>
-              <Link
-                href="/admin/inquiries"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100"
-              >
-                Inquiries
-              </Link>
-              <Link
-                href="/admin/bookings"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100"
-              >
-                Bookings
-              </Link>
-              <Link
-                href="/admin/team"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100"
-              >
-                Team
-              </Link>
-              <Link
-                href="/admin/settings"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100"
-              >
-                Settings
-              </Link>
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="hover:text-neutral-900 dark:hover:text-neutral-100"
+                >
+                  {navLabel(item)}
+                </Link>
+              ))}
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <span className="hidden sm:inline text-neutral-500 text-xs">
+            <AdminModeToggle mode={mode} />
+            <LanguageSwitcher current={lang} />
+            <span className="hidden lg:inline text-neutral-500 text-xs">
               {user.email}
             </span>
             <form action={signOut}>
@@ -172,7 +175,7 @@ export default async function AdminLayout({
                 type="submit"
                 className="px-4 py-2 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-medium hover:opacity-90 transition"
               >
-                Sign out
+                {lang === "nl" ? "Uitloggen" : "Sign out"}
               </button>
             </form>
           </div>

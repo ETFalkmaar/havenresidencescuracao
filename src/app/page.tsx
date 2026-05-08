@@ -3,7 +3,7 @@ import { AnimatedHeader } from "@/components/AnimatedHeader";
 import { Footer } from "@/components/Footer";
 import { AnimatedPropertyCard } from "@/components/AnimatedPropertyCard";
 import { InquiryForm } from "@/components/InquiryForm";
-import { HeroVideo } from "@/components/HeroVideo";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getTranslations, getLocale } from "@/lib/i18n/server";
 import type { Property, SiteSettings, Unit } from "@/lib/types";
@@ -34,6 +34,27 @@ export default async function Home() {
     (p) => p.status === "active" || p.status === "coming_soon",
   );
 
+  // Build the hero slideshow: photos from the first active property,
+  // ordered by position. Falls back to the property's hero_image_url alone.
+  const heroSlideshowProperty =
+    properties.find((p) => p.status === "active") ?? properties[0];
+  let heroImages: string[] = [];
+  if (heroSlideshowProperty) {
+    const { data: heroPhotos } = await supabase
+      .from("photos")
+      .select("url, position, is_hero")
+      .eq("property_id", heroSlideshowProperty.id)
+      .order("is_hero", { ascending: false })
+      .order("position", { ascending: true })
+      .limit(7);
+    heroImages = (heroPhotos ?? [])
+      .map((p) => (p as { url: string }).url)
+      .filter(Boolean);
+    if (heroImages.length === 0 && heroSlideshowProperty.hero_image_url) {
+      heroImages = [heroSlideshowProperty.hero_image_url];
+    }
+  }
+
   const fromPriceByProperty = new Map<string, number>();
   for (const u of units) {
     const current = fromPriceByProperty.get(u.property_id);
@@ -41,9 +62,6 @@ export default async function Home() {
       fromPriceByProperty.set(u.property_id, u.base_price_eur);
     }
   }
-
-  const heroProperty =
-    properties.find((p) => p.status === "active") ?? properties[0];
 
   const brandName = settings?.brand_name ?? "Haven Residence";
   const brandTagline = settings?.brand_tagline ?? null;
@@ -57,9 +75,8 @@ export default async function Home() {
         signedIn={Boolean(signedInUser)}
       />
 
-      <HeroVideo
-        videoUrl={heroProperty?.hero_video_url ?? null}
-        posterUrl={heroProperty?.hero_image_url ?? null}
+      <HeroSlideshow
+        images={heroImages}
         brandName={brandName}
         tagline={brandTagline}
         t={t.hero}
