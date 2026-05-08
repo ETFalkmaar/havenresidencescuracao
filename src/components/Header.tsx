@@ -14,6 +14,9 @@ export function Header({ brandName }: { brandName: string }) {
           <Link href="/#residences" className="hover:text-white transition">
             Residences
           </Link>
+          <Link href="/beheer" className="hover:text-white transition">
+            Management
+          </Link>
           <Link href="/#about" className="hover:text-white transition">
             About
           </Link>
