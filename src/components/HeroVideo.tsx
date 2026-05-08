@@ -32,7 +32,7 @@ export function HeroVideo({
   return (
     <section
       ref={ref}
-      className="relative h-[35vh] min-h-[340px] w-full overflow-hidden bg-neutral-950"
+      className="relative h-[65vh] min-h-[420px] md:h-[85vh] md:min-h-[640px] w-full overflow-hidden bg-neutral-950"
     >
       <motion.div
         className="absolute inset-0 will-change-transform"
@@ -65,50 +65,50 @@ export function HeroVideo({
 
       <motion.div
         style={{ y: yText, opacity: opacityText }}
-        className="relative h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-7 lg:pb-10 text-white"
+        className="relative h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-12 md:pb-20 lg:pb-28 text-white"
       >
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[10px] lg:text-xs uppercase tracking-[0.4em] text-white/85 mb-2"
+          className="text-[11px] md:text-xs lg:text-sm uppercase tracking-[0.4em] text-white/85 mb-3 md:mb-5"
         >
           {t.since}
         </motion.p>
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="text-3xl md:text-5xl lg:text-6xl font-extralight leading-[1.05] tracking-tight max-w-5xl"
+          className="text-4xl md:text-6xl lg:text-7xl xl:text-[7rem] font-extralight leading-[1.05] tracking-tight max-w-5xl"
         >
           {brandName}
         </motion.h1>
         {tagline && (
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-2.5 text-sm md:text-base text-white/90 max-w-2xl font-light"
+            className="mt-4 md:mt-6 text-sm md:text-lg text-white/90 max-w-2xl font-light"
           >
             {tagline}
           </motion.p>
         )}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.85, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-4 flex gap-3 flex-wrap"
+          className="mt-6 md:mt-10 flex gap-3 flex-wrap"
         >
           <a
             href="#residences"
-            className="group inline-flex items-center gap-2 px-5 py-2.5 bg-white text-neutral-900 rounded-full text-xs font-medium tracking-wide hover:bg-white/95 transition shadow-2xl"
+            className="group inline-flex items-center gap-2 px-6 py-3 md:px-7 md:py-3.5 bg-white text-neutral-900 rounded-full text-xs md:text-sm font-medium tracking-wide hover:bg-white/95 transition shadow-2xl"
           >
             {t.explore}
             <span className="transition-transform group-hover:translate-x-0.5">→</span>
           </a>
           <a
             href="#contact"
-            className="px-5 py-2.5 border border-white/40 backdrop-blur-sm rounded-full text-xs font-medium tracking-wide hover:bg-white/10 transition"
+            className="px-6 py-3 md:px-7 md:py-3.5 border border-white/40 backdrop-blur-sm rounded-full text-xs md:text-sm font-medium tracking-wide hover:bg-white/10 transition"
           >
             {t.getInTouch}
           </a>
