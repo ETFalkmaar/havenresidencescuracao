@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { loadOverlay } from "@/lib/editor/overrides";
+import { isEditorPreview, isEditorOverlayRequested } from "@/lib/editor/mode";
+import { EditorOverlay } from "@/components/editor/EditorOverlay";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -20,14 +23,37 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const editorPreview = await isEditorPreview();
+  const overlayActive = await isEditorOverlayRequested();
+  const { customCss, customJs } = await loadOverlay(
+    editorPreview ? "draft" : "published",
+  );
+
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {customCss ? (
+          // Custom CSS from the Ultra editor — placed early so site CSS still
+          // wins for properties admins didn't override.
+          <style
+            id="editor-custom-css"
+            dangerouslySetInnerHTML={{ __html: customCss }}
+          />
+        ) : null}
+        {children}
+        {customJs ? (
+          <script
+            id="editor-custom-js"
+            dangerouslySetInnerHTML={{ __html: customJs }}
+          />
+        ) : null}
+        {overlayActive ? <EditorOverlay /> : null}
+      </body>
     </html>
   );
 }
