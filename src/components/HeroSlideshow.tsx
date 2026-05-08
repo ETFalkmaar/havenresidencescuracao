@@ -109,6 +109,8 @@ export function HeroSlideshow({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="text-4xl md:text-6xl lg:text-7xl xl:text-[7rem] font-extralight leading-[1.05] tracking-tight max-w-5xl"
+          data-edit-id="home.hero.brandName"
+          data-edit-prop="text"
         >
           {brandName}
         </motion.h1>
@@ -118,6 +120,8 @@ export function HeroSlideshow({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="mt-4 md:mt-6 text-sm md:text-lg text-white/90 max-w-2xl font-light"
+            data-edit-id="home.hero.tagline.live"
+            data-edit-prop="text"
           >
             {tagline}
           </motion.p>
