@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { AnimatedHeader } from "@/components/AnimatedHeader";
-import { Footer } from "@/components/Footer";
+import { SiteShell } from "@/components/site/SiteShell";
 import { InquiryForm } from "@/components/InquiryForm";
 import { BookingForm } from "@/components/BookingForm";
 import { PhotoGallery } from "@/components/PhotoGallery";
@@ -176,14 +175,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
   const canBook = !isComingSoon && unit !== undefined;
 
   return (
-    <>
-      <AnimatedHeader
-        brandName={settings?.brand_name ?? "Haven Residence"}
-        lang={lang}
-        t={t.nav}
-        signedIn={Boolean(signedInUser)}
-      />
-
+    <SiteShell>
       {/* Hero */}
       <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden">
         {property.hero_image_url && (
@@ -501,7 +493,6 @@ export default async function PropertyPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      <Footer settings={settings ?? null} t={t.footer} />
-    </>
+    </SiteShell>
   );
 }

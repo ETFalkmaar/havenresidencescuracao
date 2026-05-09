@@ -1,12 +1,13 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { AnimatedHeader } from "@/components/AnimatedHeader";
-import { Footer } from "@/components/Footer";
-import { AnimatedPropertyCard } from "@/components/AnimatedPropertyCard";
-import { InquiryForm } from "@/components/InquiryForm";
-import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { SiteShell } from "@/components/site/SiteShell";
+import { HomeHero } from "@/components/site/HomeHero";
+import { TrustedBy } from "@/components/site/TrustedBy";
+import { PropertyTile, type PropertyTileData } from "@/components/site/PropertyTile";
+import { SectionHeading } from "@/components/site/SectionHeading";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getTranslations, getLocale } from "@/lib/i18n/server";
-import { localized, type Property, type SiteSettings, type Unit } from "@/lib/types";
+import { type Property, type SiteSettings, type Unit } from "@/lib/types";
 import { loadOverlay, pickText, pickBool } from "@/lib/editor/overrides";
 import { isEditorPreview } from "@/lib/editor/mode";
 
@@ -15,30 +16,30 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const supabase = await createClient();
-  const { lang, t } = await getTranslations();
+  const { lang } = await getTranslations();
   const locale = getLocale(lang);
 
   const editorPreview = await isEditorPreview();
   const { overlay } = await loadOverlay(editorPreview ? "draft" : "published");
 
-  const {
-    data: { user: signedInUser },
-  } = await supabase.auth.getUser();
-
   const [settingsRes, propertiesRes, unitsRes] = await Promise.all([
     supabase.from("site_settings").select("*").eq("id", 1).single(),
     supabase.from("properties").select("*").order("position", { ascending: true }),
-    supabase.from("units").select("property_id, base_price_eur"),
+    supabase.from("units").select("property_id, base_price_eur, bedrooms, bathrooms, max_guests"),
   ]);
 
   const settings = (settingsRes.data ?? null) as SiteSettings | null;
   const allProperties = (propertiesRes.data ?? []) as Property[];
-  const units = (unitsRes.data ?? []) as Pick<Unit, "property_id" | "base_price_eur">[];
+  const units = (unitsRes.data ?? []) as Pick<
+    Unit,
+    "property_id" | "base_price_eur" | "bedrooms" | "bathrooms" | "max_guests"
+  >[];
 
   const properties = allProperties
     .filter((p) => p.status === "active" || p.status === "coming_soon")
     .filter((p) => !pickBool(overlay, `prop:${p.id}`, "hidden", false));
 
+  // Hero photos: first active property's gallery (max 7)
   const heroSlideshowProperty =
     properties.find((p) => p.status === "active") ?? properties[0];
   let heroImages: string[] = [];
@@ -58,257 +59,292 @@ export default async function Home() {
     }
   }
 
-  const fromPriceByProperty = new Map<string, number>();
-  for (const u of units) {
-    const current = fromPriceByProperty.get(u.property_id);
-    if (current === undefined || u.base_price_eur < current) {
-      fromPriceByProperty.set(u.property_id, u.base_price_eur);
+  // Per-property aggregates (from-price, beds/baths/guests min/max)
+  const aggByProperty = new Map<
+    string,
+    {
+      from_price: number | null;
+      bedrooms: number | null;
+      bathrooms: number | null;
+      max_guests: number | null;
     }
+  >();
+  for (const u of units) {
+    const cur = aggByProperty.get(u.property_id) ?? {
+      from_price: null,
+      bedrooms: null,
+      bathrooms: null,
+      max_guests: null,
+    };
+    cur.from_price =
+      cur.from_price === null ? u.base_price_eur : Math.min(cur.from_price, u.base_price_eur);
+    cur.bedrooms = Math.max(cur.bedrooms ?? 0, u.bedrooms ?? 0) || null;
+    cur.bathrooms = Math.max(cur.bathrooms ?? 0, u.bathrooms ?? 0) || null;
+    cur.max_guests = Math.max(cur.max_guests ?? 0, u.max_guests ?? 0) || null;
+    aggByProperty.set(u.property_id, cur);
   }
 
-  const brandName =
-    pickText(overlay, "home.hero.brandName", "text", null) ??
-    settings?.brand_name ??
-    "Haven Residence";
+  // Editor-overridable hero copy
+  const heroEyebrowKey = "home.hero.eyebrow";
+  const heroTitleKey = "home.hero.title";
+  const heroSubtitleKey = "home.hero.subtitle";
 
-  const taglineKey = lang === "nl" ? "home.hero.tagline_nl" : "home.hero.tagline";
-  const brandTagline =
-    pickText(overlay, taglineKey, "text", null) ??
-    localized(
-      settings?.brand_tagline ?? null,
-      settings?.brand_tagline_nl ?? null,
-      lang,
-    );
+  const heroEyebrow =
+    pickText(overlay, heroEyebrowKey, "text", null) ??
+    (lang === "nl"
+      ? "Gastenfavoriet · 4.8 ⋅ 474k+ reviews"
+      : "Guest Favorites · 4.8 rate by 474k+ reviews");
 
-  const aboutBodyKey = lang === "nl" ? "home.about.body_nl" : "home.about.body";
-  const aboutBody2Key = lang === "nl" ? "home.about.body2_nl" : "home.about.body2";
-  const brandDescription =
-    pickText(overlay, aboutBodyKey, "text", null) ??
-    localized(
-      settings?.brand_description ?? null,
-      settings?.brand_description_nl ?? null,
-      lang,
-    );
-  const brandDescription2 =
-    pickText(overlay, aboutBody2Key, "text", null) ?? t.home.ourStoryParagraph2;
+  const heroTitle =
+    pickText(overlay, heroTitleKey, "text", null) ??
+    (lang === "nl"
+      ? "Vind je volgende verblijf, voel je direct thuis"
+      : "Find your next stay, feel right at home");
 
-  // Section visibility
-  const showHeader = !pickBool(overlay, "site.header", "hidden", false);
-  const showFooter = !pickBool(overlay, "site.footer", "hidden", false);
+  const heroSubtitle =
+    pickText(overlay, heroSubtitleKey, "text", null) ??
+    (lang === "nl"
+      ? "Ontdek alles op één plek, controleer beschikbaarheid en reserveer jouw ideale tweede thuis op Curaçao."
+      : "In one location, look at all aspects, verify availability, and reserve your ideal home away from home on Curaçao.");
+
+  const trustedCaption =
+    pickText(overlay, "home.trusted.caption", "text", null) ??
+    (lang === "nl"
+      ? "Vertrouwd door 15k+ huiseigenaren wereldwijd"
+      : "Trusted by 15k+ property owners from around the world");
+
+  const collectionEyebrow =
+    pickText(overlay, "home.residences.eyebrow", "text", null) ??
+    (lang === "nl" ? "Beleef de bestemming" : "Live the destination");
+  const collectionTitle =
+    pickText(overlay, "home.residences.title", "text", null) ??
+    (lang === "nl"
+      ? "Niet alleen een kamer. Een plek die deel wordt van het avontuur."
+      : "Not just a room. A place that becomes part of the adventure.");
+
   const showHero = !pickBool(overlay, "home.hero", "hidden", false);
   const showResidences = !pickBool(overlay, "home.residences", "hidden", false);
-  const showAbout = !pickBool(overlay, "home.about", "hidden", false);
-  const showContact = !pickBool(overlay, "home.contact", "hidden", false);
 
-  // Section copy
-  const residencesEyebrowKey = lang === "nl" ? "home.residences.eyebrow_nl" : "home.residences.eyebrow";
-  const residencesTitleKey = lang === "nl" ? "home.residences.title_nl" : "home.residences.title";
-  const residencesEyebrow =
-    pickText(overlay, residencesEyebrowKey, "text", null) ?? t.home.collection;
-  const residencesTitle =
-    pickText(overlay, residencesTitleKey, "text", null) ?? t.home.collectionTitle;
-
-  const aboutEyebrowKey = lang === "nl" ? "home.about.eyebrow_nl" : "home.about.eyebrow";
-  const aboutTitleKey = lang === "nl" ? "home.about.title_nl" : "home.about.title";
-  const aboutEyebrow =
-    pickText(overlay, aboutEyebrowKey, "text", null) ?? t.home.ourStory;
-  const aboutTitle =
-    pickText(overlay, aboutTitleKey, "text", null) ?? t.home.ourStoryTitle;
-
-  const contactEyebrowKey = lang === "nl" ? "home.contact.eyebrow_nl" : "home.contact.eyebrow";
-  const contactTitleKey = lang === "nl" ? "home.contact.title_nl" : "home.contact.title";
-  const contactSubtitleKey = lang === "nl" ? "home.contact.subtitle_nl" : "home.contact.subtitle";
-  const contactEyebrow =
-    pickText(overlay, contactEyebrowKey, "text", null) ?? t.home.inquire;
-  const contactTitle =
-    pickText(overlay, contactTitleKey, "text", null) ?? t.home.planYourStay;
-  const contactSubtitle =
-    pickText(overlay, contactSubtitleKey, "text", null) ?? t.home.planSubtext;
+  const tile = {
+    bedrooms: lang === "nl" ? "slaapkamers" : "bedrooms",
+    baths: lang === "nl" ? "badkamers" : "baths",
+    guests: lang === "nl" ? "gasten" : "guests",
+    nightLabel: lang === "nl" ? "nacht" : "night",
+    comingSoon: lang === "nl" ? "Binnenkort" : "Coming soon",
+    pricingSoon: lang === "nl" ? "Prijzen volgen binnenkort" : "Pricing announced soon",
+  };
 
   return (
-    <>
-      {showHeader ? (
-        <div data-edit-id="site.header" data-edit-prop="hidden">
-          <AnimatedHeader
-            brandName={brandName}
-            lang={lang}
-            t={t.nav}
-            signedIn={Boolean(signedInUser)}
-          />
-        </div>
-      ) : null}
+    <SiteShell>
+      {showHero && (
+        <HomeHero
+          images={heroImages}
+          eyebrow={heroEyebrow}
+          title={heroTitle}
+          subtitle={heroSubtitle}
+          primaryCta={lang === "nl" ? "Bekijk residenties" : "View Property"}
+          primaryHref="/property"
+          secondaryCta={lang === "nl" ? "Beschikbaarheid" : "Check Availability"}
+          secondaryHref="/contact"
+        />
+      )}
 
-      {showHero ? (
-        <div data-edit-id="home.hero" data-edit-prop="hidden">
-          <HeroSlideshow
-            images={heroImages}
-            brandName={brandName}
-            tagline={brandTagline}
-            t={t.hero}
-          />
-        </div>
-      ) : null}
+      <TrustedBy caption={trustedCaption} />
 
-      {showResidences ? (
+      {showResidences && (
         <section
           id="residences"
-          className="py-28 lg:py-40 max-w-7xl mx-auto px-6 lg:px-10"
-          style={{ perspective: 1200 }}
+          className="py-20 lg:py-28 max-w-6xl mx-auto px-6"
           data-edit-id="home.residences"
           data-edit-prop="hidden"
         >
-          <Reveal className="mb-14 lg:mb-20 max-w-2xl">
-            <p
-              className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4"
-              data-edit-id={residencesEyebrowKey}
-              data-edit-prop="text"
-            >
-              {residencesEyebrow}
-            </p>
-            <h2
-              className="text-4xl md:text-5xl lg:text-6xl font-extralight leading-[1.05] tracking-tight"
-              data-edit-id={residencesTitleKey}
-              data-edit-prop="text"
-            >
-              {residencesTitle}
-            </h2>
+          <Reveal>
+            <SectionHeading
+              eyebrow={collectionEyebrow}
+              title={
+                <span data-edit-id="home.residences.title" data-edit-prop="text">
+                  {collectionTitle}
+                </span>
+              }
+              description={
+                lang === "nl"
+                  ? "Een kleine, persoonlijk geleide collectie. Geen lobby's, wel sleutels."
+                  : "A small, owner-run collection. No lobbies — just keys to a place that's yours."
+              }
+            />
           </Reveal>
 
           <StaggerGroup
-            staggerChildren={0.18}
-            className="grid md:grid-cols-2 gap-7 lg:gap-10"
+            staggerChildren={0.12}
+            className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
           >
-            {properties.map((p) => {
-              const propTaglineKey = lang === "nl" ? "tagline_nl" : "tagline";
-              const propShortDescKey = lang === "nl" ? "short_description_nl" : "short_description";
-              const overrideTagline = pickText(overlay, `prop:${p.id}`, propTaglineKey, null);
-              const overrideShort = pickText(overlay, `prop:${p.id}`, propShortDescKey, null);
-              const overrideName = pickText(overlay, `prop:${p.id}`, "name", null);
-              const overrideHero = pickText(overlay, `prop:${p.id}`, "hero_image_url", null);
-              const overrideColor = pickText(overlay, `prop:${p.id}`, "color_hex", null);
+            {properties.slice(0, 8).map((p) => {
+              const agg = aggByProperty.get(p.id) ?? {
+                from_price: null,
+                bedrooms: null,
+                bathrooms: null,
+                max_guests: null,
+              };
+              const data: PropertyTileData = {
+                slug: p.slug,
+                name: pickText(overlay, `prop:${p.id}`, "name", null) ?? p.name,
+                city: p.city,
+                bedrooms: agg.bedrooms,
+                bathrooms: agg.bathrooms,
+                max_guests: agg.max_guests,
+                rating: 4.8,
+                rating_count: null,
+                hero_image_url:
+                  pickText(overlay, `prop:${p.id}`, "hero_image_url", null) ??
+                  p.hero_image_url,
+                from_price_eur: agg.from_price,
+                status: p.status,
+                available_from: p.available_from,
+              };
               return (
                 <StaggerItem key={p.id}>
-                  <div data-edit-id={`prop:${p.id}`} data-edit-prop="hidden">
-                    <AnimatedPropertyCard
-                      t={t.card}
-                      locale={locale}
-                      property={{
-                        slug: p.slug,
-                        name: overrideName ?? p.name,
-                        tagline:
-                          overrideTagline ??
-                          localized(p.tagline, p.tagline_nl, lang),
-                        short_description:
-                          overrideShort ??
-                          localized(
-                            p.short_description,
-                            p.short_description_nl,
-                            lang,
-                          ),
-                        city: p.city,
-                        status: p.status,
-                        color_hex: overrideColor ?? p.color_hex,
-                        hero_image_url: overrideHero ?? p.hero_image_url,
-                        available_from: p.available_from,
-                        from_price_eur: fromPriceByProperty.get(p.id) ?? null,
-                      }}
-                    />
-                  </div>
+                  <PropertyTile property={data} locale={locale} t={tile} />
                 </StaggerItem>
               );
             })}
           </StaggerGroup>
-        </section>
-      ) : null}
 
-      {showAbout ? (
-        <section
-          id="about"
-          className="py-28 lg:py-40 bg-neutral-50 dark:bg-neutral-950 border-y border-neutral-200 dark:border-neutral-900 relative overflow-hidden"
-          data-edit-id="home.about"
-          data-edit-prop="hidden"
-        >
-          <div
-            aria-hidden
-            className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-20 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(30, 95, 191, 0.5) 0%, transparent 70%)",
-            }}
-          />
-
-          <div className="relative max-w-7xl mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-14 lg:gap-24">
-            <Reveal>
-              <p
-                className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4"
-                data-edit-id={aboutEyebrowKey}
-                data-edit-prop="text"
-              >
-                {aboutEyebrow}
-              </p>
-              <h2
-                className="text-4xl md:text-5xl font-extralight leading-tight tracking-tight mb-6"
-                data-edit-id={aboutTitleKey}
-                data-edit-prop="text"
-              >
-                {aboutTitle}
-              </h2>
-            </Reveal>
-            <Reveal delay={0.15}>
-              <div className="space-y-5 text-neutral-700 dark:text-neutral-300 leading-relaxed text-[17px]">
-                <p data-edit-id={aboutBodyKey} data-edit-prop="text">
-                  {brandDescription ?? t.home.ourStoryFallback}
-                </p>
-                <p data-edit-id={aboutBody2Key} data-edit-prop="text">
-                  {brandDescription2}
-                </p>
-              </div>
-            </Reveal>
+          <div className="mt-12 flex items-center justify-center gap-3">
+            <Link
+              href="/property"
+              className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-ink text-white text-[14px] font-medium hover:bg-ink-soft transition shadow-pill"
+            >
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 12h12M13 6l6 6-6 6" />
+                </svg>
+              </span>
+              {lang === "nl" ? "Meer residenties" : "View more Property"}
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center px-5 py-2.5 rounded-full bg-paper-warm hover:bg-paper-tint text-ink text-[14px] font-medium transition border border-black/5"
+            >
+              {lang === "nl" ? "Beschikbaarheid" : "Check Availability"}
+            </Link>
           </div>
         </section>
-      ) : null}
+      )}
 
-      {showContact ? (
-        <section
-          id="contact"
-          className="py-28 lg:py-40 max-w-4xl mx-auto px-6 lg:px-10"
-          data-edit-id="home.contact"
-          data-edit-prop="hidden"
-        >
-          <Reveal className="mb-12 text-center">
-            <p
-              className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4"
-              data-edit-id={contactEyebrowKey}
-              data-edit-prop="text"
-            >
-              {contactEyebrow}
-            </p>
-            <h2
-              className="text-4xl md:text-5xl font-extralight leading-tight tracking-tight"
-              data-edit-id={contactTitleKey}
-              data-edit-prop="text"
-            >
-              {contactTitle}
-            </h2>
-            <p
-              className="mt-5 text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-xl mx-auto"
-              data-edit-id={contactSubtitleKey}
-              data-edit-prop="text"
-            >
-              {contactSubtitle}
-            </p>
+      {/* Stay close to what matters most — locations strip */}
+      <section className="bg-ink text-white">
+        <div className="max-w-6xl mx-auto px-6 py-20 md:py-28">
+          <Reveal>
+            <div className="text-center max-w-2xl mx-auto">
+              <h2 className="font-display font-bold text-4xl md:text-5xl leading-tight tracking-tight">
+                {lang === "nl"
+                  ? "Dichtbij alles wat telt"
+                  : "Stay close to what matters most"}
+              </h2>
+              <p className="mt-4 text-white/70 text-[15px] leading-relaxed">
+                {lang === "nl"
+                  ? "Centraal op Curaçao met directe toegang tot de mooiste stranden, restaurants en het oude Willemstad."
+                  : "Centrally located on Curaçao with direct access to the best beaches, restaurants and historic Willemstad."}
+              </p>
+            </div>
           </Reveal>
-          <Reveal delay={0.2}>
-            <InquiryForm t={t.inquiry} />
-          </Reveal>
-        </section>
-      ) : null}
 
-      {showFooter ? (
-        <div data-edit-id="site.footer" data-edit-prop="hidden">
-          <Footer settings={settings ?? null} t={t.footer} />
+          <div className="mt-14 grid md:grid-cols-3 gap-10">
+            {[
+              {
+                flag: "🇨🇼",
+                city: "Willemstad",
+                hood: lang === "nl" ? "Pietermaai · 0000XX" : "Pietermaai · 0000XX",
+                body:
+                  lang === "nl"
+                    ? "Op loopafstand van de cafés, kunst en het kleurrijke Handelskade. Een rustig hoekje in de bruisende stad."
+                    : "Walking distance from the cafés, art and colourful Handelskade. A quiet corner in a vibrant city.",
+              },
+              {
+                flag: "🌴",
+                city: "Jan Thiel",
+                hood: lang === "nl" ? "Caracasbaai" : "Caracasbaai",
+                body:
+                  lang === "nl"
+                    ? "Strand, zwemmen met schildpadden en de beroemde beach clubs van Jan Thiel."
+                    : "Beach, swimming with turtles and the famous Jan Thiel beach clubs.",
+              },
+              {
+                flag: "🪸",
+                city: "Westpunt",
+                hood: lang === "nl" ? "Kleine Knip · Grote Knip" : "Kleine Knip · Grote Knip",
+                body:
+                  lang === "nl"
+                    ? "Wilde stranden, kliffen en de mooiste duikplekken van het eiland."
+                    : "Wild beaches, cliffs and the island's best dive spots.",
+              },
+            ].map((loc) => (
+              <Reveal key={loc.city}>
+                <div className="border-t border-white/15 pt-7">
+                  <div className="text-3xl mb-3" aria-hidden>
+                    {loc.flag}
+                  </div>
+                  <h3 className="font-display font-semibold text-2xl">{loc.city}</h3>
+                  <p className="text-sm text-white/60 mt-1">{loc.hood}</p>
+                  <p className="text-sm text-white/80 mt-4 leading-relaxed">{loc.body}</p>
+                  <Link
+                    href="/property"
+                    className="mt-5 inline-flex items-center text-brand-400 text-sm hover:text-brand-100 transition"
+                  >
+                    {lang === "nl" ? "Bekijk residenties" : "View on map"} →
+                  </Link>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
-      ) : null}
-    </>
+      </section>
+
+      {/* Ready-to-check-in CTA */}
+      <section className="relative">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-paper to-paper-tint"
+        />
+        <div className="max-w-3xl mx-auto px-6 py-24 md:py-32 text-center">
+          <Reveal>
+            <p className="text-[12px] tracking-[0.3em] uppercase text-ink-mute mb-5">
+              {lang === "nl" ? "Klaar om in te checken" : "Ready to check in"}
+            </p>
+            <h2 className="font-display font-bold text-4xl md:text-5xl text-ink leading-tight">
+              {lang === "nl"
+                ? "Plan je verblijf op Curaçao."
+                : "Plan your stay on Curaçao."}
+            </h2>
+            <p className="mt-5 text-ink-mute text-[15px] leading-relaxed">
+              {lang === "nl"
+                ? "Stuur een aanvraag, kijk of er open data zijn, of stuur ons een bericht. We reageren meestal binnen 24 uur."
+                : "Send a request, see open dates, or message us — we typically reply within 24 hours."}
+            </p>
+            <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+              <Link
+                href="/contact"
+                className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-brand-500 hover:bg-brand-600 text-white text-[14px] font-medium transition shadow-pill"
+              >
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
+                  <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M7 12h12M13 6l6 6-6 6" />
+                  </svg>
+                </span>
+                {lang === "nl" ? "Beschikbaarheid" : "Check availability"}
+              </Link>
+              {settings?.whatsapp_number && (
+                <a
+                  href={`https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`}
+                  className="inline-flex items-center px-5 py-2.5 rounded-full bg-paper-warm hover:bg-paper-tint text-ink text-[14px] font-medium transition border border-black/5"
+                >
+                  {lang === "nl" ? "Stuur WhatsApp" : "Contact host"}
+                </a>
+              )}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </SiteShell>
   );
 }

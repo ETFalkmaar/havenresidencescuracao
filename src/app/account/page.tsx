@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatEur, formatDate } from "@/lib/format";
+import { getTranslations } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -24,16 +25,15 @@ type UnitWithProperty = {
 };
 
 const statusStyles: Record<Booking["status"], string> = {
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200",
-  confirmed:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200",
-  cancelled:
-    "bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
-  completed: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200",
+  pending: "bg-amber-100 text-amber-800",
+  confirmed: "bg-emerald-100 text-emerald-800",
+  cancelled: "bg-paper-warm text-ink-mute",
+  completed: "bg-brand-100 text-brand-700",
 };
 
 export default async function AccountHomePage() {
   const supabase = await createClient();
+  const { lang } = await getTranslations();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -53,7 +53,7 @@ export default async function AccountHomePage() {
   const bookings = (bookingsData ?? []) as Booking[];
 
   const unitIds = Array.from(new Set(bookings.map((b) => b.unit_id)));
-  let unitsById = new Map<string, UnitWithProperty>();
+  const unitsById = new Map<string, UnitWithProperty>();
   if (unitIds.length > 0) {
     const { data: unitsData } = await supabase
       .from("units")
@@ -75,64 +75,102 @@ export default async function AccountHomePage() {
       unitsById.set(u.id, {
         id: u.id,
         name: u.name,
-        property: p
-          ? { name: p.name, slug: p.slug, color_hex: p.color_hex }
-          : null,
+        property: p ? { name: p.name, slug: p.slug, color_hex: p.color_hex } : null,
       });
     }
   }
 
   const greetingName = profile?.full_name?.split(" ")[0] ?? "";
+  const tr =
+    lang === "nl"
+      ? {
+          eyebrow: "Account",
+          welcome: greetingName ? `Welkom terug, ${greetingName}.` : "Welkom terug.",
+          subtitle: "Je verblijven, verleden en toekomst. Statusupdates verschijnen hier zodra we een boeking bevestigen.",
+          myStays: "Mijn verblijven",
+          bookAnother: "Boek een nieuw verblijf",
+          noStaysTitle: "Nog geen verblijven",
+          noStaysBody: "Wanneer je een Haven Residence boekt verschijnt het hier met de data en de laatste status.",
+          browseLink: "Bekijk residenties",
+          guests: (n: number) => `${n} ${n === 1 ? "gast" : "gasten"}`,
+          longStay: "lang verblijf",
+          shortStay: "kort verblijf",
+          total: "totaal",
+          statusLabels: {
+            pending: "wacht",
+            confirmed: "bevestigd",
+            cancelled: "geannuleerd",
+            completed: "afgerond",
+          },
+        }
+      : {
+          eyebrow: "Account",
+          welcome: greetingName ? `Welcome back, ${greetingName}.` : "Welcome back.",
+          subtitle: "Your stays, past and upcoming. Status updates appear here as soon as we confirm a booking.",
+          myStays: "My stays",
+          bookAnother: "Book another stay",
+          noStaysTitle: "No stays yet",
+          noStaysBody: "When you book a Haven Residence, it'll appear here with the dates and the latest status.",
+          browseLink: "Browse residences",
+          guests: (n: number) => `${n} ${n === 1 ? "guest" : "guests"}`,
+          longStay: "long stay",
+          shortStay: "short stay",
+          total: "total",
+          statusLabels: {
+            pending: "pending",
+            confirmed: "confirmed",
+            cancelled: "cancelled",
+            completed: "completed",
+          },
+        };
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-12 space-y-10">
+    <div className="max-w-5xl mx-auto px-6 py-12 space-y-10">
       <header>
-        <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-2">
-          Account
+        <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-3">
+          {tr.eyebrow}
         </p>
-        <h1 className="text-3xl font-extralight">
-          Welcome{greetingName ? `, ${greetingName}` : ""}.
+        <h1 className="font-display font-bold text-4xl md:text-5xl tracking-tight">
+          {tr.welcome}
         </h1>
-        <p className="text-sm text-neutral-500 mt-2">
-          Your stays, past and upcoming. Status updates appear here as soon as
-          we confirm a booking.
-        </p>
+        <p className="mt-3 text-ink-mute leading-relaxed max-w-xl">{tr.subtitle}</p>
       </header>
 
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-500">
-            My stays ({bookings.length})
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ink-mute">
+            {tr.myStays} ({bookings.length})
           </h2>
           <Link
-            href="/#residences"
-            className="text-xs underline hover:text-neutral-900 dark:hover:text-neutral-100"
+            href="/property"
+            className="text-[13px] text-ink-mute hover:text-ink transition"
           >
-            Book another stay →
+            {tr.bookAnother} →
           </Link>
         </div>
 
         {bookings.length === 0 ? (
-          <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-10 text-center bg-white dark:bg-neutral-950">
-            <p className="text-base font-medium">No stays yet</p>
-            <p className="text-sm text-neutral-500 max-w-md mx-auto mt-2 leading-relaxed">
-              When you book a Haven Residence, it&apos;ll appear here with the
-              dates and the latest status.
+          <div className="rounded-3xl border border-black/5 bg-paper-warm p-12 text-center">
+            <p className="font-display font-semibold text-xl text-ink">
+              {tr.noStaysTitle}
+            </p>
+            <p className="text-sm text-ink-mute max-w-md mx-auto mt-3 leading-relaxed">
+              {tr.noStaysBody}
             </p>
             <Link
-              href="/#residences"
-              className="inline-block mt-6 px-5 py-2.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition"
+              href="/property"
+              className="inline-block mt-7 px-5 py-2.5 rounded-full bg-ink text-white text-[13px] font-medium hover:bg-ink-soft transition shadow-pill"
             >
-              Browse residences
+              {tr.browseLink}
             </Link>
           </div>
         ) : (
-          <ul className="divide-y divide-neutral-200 dark:divide-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden bg-white dark:bg-neutral-950">
+          <ul className="divide-y divide-black/5 border border-black/5 rounded-3xl overflow-hidden bg-white shadow-pill">
             {bookings.map((b) => {
               const unit = unitsById.get(b.unit_id) ?? null;
-              const accent = unit?.property?.color_hex ?? "#1E5FBF";
+              const accent = unit?.property?.color_hex ?? "#1F6BF0";
               return (
-                <li key={b.id} className="px-5 py-4">
+                <li key={b.id} className="px-6 py-5 hover:bg-paper-tint transition">
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="min-w-0">
                       <div className="flex items-center gap-3 flex-wrap">
@@ -140,27 +178,25 @@ export default async function AccountHomePage() {
                           className="inline-block w-2 h-2 rounded-full shrink-0"
                           style={{ backgroundColor: accent }}
                         />
-                        <span className="font-medium">
+                        <span className="font-medium text-ink">
                           {unit?.property?.name ?? "Stay"}
                         </span>
                         <span
                           className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded ${statusStyles[b.status]}`}
                         >
-                          {b.status}
+                          {tr.statusLabels[b.status]}
                         </span>
-                        <span className="text-xs text-neutral-500">
-                          {b.reference}
-                        </span>
+                        <span className="text-xs text-ink-mute">{b.reference}</span>
                       </div>
-                      <p className="text-xs text-neutral-500 mt-1.5">
+                      <p className="text-xs text-ink-mute mt-1.5">
                         {formatDate(b.check_in)} — {formatDate(b.check_out)} ·{" "}
-                        {b.num_guests} guest{b.num_guests === 1 ? "" : "s"} ·{" "}
-                        {b.stay_type === "long" ? "long stay" : "short stay"}
+                        {tr.guests(b.num_guests)} ·{" "}
+                        {b.stay_type === "long" ? tr.longStay : tr.shortStay}
                       </p>
                     </div>
                     <div className="text-right whitespace-nowrap">
-                      <p className="font-medium">{formatEur(b.total_eur)}</p>
-                      <p className="text-xs text-neutral-500 mt-0.5">total</p>
+                      <p className="font-medium text-ink">{formatEur(b.total_eur)}</p>
+                      <p className="text-xs text-ink-mute mt-0.5">{tr.total}</p>
                     </div>
                   </div>
                 </li>
@@ -169,6 +205,6 @@ export default async function AccountHomePage() {
           </ul>
         )}
       </section>
-    </main>
+    </div>
   );
 }

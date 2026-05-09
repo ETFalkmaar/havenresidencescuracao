@@ -14,19 +14,22 @@ export const EDITABLE_REGISTRY: EditableElement[] = [
   { key: "site.theme.fontHeading", kind: "fontFamily", label: "Heading font" },
   { key: "site.theme.fontBody", kind: "fontFamily", label: "Body font" },
 
-  // ---------- Header ----------
+  // ---------- Header / footer ----------
   { key: "site.header", kind: "boolean", label: "Show header" },
-
-  // ---------- Footer ----------
   { key: "site.footer", kind: "boolean", label: "Show footer" },
 
   // ---------- Home: hero ----------
-  { key: "home.hero.tagline", kind: "text", label: "Hero tagline (EN)" },
-  { key: "home.hero.tagline_nl", kind: "text", label: "Hero tagline (NL)" },
-  { key: "home.hero.brandName", kind: "text", label: "Hero brand name" },
-  { key: "home.hero.cta", kind: "text", label: "Hero CTA label (EN)" },
-  { key: "home.hero.cta_nl", kind: "text", label: "Hero CTA label (NL)" },
   { key: "home.hero", kind: "boolean", label: "Show hero" },
+  { key: "home.hero.brandName", kind: "text", label: "Hero brand name" },
+  { key: "home.hero.eyebrow", kind: "text", label: "Hero eyebrow (EN)" },
+  { key: "home.hero.eyebrow_nl", kind: "text", label: "Hero eyebrow (NL)" },
+  { key: "home.hero.title", kind: "text", label: "Hero title (EN)" },
+  { key: "home.hero.title_nl", kind: "text", label: "Hero title (NL)" },
+  { key: "home.hero.subtitle", kind: "text", label: "Hero subtitle (EN)" },
+  { key: "home.hero.subtitle_nl", kind: "text", label: "Hero subtitle (NL)" },
+  // legacy keys kept so existing draft edits still resolve
+  { key: "home.hero.tagline", kind: "text", label: "Hero tagline (EN, legacy)" },
+  { key: "home.hero.tagline_nl", kind: "text", label: "Hero tagline (NL, legacy)" },
 
   // ---------- Home: residences section ----------
   { key: "home.residences", kind: "boolean", label: "Show residences section" },
@@ -35,25 +38,72 @@ export const EDITABLE_REGISTRY: EditableElement[] = [
   { key: "home.residences.title", kind: "text", label: "Residences title (EN)" },
   { key: "home.residences.title_nl", kind: "text", label: "Residences title (NL)" },
 
-  // ---------- Home: about ----------
-  { key: "home.about", kind: "boolean", label: "Show about section" },
-  { key: "home.about.eyebrow", kind: "text", label: "About eyebrow (EN)" },
-  { key: "home.about.eyebrow_nl", kind: "text", label: "About eyebrow (NL)" },
-  { key: "home.about.title", kind: "text", label: "About title (EN)" },
-  { key: "home.about.title_nl", kind: "text", label: "About title (NL)" },
-  { key: "home.about.body", kind: "text", label: "About body (EN)" },
-  { key: "home.about.body_nl", kind: "text", label: "About body (NL)" },
-  { key: "home.about.body2", kind: "text", label: "About body 2 (EN)" },
-  { key: "home.about.body2_nl", kind: "text", label: "About body 2 (NL)" },
+  // ---------- Home: trusted-by row ----------
+  { key: "home.trusted.caption", kind: "text", label: "Trusted-by caption (EN)" },
+  { key: "home.trusted.caption_nl", kind: "text", label: "Trusted-by caption (NL)" },
 
-  // ---------- Home: contact ----------
-  { key: "home.contact", kind: "boolean", label: "Show contact section" },
-  { key: "home.contact.eyebrow", kind: "text", label: "Contact eyebrow (EN)" },
-  { key: "home.contact.eyebrow_nl", kind: "text", label: "Contact eyebrow (NL)" },
-  { key: "home.contact.title", kind: "text", label: "Contact title (EN)" },
-  { key: "home.contact.title_nl", kind: "text", label: "Contact title (NL)" },
-  { key: "home.contact.subtitle", kind: "text", label: "Contact subtitle (EN)" },
-  { key: "home.contact.subtitle_nl", kind: "text", label: "Contact subtitle (NL)" },
+  // ---------- About page ----------
+  { key: "about.title", kind: "text", label: "About title (EN)" },
+  { key: "about.title_nl", kind: "text", label: "About title (NL)" },
+  { key: "about.body", kind: "text", label: "About body (EN)" },
+  { key: "about.body_nl", kind: "text", label: "About body (NL)" },
+  { key: "about.stat1.value", kind: "text", label: "About stat 1 — value" },
+  { key: "about.stat1.label", kind: "text", label: "About stat 1 — label (EN)" },
+  { key: "about.stat1.label_nl", kind: "text", label: "About stat 1 — label (NL)" },
+  { key: "about.stat2.value", kind: "text", label: "About stat 2 — value" },
+  { key: "about.stat2.label", kind: "text", label: "About stat 2 — label (EN)" },
+  { key: "about.stat2.label_nl", kind: "text", label: "About stat 2 — label (NL)" },
+  { key: "about.stat3.value", kind: "text", label: "About stat 3 — value" },
+  { key: "about.stat3.label", kind: "text", label: "About stat 3 — label (EN)" },
+  { key: "about.stat3.label_nl", kind: "text", label: "About stat 3 — label (NL)" },
+
+  // ---------- Gallery page ----------
+  { key: "gallery.eyebrow", kind: "text", label: "Gallery eyebrow (EN)" },
+  { key: "gallery.eyebrow_nl", kind: "text", label: "Gallery eyebrow (NL)" },
+  { key: "gallery.title", kind: "text", label: "Gallery title (EN)" },
+  { key: "gallery.title_nl", kind: "text", label: "Gallery title (NL)" },
+  { key: "gallery.desc", kind: "text", label: "Gallery description (EN)" },
+  { key: "gallery.desc_nl", kind: "text", label: "Gallery description (NL)" },
+
+  // ---------- Reviews page ----------
+  { key: "reviews.eyebrow", kind: "text", label: "Reviews eyebrow (EN)" },
+  { key: "reviews.eyebrow_nl", kind: "text", label: "Reviews eyebrow (NL)" },
+  { key: "reviews.title", kind: "text", label: "Reviews title (EN)" },
+  { key: "reviews.title_nl", kind: "text", label: "Reviews title (NL)" },
+  { key: "reviews.desc", kind: "text", label: "Reviews description (EN)" },
+  { key: "reviews.desc_nl", kind: "text", label: "Reviews description (NL)" },
+
+  // ---------- Property page ----------
+  { key: "property.eyebrow", kind: "text", label: "Property eyebrow (EN)" },
+  { key: "property.eyebrow_nl", kind: "text", label: "Property eyebrow (NL)" },
+  { key: "property.title", kind: "text", label: "Property title (EN)" },
+  { key: "property.title_nl", kind: "text", label: "Property title (NL)" },
+  { key: "property.desc", kind: "text", label: "Property description (EN)" },
+  { key: "property.desc_nl", kind: "text", label: "Property description (NL)" },
+
+  // ---------- Contact page ----------
+  { key: "contact.eyebrow", kind: "text", label: "Contact eyebrow (EN)" },
+  { key: "contact.eyebrow_nl", kind: "text", label: "Contact eyebrow (NL)" },
+  { key: "contact.title", kind: "text", label: "Contact title (EN)" },
+  { key: "contact.title_nl", kind: "text", label: "Contact title (NL)" },
+  { key: "contact.desc", kind: "text", label: "Contact description (EN)" },
+  { key: "contact.desc_nl", kind: "text", label: "Contact description (NL)" },
+
+  // ---------- Legacy home about/contact (kept so old edits still resolve) ----------
+  { key: "home.about", kind: "boolean", label: "Show home about (legacy)" },
+  { key: "home.about.eyebrow", kind: "text", label: "Home about eyebrow (EN, legacy)" },
+  { key: "home.about.eyebrow_nl", kind: "text", label: "Home about eyebrow (NL, legacy)" },
+  { key: "home.about.title", kind: "text", label: "Home about title (EN, legacy)" },
+  { key: "home.about.title_nl", kind: "text", label: "Home about title (NL, legacy)" },
+  { key: "home.about.body", kind: "text", label: "Home about body (EN, legacy)" },
+  { key: "home.about.body_nl", kind: "text", label: "Home about body (NL, legacy)" },
+  { key: "home.contact", kind: "boolean", label: "Show home contact (legacy)" },
+  { key: "home.contact.eyebrow", kind: "text", label: "Home contact eyebrow (EN, legacy)" },
+  { key: "home.contact.eyebrow_nl", kind: "text", label: "Home contact eyebrow (NL, legacy)" },
+  { key: "home.contact.title", kind: "text", label: "Home contact title (EN, legacy)" },
+  { key: "home.contact.title_nl", kind: "text", label: "Home contact title (NL, legacy)" },
+  { key: "home.contact.subtitle", kind: "text", label: "Home contact subtitle (EN, legacy)" },
+  { key: "home.contact.subtitle_nl", kind: "text", label: "Home contact subtitle (NL, legacy)" },
 ];
 
 // Lookup table for fast access.

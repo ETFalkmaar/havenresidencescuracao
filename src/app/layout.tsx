@@ -1,8 +1,21 @@
 import type { Metadata } from "next";
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { loadOverlay } from "@/lib/editor/overrides";
 import { isEditorPreview, isEditorOverlayRequested } from "@/lib/editor/mode";
 import { EditorOverlay } from "@/components/editor/EditorOverlay";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -35,11 +48,9 @@ export default async function RootLayout({
   );
 
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
+      <body className="antialiased bg-paper text-ink">
         {customCss ? (
-          // Custom CSS from the Ultra editor — placed early so site CSS still
-          // wins for properties admins didn't override.
           <style
             id="editor-custom-css"
             dangerouslySetInnerHTML={{ __html: customCss }}
