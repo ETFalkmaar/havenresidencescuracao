@@ -1,6 +1,4 @@
-import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { setEditorPreview } from "./actions";
 import { EditorShell } from "./EditorShell";
 import type {
   SiteVersion,
@@ -13,19 +11,9 @@ export const dynamic = "force-dynamic";
 export default async function EditorPage() {
   const supabase = await createClient();
 
-  // Force-on the editor preview cookie + overlay cookie when the page loads.
-  // Both are short-lived so anonymous users on the same browser later don't
-  // see drafts or chrome.
-  const cookieStore = await cookies();
-  if (cookieStore.get("editor_preview")?.value !== "1") {
-    await setEditorPreview(true);
-  }
-  cookieStore.set("editor_overlay", "1", {
-    httpOnly: false,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 4,
-  });
+  // Cookie setting (`editor_preview`, `editor_overlay`) MUST NOT happen here —
+  // Server Components are not allowed to write cookies. EditorShell calls
+  // `enableEditorSession()` server action on mount instead.
 
   const [versionsRes, actionsRes, ultraRes, adminsRes, editsRes] = await Promise.all([
     supabase
