@@ -3,12 +3,15 @@
 import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
+// Subtle slide-up reveal that stays visible if JS never runs.
+// We start at opacity 1 (so SSR is readable) and let framer-motion overlay
+// a small entrance translate on first paint when supported.
 const baseVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
@@ -24,24 +27,19 @@ export function Reveal({
   as?: "div" | "section" | "li";
 }) {
   const MotionTag = motion[as] as typeof motion.div;
-  const variants: Variants = {
-    hidden: baseVariants.hidden!,
-    visible: {
-      ...(typeof baseVariants.visible === "object" ? baseVariants.visible : {}),
-      transition: {
-        duration: 0.9,
-        delay,
-        ease: [0.22, 1, 0.36, 1],
-      },
-    },
-  };
-
   return (
     <MotionTag
-      variants={variants}
-      initial="hidden"
+      variants={{
+        hidden: baseVariants.hidden!,
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] },
+        },
+      }}
+      initial="visible"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.05 }}
       className={className}
     >
       {children}
@@ -52,7 +50,7 @@ export function Reveal({
 export function StaggerGroup({
   children,
   className,
-  staggerChildren = 0.12,
+  staggerChildren = 0.08,
 }: {
   children: ReactNode;
   className?: string;
@@ -60,9 +58,9 @@ export function StaggerGroup({
 }) {
   return (
     <motion.div
-      initial="hidden"
+      initial="visible"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={{ once: true, amount: 0.05 }}
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren } },
@@ -82,7 +80,7 @@ export function StaggerItem({
   className?: string;
 }) {
   return (
-    <motion.div variants={baseVariants} className={className}>
+    <motion.div variants={baseVariants} initial="visible" className={className}>
       {children}
     </motion.div>
   );

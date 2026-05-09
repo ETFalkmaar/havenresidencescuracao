@@ -14,9 +14,23 @@ export const metadata = {
   title: "Gallery",
 };
 
-const AMENITY_ICONS: Record<string, string> = {
+// Map the lucide-style icon name (stored in `amenities.icon`) to an emoji we
+// can render without pulling in the lucide library.
+const ICON_EMOJI: Record<string, string> = {
   wifi: "📶",
-  kitchen: "🍴",
+  wind: "❄️",
+  "tree-palm": "🌴",
+  umbrella: "🏖️",
+  bed: "🛏️",
+  utensils: "🍽️",
+  shield: "🛡️",
+  waves: "🏊",
+  car: "🚗",
+  sparkles: "✨",
+  lock: "🔒",
+  tv: "📺",
+  "washing-machine": "🧺",
+  kitchen: "🍳",
   pool: "🏊",
   ac: "❄️",
   cleaning: "🧴",
@@ -96,14 +110,17 @@ export default async function GalleryPage() {
         {amenities.length > 0 && (
           <div className="mt-12 flex flex-wrap gap-3 justify-center max-w-3xl mx-auto">
             {amenities.map((a) => {
-              const icon = a.icon ?? AMENITY_ICONS[a.slug] ?? "•";
+              const emoji =
+                (a.icon ? ICON_EMOJI[a.icon] : null) ??
+                ICON_EMOJI[a.slug] ??
+                "✦";
               return (
                 <span
                   key={a.slug}
                   className="amenity-chip inline-flex items-center gap-2 px-4 py-2 rounded-full bg-paper-warm border border-black/5 text-[13px] text-ink"
                 >
                   <span aria-hidden className="text-base">
-                    {icon}
+                    {emoji}
                   </span>
                   {a.name}
                 </span>
