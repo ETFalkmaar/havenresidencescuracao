@@ -33,10 +33,10 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
     isAdmin = !!adminRow;
   }
 
-  const brandName =
-    pickText(overlay, "home.hero.brandName", "text", null) ??
-    settings?.brand_name ??
-    "Haven Residence";
+  // Brand is edited from /admin/settings — the visual editor's old hero
+  // brandName override is intentionally ignored here so header and footer
+  // always reflect the saved brand_name in site_settings.
+  const brandName = settings?.brand_name ?? "Haven Residence";
 
   return (
     <div className="min-h-screen flex flex-col bg-paper">

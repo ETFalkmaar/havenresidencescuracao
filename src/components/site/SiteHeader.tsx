@@ -68,11 +68,8 @@ export function SiteHeader({
               {brandName.charAt(0).toUpperCase()}
             </span>
             <span className="hidden sm:inline-flex items-baseline gap-1.5">
-              <span className="font-display font-bold text-ink text-[17px] leading-none tracking-tight">
-                {brandName.split(" ")[0]?.toLowerCase() ?? "haven"}
-              </span>
-              <span className="text-ink-mute text-[13px] hidden md:inline">
-                {lang === "nl" ? "residentie" : "residence"}
+              <span className="font-display font-bold text-ink text-[17px] leading-none tracking-tight lowercase">
+                {brandName}
               </span>
             </span>
           </Link>

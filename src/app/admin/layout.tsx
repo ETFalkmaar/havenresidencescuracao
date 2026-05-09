@@ -195,6 +195,12 @@ export default async function AdminLayout({
   const advancedItems = [
     ...easyItems,
     {
+      href: "/admin/units",
+      label: lang === "nl" ? "Units" : "Units",
+      description: lang === "nl" ? "Slaapkamers, prijzen" : "Bedrooms, prices",
+      icon: Icon.bed,
+    },
+    {
       href: "/admin/bookings",
       label: lang === "nl" ? "Boekingen" : "Bookings",
       description: lang === "nl" ? "Reserveringen" : "Reservations",

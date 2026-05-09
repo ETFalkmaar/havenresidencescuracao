@@ -41,11 +41,8 @@ export function SiteFooter({
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-ink text-white text-sm font-semibold">
               {brand.charAt(0).toUpperCase()}
             </span>
-            <span className="font-display font-bold text-ink text-xl tracking-tight">
-              {brand.split(" ")[0]?.toLowerCase() ?? "haven"}
-              <span className="text-ink-mute text-sm font-normal ml-2">
-                {lang === "nl" ? "residentie" : "residence"}
-              </span>
+            <span className="font-display font-bold text-ink text-xl tracking-tight lowercase">
+              {brand}
             </span>
           </Link>
           {tagline && (

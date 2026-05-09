@@ -103,24 +103,17 @@ export function EditorShell({
   }
 
   function doPublish() {
-    const description = prompt(
-      "Short description for this version (e.g. 'Updated hero copy'):",
-      "Published changes",
-    );
-    if (description === null) return;
-    const label = prompt(
-      "Optional label (leave blank for none):",
-      "",
-    );
+    if (!confirm("Publish all draft changes to the live site?")) return;
     setError(null);
+    const stamp = new Date().toLocaleString();
     startTransition(async () => {
-      const result = await publishChanges(label?.trim() || null, description.trim() || "Published changes");
+      const result = await publishChanges(null, `Published ${stamp}`);
       if (!result.ok) {
         setError(result.error);
         return;
       }
       setPendingCount(0);
-      setInfo("Published 🎉");
+      setInfo("Published ✅");
       setTimeout(() => setInfo(null), 2400);
       refreshPreview();
     });

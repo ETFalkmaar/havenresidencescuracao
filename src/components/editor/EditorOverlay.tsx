@@ -55,6 +55,16 @@ export function EditorOverlay() {
   const [busy, setBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Don't render the overlay on the admin shell itself — it would sit on top
+  // of the editor's own toolbar (Publish / Discard / Exit) and intercept
+  // clicks. The iframe inside /admin/editor still gets the overlay because
+  // it loads the public site.
+  const [shouldRender, setShouldRender] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setShouldRender(!window.location.pathname.startsWith("/admin"));
+  }, []);
+
   // Recompute rect when selected/hovered changes — we measure on demand.
   const measure = useCallback((el: HTMLElement) => el.getBoundingClientRect(), []);
 
@@ -285,6 +295,7 @@ export function EditorOverlay() {
   }
 
   // ---------- Render ----------
+  if (!shouldRender) return null;
   return (
     <>
       {/* Hover ring */}
