@@ -165,3 +165,29 @@ export async function setEditorPreview(enabled: boolean): Promise<ActionResult> 
   }
   return { ok: true };
 }
+
+/**
+ * Enable the editor session: set both `editor_preview` (admin SSR sees drafts)
+ * and `editor_overlay` (client overlay UI mounts on the public site). Called
+ * from EditorShell on mount, never from a Server Component, so the
+ * `cookies().set()` calls below run in the proper Server Action context.
+ */
+export async function enableEditorSession(): Promise<ActionResult> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+
+  const cookieStore = await cookies();
+  cookieStore.set("editor_preview", "1", {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 4,
+  });
+  cookieStore.set("editor_overlay", "1", {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 4,
+  });
+  return { ok: true };
+}

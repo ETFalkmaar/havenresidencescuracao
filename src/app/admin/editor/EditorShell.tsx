@@ -5,6 +5,7 @@ import {
   publishChanges,
   discardDrafts,
   setEditorPreview,
+  enableEditorSession,
   saveEdit,
 } from "./actions";
 import { VersionSidebar } from "./VersionSidebar";
@@ -47,9 +48,35 @@ export function EditorShell({
   const [info, setInfo] = useState<string | null>(null);
   const [pendingCount, setPendingCount] = useState(draftPendingCount);
   const [iframeKey, setIframeKey] = useState(0);
+  const [sessionReady, setSessionReady] = useState(false);
   const [selected, setSelected] = useState<{ targetKey: string; prop: string } | null>(
     null,
   );
+
+  // On mount, set the editor cookies via a server action (only Server Actions
+  // and route handlers may write cookies). Once the cookies are set, force
+  // the iframe to mount so it picks them up on its first request.
+  useEffect(() => {
+    let cancelled = false;
+    enableEditorSession()
+      .then((r) => {
+        if (cancelled) return;
+        if (!r.ok) {
+          setError(r.error);
+          return;
+        }
+        setSessionReady(true);
+        // Bump the iframe key once cookies are set so the first iframe load
+        // hits the SSR with the cookies present.
+        setIframeKey((k) => k + 1);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to start editor session");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Listen to messages from the iframe (overlay).
   useEffect(() => {
@@ -274,7 +301,13 @@ export function EditorShell({
             className="bg-white shadow-xl rounded-lg overflow-hidden transition-all"
             style={{ width: previewWidth, maxWidth: "100%" }}
           >
-            <PreviewFrame iframeKey={iframeKey} />
+            {sessionReady ? (
+              <PreviewFrame iframeKey={iframeKey} />
+            ) : (
+              <div className="grid place-items-center text-sm text-neutral-500" style={{ height: "calc(100vh - 130px)" }}>
+                Starting editor session…
+              </div>
+            )}
           </div>
         </div>
 
