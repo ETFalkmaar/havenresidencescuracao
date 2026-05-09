@@ -15,12 +15,14 @@ type AdminMode = "easy" | "advanced";
 // Advanced mode = full menu.
 const EASY_NAV = [
   { href: "/admin", labelEn: "Dashboard", labelNl: "Overzicht" },
+  { href: "/admin/editor", labelEn: "Edit website", labelNl: "Website bewerken" },
   { href: "/admin/properties", labelEn: "Residences", labelNl: "Residenties" },
   { href: "/admin/inquiries", labelEn: "Inquiries", labelNl: "Aanvragen" },
 ];
 
 const ADVANCED_NAV = [
   { href: "/admin", labelEn: "Dashboard", labelNl: "Overzicht" },
+  { href: "/admin/editor", labelEn: "Edit website", labelNl: "Website bewerken" },
   { href: "/admin/properties", labelEn: "Residences", labelNl: "Residenties" },
   { href: "/admin/units", labelEn: "Units", labelNl: "Units" },
   { href: "/admin/inquiries", labelEn: "Inquiries", labelNl: "Aanvragen" },

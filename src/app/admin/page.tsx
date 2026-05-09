@@ -69,6 +69,28 @@ export default async function AdminDashboard() {
       <h1 className="text-3xl font-extralight mb-2">{tr.title}</h1>
       <p className="text-sm text-neutral-500 mb-10">{tr.welcome}</p>
 
+      <Link
+        href="/admin/editor"
+        className="block mb-10 rounded-xl border border-neutral-900 dark:border-white bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 p-6 hover:opacity-95 transition"
+      >
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.3em] opacity-60 mb-2">
+              {lang === "nl" ? "Nieuw" : "New"}
+            </p>
+            <h2 className="text-2xl font-light">
+              {lang === "nl" ? "Bewerk de website live" : "Edit the website live"}
+            </h2>
+            <p className="text-sm opacity-80 mt-1 max-w-xl">
+              {lang === "nl"
+                ? "Open de visuele editor om tekst, afbeeldingen, kleuren en zichtbaarheid aan te passen. Wijzigingen blijven concept tot je publiceert."
+                : "Open the visual editor to change text, images, colors, and visibility. Changes stay as drafts until you publish."}
+            </p>
+          </div>
+          <span className="text-2xl">→</span>
+        </div>
+      </Link>
+
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         {stats.map((s) => (
           <Link
