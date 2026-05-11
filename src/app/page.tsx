@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SiteShell } from "@/components/site/SiteShell";
-import { HomeHero } from "@/components/site/HomeHero";
-import { PropertyShowcase, type Slide } from "@/components/site/PropertyShowcase";
+import { HomeHero, type HeroSlide } from "@/components/site/HomeHero";
 import { PropertyTile, type PropertyTileData } from "@/components/site/PropertyTile";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
@@ -60,12 +59,12 @@ export default async function Home() {
   }
 
   // Interleave photos from each property so the slideshow alternates.
-  const showcaseSlides: Slide[] = [];
+  const heroSlides: HeroSlide[] = [];
   const maxLen = Math.max(...slidesPerProperty.map((g) => g.urls.length), 0);
   for (let i = 0; i < maxLen; i++) {
     for (const g of slidesPerProperty) {
       if (i < g.urls.length) {
-        showcaseSlides.push({
+        heroSlides.push({
           url: g.urls[i]!,
           propertyName:
             pickText(overlay, `prop:${g.property.id}`, "name", null) ??
@@ -104,27 +103,12 @@ export default async function Home() {
   }
 
   // ----- Hero copy (no fake stats / "trusted by 15k" claims) -----
-  const heroEyebrowKey = "home.hero.eyebrow";
   const heroTitleKey = "home.hero.title";
-  const heroSubtitleKey = "home.hero.subtitle";
-
-  const heroEyebrow =
-    pickText(overlay, heroEyebrowKey, "text", null) ??
-    (lang === "nl"
-      ? "Premium verblijven · Curaçao"
-      : "Premium stays · Curaçao");
-
   const heroTitle =
     pickText(overlay, heroTitleKey, "text", null) ??
     (lang === "nl"
       ? "Vind je volgende verblijf, voel je direct thuis"
       : "Find your next stay, feel right at home");
-
-  const heroSubtitle =
-    pickText(overlay, heroSubtitleKey, "text", null) ??
-    (lang === "nl"
-      ? "Een klein, persoonlijk geleid huis en tien appartementen op Curaçao. Bekijk beschikbaarheid en reserveer rechtstreeks."
-      : "One owner-run house and ten apartments on Curaçao. Check availability and book directly.");
 
   const collectionEyebrow =
     pickText(overlay, "home.residences.eyebrow", "text", null) ??
@@ -149,23 +133,18 @@ export default async function Home() {
 
   return (
     <SiteShell>
-      {showHero && (
+      {showHero && heroSlides.length > 0 && (
         <HomeHero
-          eyebrow={heroEyebrow}
           title={heroTitle}
-          subtitle={heroSubtitle}
-          primaryCta={lang === "nl" ? "Bekijk residenties" : "View Property"}
-          primaryHref="/property"
-          secondaryCta={lang === "nl" ? "Beschikbaarheid" : "Check Availability"}
-          secondaryHref="/contact"
+          slides={heroSlides}
+          viewLabel={lang === "nl" ? "Bekijk de residentie" : "View property"}
+          comingSoonLabel={lang === "nl" ? "Binnenkort" : "Coming soon"}
+          availabilityLabel={
+            lang === "nl" ? "Beschikbaarheid" : "Check availability"
+          }
+          availabilityHref="/contact"
         />
       )}
-
-      <PropertyShowcase
-        slides={showcaseSlides}
-        ctaLabel={lang === "nl" ? "Bekijk de residentie" : "View the residence"}
-        comingSoonLabel={lang === "nl" ? "Meer info" : "More info"}
-      />
 
       {showResidences && (
         <section
