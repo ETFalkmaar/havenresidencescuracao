@@ -440,27 +440,26 @@ export default async function PropertyPage({ params }: { params: Params }) {
         </section>
       )}
 
-      {/* Booking or inquiry */}
-      <section
-        id="book"
-        className="border-t border-neutral-200 dark:border-neutral-900 py-20 lg:py-28"
-      >
-        <div className="max-w-3xl mx-auto px-6 lg:px-10">
-          <Reveal>
-            <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              {canBook ? t.booking.bookOnline : t.home.inquire}
-            </p>
-            <h2 className="text-3xl md:text-4xl font-extralight mb-4 tracking-tight">
-              {isComingSoon
-                ? td.reserveEarlyAccess
-                : fmt(td.stayAt, { name: property.name })}
-            </h2>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
-              {isComingSoon ? td.reserveSubtext : t.booking.bookSubtext}
-            </p>
-          </Reveal>
-          <Reveal delay={0.2}>
-            {canBook && unit ? (
+      {/* Booking — only when the residence is active. Coming-soon residences
+          skip this block; guests can still use the question form below. */}
+      {canBook && unit && (
+        <section
+          id="book"
+          className="border-t border-black/5 py-20 lg:py-28 bg-paper"
+        >
+          <div className="max-w-3xl mx-auto px-6 lg:px-10">
+            <Reveal>
+              <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                {t.booking.bookOnline}
+              </p>
+              <h2 className="font-display font-bold text-3xl md:text-4xl mb-4 tracking-tight text-ink">
+                {fmt(td.stayAt, { name: property.name })}
+              </h2>
+              <p className="text-ink-mute mb-8 leading-relaxed">
+                {t.booking.bookSubtext}
+              </p>
+            </Reveal>
+            <Reveal delay={0.2}>
               <BookingForm
                 unit={{
                   id: unit.id,
@@ -496,13 +495,77 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 locale={locale}
                 t={t.booking}
               />
-            ) : (
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* Coming-soon block — replaces booking with a notify / wait-list CTA. */}
+      {isComingSoon && (
+        <section
+          id="notify"
+          className="border-t border-black/5 py-20 lg:py-28 bg-paper-tint"
+        >
+          <div className="max-w-3xl mx-auto px-6 lg:px-10 text-center">
+            <Reveal>
+              <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                {lang === "nl" ? "Binnenkort" : "Coming soon"}
+              </p>
+              <h2 className="font-display font-bold text-3xl md:text-5xl mb-4 tracking-tight text-ink">
+                {lang === "nl"
+                  ? "Boekingen openen binnenkort"
+                  : "Bookings open soon"}
+              </h2>
+              <p className="text-ink-mute leading-relaxed max-w-xl mx-auto">
+                {lang === "nl"
+                  ? `${property.name} is bijna klaar voor onze eerste gasten. Laat ons je gegevens achter en je hoort als eerste wanneer boekingen openen — geen wachtlijst, geen verplichting.`
+                  : `${property.name} is almost ready for our first guests. Leave your details and you'll be the first to hear when bookings open — no waitlist, no obligation.`}
+              </p>
+              {property.available_from && (
+                <p className="mt-4 text-[12px] uppercase tracking-[0.3em] text-ink-mute">
+                  {lang === "nl" ? "Verwacht open" : "Expected to open"} ·{" "}
+                  {new Date(property.available_from).toLocaleDateString(locale, {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* Questions section — always present, 24h reply. */}
+      <section
+        id="ask"
+        className="border-t border-black/5 py-20 lg:py-28 bg-paper-tint"
+      >
+        <div className="max-w-3xl mx-auto px-6 lg:px-10">
+          <Reveal>
+            <div className="text-center mb-10">
+              <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                {lang === "nl" ? "Vragen?" : "Questions?"}
+              </p>
+              <h2 className="font-display font-bold text-3xl md:text-5xl tracking-tight text-ink leading-tight">
+                {lang === "nl"
+                  ? "Stuur ons een bericht"
+                  : "Send us a message"}
+              </h2>
+              <p className="mt-4 text-ink-mute leading-relaxed">
+                {lang === "nl"
+                  ? "We reageren binnen 24 uur. Schoonmaak, sleutels, ligging, lange verblijven — vraag het ons gerust."
+                  : "We reply within 24 hours. Cleaning, keys, location, longer stays — ask us anything."}
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <div className="rounded-3xl bg-white border border-black/5 shadow-pill p-6 md:p-8">
               <InquiryForm
                 propertyId={property.id}
-                accent={accent}
+                accent="#0B0B0B"
                 t={t.inquiry}
               />
-            )}
+            </div>
           </Reveal>
         </div>
       </section>

@@ -103,34 +103,63 @@ export function HomeHero({
         {/* Bottom row — buttons on the left, residence name on the right.
             On mobile the residence name stacks above the buttons. */}
         <div className="mt-9 flex flex-col-reverse md:flex-row md:items-end md:justify-between gap-6 md:gap-10">
-          {/* CTAs */}
+          {/* CTAs — for coming-soon residences we don't link to the
+              residence detail (it's a teaser, not bookable). Only show
+              a single "Notify me" pill that goes to the contact form. */}
           <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/${current.propertySlug}`}
-              className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-white text-ink text-[15px] font-medium hover:bg-paper-warm transition shadow-pill"
-            >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-white">
-                <svg
-                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+            {current.isComingSoon ? (
+              <Link
+                href={availabilityHref}
+                className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-white text-ink text-[15px] font-medium hover:bg-paper-warm transition shadow-pill"
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-white">
+                  <svg
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M4 4h16v16H4z" />
+                    <path d="M22 6l-10 7L2 6" />
+                  </svg>
+                </span>
+                {comingSoonLabel === "Coming soon"
+                  ? "Notify me when available"
+                  : "Hou me op de hoogte"}
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href={`/${current.propertySlug}`}
+                  className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-white text-ink text-[15px] font-medium hover:bg-paper-warm transition shadow-pill"
                 >
-                  <path d="M7 12h12M13 6l6 6-6 6" />
-                </svg>
-              </span>
-              {viewLabel}
-            </Link>
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-white">
+                    <svg
+                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M7 12h12M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                  {viewLabel}
+                </Link>
 
-            <Link
-              href={availabilityHref}
-              className="inline-flex items-center px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-white text-[15px] font-medium transition border border-white/30"
-            >
-              {availabilityLabel}
-            </Link>
+                <Link
+                  href={availabilityHref}
+                  className="inline-flex items-center px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-white text-[15px] font-medium transition border border-white/30"
+                >
+                  {availabilityLabel}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Residence caption — same display font as the heading, big & bold */}

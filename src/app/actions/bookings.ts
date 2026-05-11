@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { calculatePrice, type StayType } from "@/lib/pricing";
+import { sendEmail } from "@/lib/email/send";
+import { bookingConfirmationEmail } from "@/lib/email/templates";
 
 export type CreateBookingInput = {
   unitId: string;
@@ -119,5 +121,66 @@ export async function createBooking(
   revalidatePath("/account");
   revalidatePath("/admin/bookings");
   revalidatePath("/admin");
+
+  // Fire-and-forget confirmation email. Failures are logged but never
+  // block the booking (we already wrote the row to the DB).
+  try {
+    const [propertyRow, settingsRow] = await Promise.all([
+      supabase
+        .from("properties")
+        .select("name, city, address")
+        .eq("id", (unitRow as { property_id: string }).property_id)
+        .maybeSingle(),
+      supabase
+        .from("site_settings")
+        .select("brand_name, contact_email, whatsapp_number")
+        .eq("id", 1)
+        .maybeSingle(),
+    ]);
+    const prop = propertyRow.data as {
+      name: string;
+      city: string | null;
+      address: string | null;
+    } | null;
+    const settings = settingsRow.data as {
+      brand_name: string;
+      contact_email: string | null;
+      whatsapp_number: string | null;
+    } | null;
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ??
+      "https://havenresidencescuracao.vercel.app";
+
+    if (user.email && prop) {
+      const mail = bookingConfirmationEmail({
+        guestName: input.guestName,
+        reference: result.reference,
+        propertyName: prop.name,
+        city: prop.city,
+        address: prop.address,
+        checkIn: input.checkIn,
+        checkOut: input.checkOut,
+        numGuests: input.numGuests,
+        total: breakdown.total,
+        brandName: settings?.brand_name ?? "Haven Residence",
+        contactEmail: settings?.contact_email ?? null,
+        whatsappNumber: settings?.whatsapp_number ?? null,
+        siteUrl,
+      });
+      const send = await sendEmail({
+        to: user.email,
+        subject: mail.subject,
+        html: mail.html,
+        text: mail.text,
+        replyTo: settings?.contact_email ?? undefined,
+      });
+      if (!send.ok && !send.skipped) {
+        console.error("[booking] email failed:", send.error);
+      }
+    }
+  } catch (e) {
+    console.error("[booking] post-confirm email error:", e);
+  }
+
   return { ok: true, reference: result.reference, bookingId: result.booking_id };
 }

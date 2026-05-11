@@ -146,9 +146,14 @@ export default async function GalleryPage() {
                   title={property.name}
                   slug={property.slug}
                   photos={photos}
+                  isComingSoon={property.status === "coming_soon"}
+                  availableFrom={property.available_from}
                   viewLabel={lang === "nl" ? "Bekijk residentie" : "View property"}
                   availabilityLabel={
                     lang === "nl" ? "Beschikbaarheid" : "Check availability"
+                  }
+                  comingSoonLabel={
+                    lang === "nl" ? "Binnenkort beschikbaar" : "Coming soon"
                   }
                 />
               </Reveal>
