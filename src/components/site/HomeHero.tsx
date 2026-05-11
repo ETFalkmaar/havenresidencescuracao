@@ -92,26 +92,6 @@ export function HomeHero({
 
       {/* Foreground content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pb-16 md:pb-24 lg:pb-32 pt-32 text-white">
-        <div
-          key={`caption-${index}`}
-          className="flex items-center gap-3 flex-wrap mb-5 animate-fadeUp"
-        >
-          <p className="text-[12px] tracking-[0.3em] uppercase text-white/85">
-            {current.city ? `${current.city} · Curaçao` : "Curaçao"}
-          </p>
-          <span className="text-white/40" aria-hidden>
-            ·
-          </span>
-          <p className="text-[12px] tracking-[0.3em] uppercase text-white/85">
-            {current.propertyName}
-          </p>
-          {current.isComingSoon && (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white text-ink text-[10px] tracking-[0.25em] uppercase font-semibold">
-              {comingSoonLabel}
-            </span>
-          )}
-        </div>
-
         <h1
           className="font-display font-bold text-white text-5xl md:text-7xl lg:text-[7.5rem] leading-[0.95] tracking-tight max-w-5xl drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
           data-edit-id="home.hero.title"
@@ -120,33 +100,56 @@ export function HomeHero({
           {title}
         </h1>
 
-        <div className="mt-9 flex flex-wrap gap-3">
-          <Link
-            href={`/${current.propertySlug}`}
-            className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-white text-ink text-[15px] font-medium hover:bg-paper-warm transition shadow-pill"
-          >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-white">
-              <svg
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M7 12h12M13 6l6 6-6 6" />
-              </svg>
-            </span>
-            {viewLabel}
-          </Link>
+        {/* Bottom row — buttons on the left, residence name on the right.
+            On mobile the residence name stacks above the buttons. */}
+        <div className="mt-9 flex flex-col-reverse md:flex-row md:items-end md:justify-between gap-6 md:gap-10">
+          {/* CTAs */}
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/${current.propertySlug}`}
+              className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-white text-ink text-[15px] font-medium hover:bg-paper-warm transition shadow-pill"
+            >
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-white">
+                <svg
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M7 12h12M13 6l6 6-6 6" />
+                </svg>
+              </span>
+              {viewLabel}
+            </Link>
 
-          <Link
-            href={availabilityHref}
-            className="inline-flex items-center px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-white text-[15px] font-medium transition border border-white/30"
+            <Link
+              href={availabilityHref}
+              className="inline-flex items-center px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-white text-[15px] font-medium transition border border-white/30"
+            >
+              {availabilityLabel}
+            </Link>
+          </div>
+
+          {/* Residence caption — same display font as the heading, big & bold */}
+          <div
+            key={`caption-${index}`}
+            className="md:text-right md:max-w-md animate-fadeUp"
           >
-            {availabilityLabel}
-          </Link>
+            <p className="text-[11px] md:text-[12px] tracking-[0.3em] uppercase text-white/80">
+              {current.city ? `${current.city} · Curaçao` : "Curaçao"}
+            </p>
+            <p className="mt-2 font-display font-bold text-white text-3xl md:text-4xl leading-tight tracking-tight drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">
+              {current.propertyName}
+            </p>
+            {current.isComingSoon && (
+              <span className="mt-3 inline-flex items-center px-2.5 py-1 rounded-full bg-white text-ink text-[10px] tracking-[0.25em] uppercase font-semibold">
+                {comingSoonLabel}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </section>
