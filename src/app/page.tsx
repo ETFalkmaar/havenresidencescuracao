@@ -2,6 +2,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SiteShell } from "@/components/site/SiteShell";
 import { HomeHero, type HeroSlide } from "@/components/site/HomeHero";
+import {
+  NearbyPopular,
+  type NearbyRegion,
+} from "@/components/site/NearbyPopular";
 import { PropertyTile, type PropertyTileData } from "@/components/site/PropertyTile";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
@@ -227,74 +231,23 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Locations — neighbourhoods on Curaçao */}
-      <section className="bg-ink text-white">
-        <div className="max-w-6xl mx-auto px-6 py-20 md:py-28">
-          <Reveal>
-            <div className="text-center max-w-2xl mx-auto">
-              <h2 className="font-display font-bold text-4xl md:text-5xl leading-tight tracking-tight">
-                {lang === "nl"
-                  ? "Dichtbij alles wat telt"
-                  : "Stay close to what matters most"}
-              </h2>
-              <p className="mt-4 text-white/70 text-[15px] leading-relaxed">
-                {lang === "nl"
-                  ? "Onze residenties liggen centraal op Curaçao, dichtbij stranden, restaurants en het historische Willemstad."
-                  : "Our residences are centrally located on Curaçao, close to beaches, restaurants and historic Willemstad."}
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="mt-14 grid md:grid-cols-3 gap-10">
-            {[
-              {
-                flag: "🇨🇼",
-                city: "Willemstad",
-                hood: "Pietermaai",
-                body:
-                  lang === "nl"
-                    ? "Op loopafstand van de cafés, kunst en het kleurrijke Handelskade."
-                    : "Walking distance from the cafés, art and colourful Handelskade.",
-              },
-              {
-                flag: "🌴",
-                city: "Jan Thiel",
-                hood: "Caracasbaai",
-                body:
-                  lang === "nl"
-                    ? "Strand, zwemmen met schildpadden en de bekende beach clubs."
-                    : "Beach, swimming with turtles and the famous beach clubs.",
-              },
-              {
-                flag: "🪸",
-                city: "Westpunt",
-                hood: "Kleine Knip · Grote Knip",
-                body:
-                  lang === "nl"
-                    ? "Wilde stranden, kliffen en de mooiste duikplekken van het eiland."
-                    : "Wild beaches, cliffs and the island's best dive spots.",
-              },
-            ].map((loc) => (
-              <Reveal key={loc.city}>
-                <div className="border-t border-white/15 pt-7">
-                  <div className="text-3xl mb-3" aria-hidden>
-                    {loc.flag}
-                  </div>
-                  <h3 className="font-display font-semibold text-2xl">{loc.city}</h3>
-                  <p className="text-sm text-white/60 mt-1">{loc.hood}</p>
-                  <p className="text-sm text-white/80 mt-4 leading-relaxed">{loc.body}</p>
-                  <Link
-                    href="/property"
-                    className="mt-5 inline-flex items-center text-brand-400 text-sm hover:text-brand-100 transition"
-                  >
-                    {lang === "nl" ? "Bekijk residenties" : "View residences"} →
-                  </Link>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Popular spots in the area — region slider */}
+      <NearbyPopular
+        eyebrow={lang === "nl" ? "Populair in de buurt" : "Popular nearby"}
+        heading={
+          lang === "nl"
+            ? "Wat te doen op Curaçao"
+            : "What to do on Curaçao"
+        }
+        intro={
+          lang === "nl"
+            ? "Onze favoriete adressen rond elke residentie — strand, eten en het bruisende centrum."
+            : "Our favourite spots around each residence — beach, food and the buzzing centre."
+        }
+        viewMapLabel={lang === "nl" ? "Kijk locatie" : "View location"}
+        visitWebsiteLabel={lang === "nl" ? "Bekijk website" : "Visit website"}
+        regions={nearbyRegions(lang)}
+      />
 
       {/* Ready-to-check-in CTA */}
       <section className="relative">
@@ -343,4 +296,194 @@ export default async function Home() {
       </section>
     </SiteShell>
   );
+}
+
+// ---------- Static "popular nearby" data ----------
+// Curated by hand. To edit, change the strings or add new entries —
+// the homepage picks this up on next render.
+
+function gmaps(q: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+}
+
+function nearbyRegions(lang: "en" | "nl"): NearbyRegion[] {
+  const nl = lang === "nl";
+  return [
+    {
+      id: "willemstad",
+      label: "Willemstad",
+      title: nl
+        ? "Willemstad · Pietermaai"
+        : "Willemstad · Pietermaai",
+      blurb: nl
+        ? "De kleurrijke hoofdstad — UNESCO-erfgoed, cafés, kunst en de Handelskade op loopafstand."
+        : "The colourful capital — UNESCO heritage, cafés, art and the Handelskade boardwalk on foot.",
+      spots: [
+        {
+          emoji: "🎨",
+          name: "Handelskade",
+          blurb: nl
+            ? "De iconische pastelkleurige gevels langs de Sint Annabaai."
+            : "The iconic pastel-coloured facades along Sint Anna Bay.",
+          mapsUrl: gmaps("Handelskade Willemstad Curacao"),
+          websiteUrl: "https://www.curacao.com/en/discover/things-to-do/sightseeing/handelskade/",
+        },
+        {
+          emoji: "🍤",
+          name: "Plasa Bieu",
+          blurb: nl
+            ? "Lokale markt met Antilliaanse gerechten — kabritu stoba, funchi en verse vis."
+            : "Local market hall serving Antillean classics — kabritu stoba, funchi and fresh fish.",
+          mapsUrl: gmaps("Plasa Bieu Willemstad Curacao"),
+          websiteUrl: null,
+        },
+        {
+          emoji: "🌉",
+          name: "Queen Emma Bridge",
+          blurb: nl
+            ? "De drijvende pontonbrug die Punda en Otrobanda met elkaar verbindt."
+            : "The floating pontoon bridge between Punda and Otrobanda.",
+          mapsUrl: gmaps("Queen Emma Bridge Willemstad Curacao"),
+          websiteUrl: null,
+        },
+        {
+          emoji: "🍸",
+          name: "Mundo Bizarro",
+          blurb: nl
+            ? "Cubaans-getinte bar in Pietermaai met live muziek en cocktails."
+            : "Cuban-leaning bar in Pietermaai with live music and cocktails.",
+          mapsUrl: gmaps("Mundo Bizarro Pietermaai Curacao"),
+          websiteUrl: "https://www.mundobizarrocuracao.com/",
+        },
+        {
+          emoji: "🏛️",
+          name: "Kura Hulanda Museum",
+          blurb: nl
+            ? "Indrukwekkend museum over de transatlantische slavenhandel en Afrikaanse cultuur."
+            : "Powerful museum on the transatlantic slave trade and African heritage.",
+          mapsUrl: gmaps("Museum Kura Hulanda Willemstad Curacao"),
+          websiteUrl: "https://kurahulanda.com/the-museum",
+        },
+        {
+          emoji: "🥐",
+          name: "Pietermaai Smile",
+          blurb: nl
+            ? "Buurtcafé met goede koffie en ontbijt vlak om de hoek."
+            : "Neighbourhood café with good coffee and breakfast around the corner.",
+          mapsUrl: gmaps("Pietermaai Smile Curacao"),
+          websiteUrl: null,
+        },
+      ],
+    },
+    {
+      id: "jan-thiel",
+      label: "Jan Thiel",
+      title: "Jan Thiel · Caracasbaai",
+      blurb: nl
+        ? "Beach clubs, watersport en koraalrif op snorkelafstand."
+        : "Beach clubs, watersports and coral reef within snorkel reach.",
+      spots: [
+        {
+          emoji: "🏖️",
+          name: "Zanzibar Beach Club",
+          blurb: nl
+            ? "Iconische beach club met loungebedden, eten en zonsondergangen."
+            : "Iconic beach club with loungers, food and sunsets.",
+          mapsUrl: gmaps("Zanzibar Beach Curacao"),
+          websiteUrl: "https://www.zanzibar-curacao.com/",
+        },
+        {
+          emoji: "🐢",
+          name: "Playa Piskado",
+          blurb: nl
+            ? "Snorkelen met zeeschildpadden recht bij de aanlegsteiger."
+            : "Snorkel with sea turtles right next to the pier.",
+          mapsUrl: gmaps("Playa Piskado Curacao"),
+          websiteUrl: null,
+        },
+        {
+          emoji: "🥥",
+          name: "Papagayo Beach Club",
+          blurb: nl
+            ? "Stijlvolle bar en restaurant aan het strand — bekend van de zondagse brunches."
+            : "Stylish beachfront bar and restaurant — known for Sunday brunches.",
+          mapsUrl: gmaps("Papagayo Beach Club Jan Thiel Curacao"),
+          websiteUrl: "https://www.papagayobeach.com/",
+        },
+        {
+          emoji: "🤿",
+          name: "Tugboat Wreck",
+          blurb: nl
+            ? "Beroemde duikplek bij Caracasbaai — een sleepboot op slechts 5 meter diep."
+            : "Famous dive site at Caracas Bay — a tug boat in just 5 metres of water.",
+          mapsUrl: gmaps("Tugboat Wreck Caracas Bay Curacao"),
+          websiteUrl: null,
+        },
+        {
+          emoji: "🍕",
+          name: "Hemingway Beach Club",
+          blurb: nl
+            ? "Gezellige plek voor pizza, cocktails en een lange dag op het strand."
+            : "Easygoing spot for pizza, cocktails and a long beach day.",
+          mapsUrl: gmaps("Hemingway Beach Jan Thiel Curacao"),
+          websiteUrl: "https://hemingwaycuracao.com/",
+        },
+      ],
+    },
+    {
+      id: "westpunt",
+      label: "Westpunt",
+      title: "Westpunt · Knip Baai",
+      blurb: nl
+        ? "Wilde stranden, kliffen en het wildste deel van het eiland."
+        : "Wild beaches, cliffs and the wildest part of the island.",
+      spots: [
+        {
+          emoji: "🏝️",
+          name: "Grote Knip",
+          blurb: nl
+            ? "Het bekendste strand van Curaçao — turquoise water, witte rotsen, kliffen om vanaf te springen."
+            : "Curaçao's most famous beach — turquoise water, white cliffs to jump from.",
+          mapsUrl: gmaps("Grote Knip Beach Curacao"),
+          websiteUrl: null,
+        },
+        {
+          emoji: "🌊",
+          name: "Shete Boka National Park",
+          blurb: nl
+            ? "Ruige noordkust met grotten waar de oceaan letterlijk doorheen barst."
+            : "Rugged north coast with caves where the ocean blasts straight through.",
+          mapsUrl: gmaps("Shete Boka National Park Curacao"),
+          websiteUrl: "https://www.curacao.com/en/discover/regions/west/shete-boka-park/",
+        },
+        {
+          emoji: "🐠",
+          name: "Playa Lagun",
+          blurb: nl
+            ? "Klein baaitje ingeklemd tussen kliffen — top voor snorkelen."
+            : "Small bay tucked between cliffs — top snorkelling spot.",
+          mapsUrl: gmaps("Playa Lagun Curacao"),
+          websiteUrl: null,
+        },
+        {
+          emoji: "🌅",
+          name: "Watamula",
+          blurb: nl
+            ? "Adembenemende rotsformaties aan de noordwestkust — perfect bij zonsondergang."
+            : "Stunning rock formations on the north-west coast — best at sunset.",
+          mapsUrl: gmaps("Watamula Curacao"),
+          websiteUrl: null,
+        },
+        {
+          emoji: "🐟",
+          name: "Jaanchies Restaurant",
+          blurb: nl
+            ? "Lokale klassieker — iguanasoep, verse vis en geen menukaart."
+            : "Local classic — iguana soup, fresh fish, no menu.",
+          mapsUrl: gmaps("Jaanchies Restaurant Westpunt Curacao"),
+          websiteUrl: null,
+        },
+      ],
+    },
+  ];
 }
