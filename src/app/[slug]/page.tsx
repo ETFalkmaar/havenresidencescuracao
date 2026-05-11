@@ -19,6 +19,7 @@ import {
   type Photo,
   type Amenity,
   type PricingSeason,
+  type Review,
   type SiteSettings,
 } from "@/lib/types";
 
@@ -117,31 +118,40 @@ export default async function PropertyPage({ params }: { params: Params }) {
 
   const unit = units[0];
 
-  const [amenitiesRes, seasonsRes, blockedRes, profileRes] = await Promise.all([
-    unit
-      ? supabase
-          .from("unit_amenities")
-          .select("amenity_id, amenities(name, slug, category)")
-          .eq("unit_id", unit.id)
-      : Promise.resolve({ data: [] as AmenityRow[] }),
-    unit
-      ? supabase
-          .from("pricing_seasons")
-          .select("*")
-          .eq("unit_id", unit.id)
-          .order("start_date")
-      : Promise.resolve({ data: [] as PricingSeason[] }),
-    unit
-      ? supabase.rpc("unit_blocked_ranges", { p_unit_id: unit.id })
-      : Promise.resolve({ data: [] as BlockedRange[] }),
-    signedInUser
-      ? supabase
-          .from("profiles")
-          .select("full_name, phone")
-          .eq("user_id", signedInUser.id)
-          .maybeSingle()
-      : Promise.resolve({ data: null }),
-  ]);
+  const [amenitiesRes, seasonsRes, blockedRes, profileRes, reviewsRes] =
+    await Promise.all([
+      unit
+        ? supabase
+            .from("unit_amenities")
+            .select("amenity_id, amenities(name, slug, category)")
+            .eq("unit_id", unit.id)
+        : Promise.resolve({ data: [] as AmenityRow[] }),
+      unit
+        ? supabase
+            .from("pricing_seasons")
+            .select("*")
+            .eq("unit_id", unit.id)
+            .order("start_date")
+        : Promise.resolve({ data: [] as PricingSeason[] }),
+      unit
+        ? supabase.rpc("unit_blocked_ranges", { p_unit_id: unit.id })
+        : Promise.resolve({ data: [] as BlockedRange[] }),
+      signedInUser
+        ? supabase
+            .from("profiles")
+            .select("full_name, phone")
+            .eq("user_id", signedInUser.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      unit
+        ? supabase
+            .from("reviews")
+            .select("*")
+            .eq("unit_id", unit.id)
+            .eq("is_published", true)
+            .order("created_at", { ascending: false })
+        : Promise.resolve({ data: [] as Review[] }),
+    ]);
 
   const amenities = (amenitiesRes.data ?? []) as AmenityRow[];
   const seasons = (seasonsRes.data ?? []) as PricingSeason[];
@@ -149,6 +159,11 @@ export default async function PropertyPage({ params }: { params: Params }) {
   const profile = (profileRes.data ?? null) as
     | { full_name: string | null; phone: string | null }
     | null;
+  const reviews = (reviewsRes.data ?? []) as Review[];
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+      : null;
 
   const accent = property.color_hex ?? "#1E5FBF";
   const isComingSoon = property.status === "coming_soon";
@@ -454,6 +469,86 @@ export default async function PropertyPage({ params }: { params: Params }) {
               price: unit ? formatEur(unit.base_price_eur, locale) : "—",
             })}
           </p>
+        </section>
+      )}
+
+      {/* Reviews — pulled from our reviews table (seeded with the Airbnb
+          reviews on import). Shows the rating, guest name, date and body. */}
+      {reviews.length > 0 && (
+        <section className="border-t border-black/5 bg-paper-tint py-20 lg:py-28">
+          <div className="max-w-5xl mx-auto px-6 lg:px-10">
+            <Reveal>
+              <div className="text-center mb-12">
+                <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                  {lang === "nl" ? "Wat gasten zeggen" : "What guests say"}
+                </p>
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <span className="text-yellow-500 text-2xl" aria-hidden>
+                    ★
+                  </span>
+                  <span className="font-display font-bold text-4xl md:text-5xl tracking-tight text-ink">
+                    {averageRating?.toFixed(1) ?? "—"}
+                  </span>
+                  <span className="text-ink-mute text-sm">
+                    · {reviews.length}{" "}
+                    {reviews.length === 1
+                      ? lang === "nl"
+                        ? "recensie"
+                        : "review"
+                      : lang === "nl"
+                      ? "recensies"
+                      : "reviews"}
+                  </span>
+                </div>
+              </div>
+            </Reveal>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {reviews.map((r, i) => (
+                <Reveal key={r.id} delay={i * 0.05}>
+                  <article className="rounded-3xl bg-white border border-black/5 shadow-pill p-6 md:p-7 h-full flex flex-col">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div
+                        className="h-12 w-12 rounded-full grid place-items-center text-white text-lg font-semibold"
+                        style={{ backgroundColor: accent }}
+                        aria-hidden
+                      >
+                        {r.guest_name.slice(0, 1).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-ink">{r.guest_name}</p>
+                        <p className="text-xs text-ink-mute">
+                          {new Date(r.created_at).toLocaleDateString(locale, {
+                            year: "numeric",
+                            month: "long",
+                          })}
+                        </p>
+                      </div>
+                      <div
+                        className="ml-auto text-yellow-500 text-sm"
+                        aria-label={`${r.rating}/5`}
+                      >
+                        {"★".repeat(r.rating)}
+                        <span className="text-black/15">
+                          {"★".repeat(5 - r.rating)}
+                        </span>
+                      </div>
+                    </div>
+                    {r.title && (
+                      <h3 className="font-display font-semibold text-lg text-ink mb-2">
+                        {r.title}
+                      </h3>
+                    )}
+                    {r.body && (
+                      <p className="text-ink-mute text-sm leading-relaxed whitespace-pre-line">
+                        {r.body}
+                      </p>
+                    )}
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
         </section>
       )}
 
