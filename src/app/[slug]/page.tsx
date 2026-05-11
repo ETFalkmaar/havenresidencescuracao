@@ -203,38 +203,43 @@ export default async function PropertyPage({ params }: { params: Params }) {
           <Reveal delay={0.1}>
             <Link
               href="/"
-              className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition inline-block mb-6"
+              className="text-[12px] tracking-[0.3em] uppercase text-white/70 hover:text-white transition inline-block mb-6"
             >
               ← {td.allResidences}
             </Link>
           </Reveal>
+
+          {/* Eyebrow: CITY · COUNTRY — uses the same uppercase-tracked
+              treatment as the homepage hero caption. */}
           <Reveal delay={0.2}>
-            <div
-              className="h-0.5 w-16 mb-5"
-              style={{ backgroundColor: accent }}
-            />
+            <p className="text-[12px] md:text-[13px] tracking-[0.3em] uppercase text-white/85 mb-4">
+              {property.city} · {property.country}
+            </p>
           </Reveal>
+
+          {/* Residence name — same display font (Manrope bold) as the
+              homepage hero heading. */}
           <Reveal delay={0.3}>
-            <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-extralight leading-[1.05] tracking-tight">
+            <h1 className="font-display font-bold text-white text-5xl md:text-7xl lg:text-[6.5rem] leading-[0.95] tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
               {property.name}
             </h1>
           </Reveal>
+
           <Reveal delay={0.45}>
-            <p className="mt-4 text-lg md:text-xl text-white/85 max-w-2xl font-light">
+            <p className="mt-5 text-lg md:text-xl text-white/85 max-w-2xl">
               {localized(property.tagline, property.tagline_nl, lang)}
             </p>
           </Reveal>
           <Reveal delay={0.55}>
             <p className="mt-2 text-sm text-white/60">
-              {property.address} · {property.city}, {property.country}
+              {property.address}
             </p>
           </Reveal>
 
           {isComingSoon && (
             <Reveal delay={0.7}>
               <span
-                className="inline-block mt-6 text-[11px] tracking-widest uppercase px-4 py-2 rounded-full text-white shadow-xl"
-                style={{ backgroundColor: accent }}
+                className="inline-flex items-center mt-6 px-4 py-2 rounded-full bg-white text-ink text-[11px] tracking-[0.25em] uppercase font-semibold"
               >
                 {td.comingSoon}
                 {property.available_from
