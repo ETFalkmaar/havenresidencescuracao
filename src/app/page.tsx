@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SiteShell } from "@/components/site/SiteShell";
 import { HomeHero } from "@/components/site/HomeHero";
-import { TrustedBy } from "@/components/site/TrustedBy";
+import { PropertyShowcase, type Slide } from "@/components/site/PropertyShowcase";
 import { PropertyTile, type PropertyTileData } from "@/components/site/PropertyTile";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
@@ -25,7 +25,9 @@ export default async function Home() {
   const [settingsRes, propertiesRes, unitsRes] = await Promise.all([
     supabase.from("site_settings").select("*").eq("id", 1).single(),
     supabase.from("properties").select("*").order("position", { ascending: true }),
-    supabase.from("units").select("property_id, base_price_eur, bedrooms, bathrooms, max_guests"),
+    supabase
+      .from("units")
+      .select("property_id, base_price_eur, bedrooms, bathrooms, max_guests"),
   ]);
 
   const settings = (settingsRes.data ?? null) as SiteSettings | null;
@@ -39,27 +41,44 @@ export default async function Home() {
     .filter((p) => p.status === "active" || p.status === "coming_soon")
     .filter((p) => !pickBool(overlay, `prop:${p.id}`, "hidden", false));
 
-  // Hero photos: first active property's gallery (max 7)
-  const heroSlideshowProperty =
-    properties.find((p) => p.status === "active") ?? properties[0];
-  let heroImages: string[] = [];
-  if (heroSlideshowProperty) {
-    const { data: heroPhotos } = await supabase
+  // Build slideshow: pull up to 4 photos per property, interleave so guests
+  // see a mix of Blue Haven (house) and Green Haven (10 apartments).
+  const slidesPerProperty: { property: Property; urls: string[] }[] = [];
+  for (const p of properties) {
+    const { data: photoRows } = await supabase
       .from("photos")
       .select("url, position, is_hero")
-      .eq("property_id", heroSlideshowProperty.id)
+      .eq("property_id", p.id)
       .order("is_hero", { ascending: false })
       .order("position", { ascending: true })
-      .limit(7);
-    heroImages = (heroPhotos ?? [])
-      .map((p) => (p as { url: string }).url)
+      .limit(4);
+    const urls = ((photoRows ?? []) as { url: string }[])
+      .map((r) => r.url)
       .filter(Boolean);
-    if (heroImages.length === 0 && heroSlideshowProperty.hero_image_url) {
-      heroImages = [heroSlideshowProperty.hero_image_url];
+    if (urls.length === 0 && p.hero_image_url) urls.push(p.hero_image_url);
+    if (urls.length > 0) slidesPerProperty.push({ property: p, urls });
+  }
+
+  // Interleave photos from each property so the slideshow alternates.
+  const showcaseSlides: Slide[] = [];
+  const maxLen = Math.max(...slidesPerProperty.map((g) => g.urls.length), 0);
+  for (let i = 0; i < maxLen; i++) {
+    for (const g of slidesPerProperty) {
+      if (i < g.urls.length) {
+        showcaseSlides.push({
+          url: g.urls[i]!,
+          propertyName:
+            pickText(overlay, `prop:${g.property.id}`, "name", null) ??
+            g.property.name,
+          propertySlug: g.property.slug,
+          city: g.property.city,
+          isComingSoon: g.property.status === "coming_soon",
+        });
+      }
     }
   }
 
-  // Per-property aggregates (from-price, beds/baths/guests min/max)
+  // Aggregate units per property for the tile grid
   const aggByProperty = new Map<
     string,
     {
@@ -84,7 +103,7 @@ export default async function Home() {
     aggByProperty.set(u.property_id, cur);
   }
 
-  // Editor-overridable hero copy
+  // ----- Hero copy (no fake stats / "trusted by 15k" claims) -----
   const heroEyebrowKey = "home.hero.eyebrow";
   const heroTitleKey = "home.hero.title";
   const heroSubtitleKey = "home.hero.subtitle";
@@ -92,8 +111,8 @@ export default async function Home() {
   const heroEyebrow =
     pickText(overlay, heroEyebrowKey, "text", null) ??
     (lang === "nl"
-      ? "Gastenfavoriet · 4.8 ⋅ 474k+ reviews"
-      : "Guest Favorites · 4.8 rate by 474k+ reviews");
+      ? "Premium verblijven · Curaçao"
+      : "Premium stays · Curaçao");
 
   const heroTitle =
     pickText(overlay, heroTitleKey, "text", null) ??
@@ -104,23 +123,17 @@ export default async function Home() {
   const heroSubtitle =
     pickText(overlay, heroSubtitleKey, "text", null) ??
     (lang === "nl"
-      ? "Ontdek alles op één plek, controleer beschikbaarheid en reserveer jouw ideale tweede thuis op Curaçao."
-      : "In one location, look at all aspects, verify availability, and reserve your ideal home away from home on Curaçao.");
-
-  const trustedCaption =
-    pickText(overlay, "home.trusted.caption", "text", null) ??
-    (lang === "nl"
-      ? "Vertrouwd door 15k+ huiseigenaren wereldwijd"
-      : "Trusted by 15k+ property owners from around the world");
+      ? "Een klein, persoonlijk geleid huis en tien appartementen op Curaçao. Bekijk beschikbaarheid en reserveer rechtstreeks."
+      : "One owner-run house and ten apartments on Curaçao. Check availability and book directly.");
 
   const collectionEyebrow =
     pickText(overlay, "home.residences.eyebrow", "text", null) ??
-    (lang === "nl" ? "Beleef de bestemming" : "Live the destination");
+    (lang === "nl" ? "Onze residenties" : "Our residences");
   const collectionTitle =
     pickText(overlay, "home.residences.title", "text", null) ??
     (lang === "nl"
-      ? "Niet alleen een kamer. Een plek die deel wordt van het avontuur."
-      : "Not just a room. A place that becomes part of the adventure.");
+      ? "Een huis en tien appartementen, allemaal op Curaçao."
+      : "One house and ten apartments, all on Curaçao.");
 
   const showHero = !pickBool(overlay, "home.hero", "hidden", false);
   const showResidences = !pickBool(overlay, "home.residences", "hidden", false);
@@ -138,7 +151,6 @@ export default async function Home() {
     <SiteShell>
       {showHero && (
         <HomeHero
-          images={heroImages}
           eyebrow={heroEyebrow}
           title={heroTitle}
           subtitle={heroSubtitle}
@@ -149,7 +161,11 @@ export default async function Home() {
         />
       )}
 
-      <TrustedBy caption={trustedCaption} />
+      <PropertyShowcase
+        slides={showcaseSlides}
+        ctaLabel={lang === "nl" ? "Bekijk de residentie" : "View the residence"}
+        comingSoonLabel={lang === "nl" ? "Meer info" : "More info"}
+      />
 
       {showResidences && (
         <section
@@ -168,8 +184,8 @@ export default async function Home() {
               }
               description={
                 lang === "nl"
-                  ? "Een kleine, persoonlijk geleide collectie. Geen lobby's, wel sleutels."
-                  : "A small, owner-run collection. No lobbies — just keys to a place that's yours."
+                  ? "Persoonlijk gerund, eerlijk geprijsd. Geen lobby's, gewoon de sleutel tot een plek die jouwe is."
+                  : "Personally run, fairly priced. No lobbies — just the keys to a place that's yours."
               }
             />
           </Reveal>
@@ -192,7 +208,7 @@ export default async function Home() {
                 bedrooms: agg.bedrooms,
                 bathrooms: agg.bathrooms,
                 max_guests: agg.max_guests,
-                rating: 4.8,
+                rating: null,
                 rating_count: null,
                 hero_image_url:
                   pickText(overlay, `prop:${p.id}`, "hero_image_url", null) ??
@@ -231,7 +247,7 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Stay close to what matters most — locations strip */}
+      {/* Locations — neighbourhoods on Curaçao */}
       <section className="bg-ink text-white">
         <div className="max-w-6xl mx-auto px-6 py-20 md:py-28">
           <Reveal>
@@ -243,8 +259,8 @@ export default async function Home() {
               </h2>
               <p className="mt-4 text-white/70 text-[15px] leading-relaxed">
                 {lang === "nl"
-                  ? "Centraal op Curaçao met directe toegang tot de mooiste stranden, restaurants en het oude Willemstad."
-                  : "Centrally located on Curaçao with direct access to the best beaches, restaurants and historic Willemstad."}
+                  ? "Onze residenties liggen centraal op Curaçao, dichtbij stranden, restaurants en het historische Willemstad."
+                  : "Our residences are centrally located on Curaçao, close to beaches, restaurants and historic Willemstad."}
               </p>
             </div>
           </Reveal>
@@ -254,25 +270,25 @@ export default async function Home() {
               {
                 flag: "🇨🇼",
                 city: "Willemstad",
-                hood: lang === "nl" ? "Pietermaai · 0000XX" : "Pietermaai · 0000XX",
+                hood: "Pietermaai",
                 body:
                   lang === "nl"
-                    ? "Op loopafstand van de cafés, kunst en het kleurrijke Handelskade. Een rustig hoekje in de bruisende stad."
-                    : "Walking distance from the cafés, art and colourful Handelskade. A quiet corner in a vibrant city.",
+                    ? "Op loopafstand van de cafés, kunst en het kleurrijke Handelskade."
+                    : "Walking distance from the cafés, art and colourful Handelskade.",
               },
               {
                 flag: "🌴",
                 city: "Jan Thiel",
-                hood: lang === "nl" ? "Caracasbaai" : "Caracasbaai",
+                hood: "Caracasbaai",
                 body:
                   lang === "nl"
-                    ? "Strand, zwemmen met schildpadden en de beroemde beach clubs van Jan Thiel."
-                    : "Beach, swimming with turtles and the famous Jan Thiel beach clubs.",
+                    ? "Strand, zwemmen met schildpadden en de bekende beach clubs."
+                    : "Beach, swimming with turtles and the famous beach clubs.",
               },
               {
                 flag: "🪸",
                 city: "Westpunt",
-                hood: lang === "nl" ? "Kleine Knip · Grote Knip" : "Kleine Knip · Grote Knip",
+                hood: "Kleine Knip · Grote Knip",
                 body:
                   lang === "nl"
                     ? "Wilde stranden, kliffen en de mooiste duikplekken van het eiland."
@@ -291,7 +307,7 @@ export default async function Home() {
                     href="/property"
                     className="mt-5 inline-flex items-center text-brand-400 text-sm hover:text-brand-100 transition"
                   >
-                    {lang === "nl" ? "Bekijk residenties" : "View on map"} →
+                    {lang === "nl" ? "Bekijk residenties" : "View residences"} →
                   </Link>
                 </div>
               </Reveal>
@@ -318,8 +334,8 @@ export default async function Home() {
             </h2>
             <p className="mt-5 text-ink-mute text-[15px] leading-relaxed">
               {lang === "nl"
-                ? "Stuur een aanvraag, kijk of er open data zijn, of stuur ons een bericht. We reageren meestal binnen 24 uur."
-                : "Send a request, see open dates, or message us — we typically reply within 24 hours."}
+                ? "Stuur een aanvraag of bericht ons rechtstreeks. We reageren meestal binnen 24 uur."
+                : "Send a request or message us directly — we typically reply within 24 hours."}
             </p>
             <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
               <Link

@@ -46,11 +46,21 @@ function StarRow({ rating }: { rating: number }) {
   const full = Math.floor(rating);
   const half = rating - full >= 0.5;
   return (
-    <span className="inline-flex gap-0.5 text-brand-400" aria-label={`${rating} out of 5`}>
+    <span
+      className="inline-flex gap-0.5 text-brand-400"
+      aria-label={`${rating} out of 5`}
+    >
       {[0, 1, 2, 3, 4].map((i) => {
         const filled = i < full || (i === full && half);
         return (
-          <svg key={i} className="h-3.5 w-3.5" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+          <svg
+            key={i}
+            className="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill={filled ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01z" />
           </svg>
         );
@@ -70,11 +80,11 @@ export default async function ReviewsPage() {
     .select("id, guest_name, rating, title, body, language, created_at")
     .eq("is_published", true)
     .order("created_at", { ascending: false })
-    .limit(12);
+    .limit(24);
 
   const reviews = (reviewRows ?? []) as ReviewRow[];
 
-  // Aggregate
+  // Aggregate — only meaningful when we actually have published reviews.
   const total = reviews.length;
   const avgRating =
     total > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / total : 0;
@@ -85,88 +95,15 @@ export default async function ReviewsPage() {
 
   const eyebrow =
     pickText(overlay, eyebrowKey, "text", null) ??
-    (lang === "nl" ? "Exclusieve beoordeling" : "Exclusive rating");
+    (lang === "nl" ? "Gastbeoordelingen" : "Guest reviews");
   const title =
     pickText(overlay, titleKey, "text", null) ??
-    (lang === "nl" ? "Gastenfavoriet" : "Guest favourite");
+    (lang === "nl" ? "Wat gasten zeggen" : "What guests say");
   const description =
     pickText(overlay, descKey, "text", null) ??
     (lang === "nl"
-      ? "Onze residenties zijn een gastenfavoriet op basis van beoordelingen, reviews en betrouwbaarheid."
-      : "Our property's a guest favourite based on ratings, reviews and reliability.");
-
-  // Demo reviews for when DB is empty so the page never looks empty
-  const fallbackReviews: ReviewRow[] = [
-    {
-      id: "demo-1",
-      guest_name: "Aadi",
-      rating: 5,
-      title: null,
-      body: lang === "nl"
-        ? "Het verblijf was geweldig! Het personeel was super attent en altijd bereikbaar. Alles verliep soepel en comfortabel."
-        : "The stay was amazing! The hosts were super responsive and always available whenever we needed something. Everything was smooth and comfortable — couldn't have asked for a better experience.",
-      language: lang,
-      created_at: "2025-07-01",
-    },
-    {
-      id: "demo-2",
-      guest_name: "Sneha Patel",
-      rating: 5,
-      title: null,
-      body: lang === "nl"
-        ? "Echt genoten van mijn verblijf! Spotless, modern en de check-in was super eenvoudig."
-        : "Absolutely loved my stay! The apartment was spotless, modern, and had everything I needed. The location was perfect and check-in was so easy.",
-      language: lang,
-      created_at: "2025-07-15",
-    },
-    {
-      id: "demo-3",
-      guest_name: "Kunal Mehra",
-      rating: 4,
-      title: null,
-      body: lang === "nl"
-        ? "Een prachtige plek voor zowel kort als lang verblijf. Goede communicatie en het uitzicht was geweldig."
-        : "A great place for both short and long stays. The host communicated well and made sure everything was taken care of. The balcony view was the highlight!",
-      language: lang,
-      created_at: "2025-06-10",
-    },
-    {
-      id: "demo-4",
-      guest_name: "Priya Sharma",
-      rating: 5,
-      title: null,
-      body: lang === "nl"
-        ? "Een van de beste verblijven die ik ooit heb gehad! Gezellig, snelle wifi en heerlijk rustig."
-        : "This was one of the best stays I've had! Cozy interiors, fast Wi-Fi, and a peaceful neighborhood. The host made us feel completely at home.",
-      language: lang,
-      created_at: "2025-05-22",
-    },
-    {
-      id: "demo-5",
-      guest_name: "Rajesh Kumar",
-      rating: 4,
-      title: null,
-      body: lang === "nl"
-        ? "Top voorzieningen en een attente host. Echt een aanrader voor een tropische escape."
-        : "A fantastic experience! The amenities were top-notch and the host was incredibly helpful. I highly recommend this place for a getaway!",
-      language: lang,
-      created_at: "2025-08-04",
-    },
-    {
-      id: "demo-6",
-      guest_name: "Anita Verma",
-      rating: 5,
-      title: null,
-      body: lang === "nl"
-        ? "Een pareltje! De inrichting is charmant en de buurt bruist. We komen zeker terug."
-        : "What a gem! The decor was charming and the neighborhood was vibrant. I felt right at home and will definitely return!",
-      language: lang,
-      created_at: "2025-09-12",
-    },
-  ];
-
-  const display = total > 0 ? reviews : fallbackReviews;
-  const ratingDisplay = total > 0 ? avgRating.toFixed(1) : "4.9";
+      ? "Alleen reviews van gasten die daadwerkelijk bij ons hebben verbleven, zonder filter en zonder selectie."
+      : "Only reviews from guests who actually stayed with us — no filtering, no cherry-picking.");
 
   return (
     <SiteShell>
@@ -181,11 +118,17 @@ export default async function ReviewsPage() {
               >
                 {eyebrow}
               </p>
-              <div className="inline-flex items-center gap-3 mb-6">
-                <span aria-hidden className="text-3xl">⌬</span>
-                <span className="font-display font-bold text-5xl md:text-6xl">{ratingDisplay} / 5</span>
-                <span aria-hidden className="text-3xl">⌬</span>
-              </div>
+              {total > 0 && (
+                <div className="inline-flex items-center gap-3 mb-6">
+                  <StarRow rating={avgRating} />
+                  <span className="font-display font-semibold text-2xl">
+                    {avgRating.toFixed(1)} / 5
+                  </span>
+                  <span className="text-white/55 text-sm">
+                    · {total} {lang === "nl" ? "reviews" : "reviews"}
+                  </span>
+                </div>
+              )}
               <h1
                 className="font-display font-bold text-4xl md:text-5xl tracking-tight"
                 data-edit-id={titleKey}
@@ -203,41 +146,60 @@ export default async function ReviewsPage() {
             </div>
           </Reveal>
 
-          <StaggerGroup
-            staggerChildren={0.08}
-            className="mt-16 grid md:grid-cols-2 gap-x-10 gap-y-8 max-w-5xl mx-auto"
-          >
-            {display.map((r) => (
-              <StaggerItem key={r.id}>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-white text-sm font-semibold ${colourFor(r.guest_name)}`}
-                    >
-                      {initial(r.guest_name)}
-                    </span>
-                    <div>
-                      <p className="text-white font-medium text-[14px] leading-tight">{r.guest_name}</p>
-                      <p className="text-white/50 text-[12px]">Curaçao</p>
+          {total === 0 ? (
+            <div className="mt-16 max-w-md mx-auto rounded-3xl border border-white/15 p-10 text-center">
+              <p className="font-display font-semibold text-xl text-white">
+                {lang === "nl"
+                  ? "Nog geen reviews gepubliceerd"
+                  : "No reviews published yet"}
+              </p>
+              <p className="text-sm text-white/65 mt-3 leading-relaxed">
+                {lang === "nl"
+                  ? "Onze residenties zijn pas geopend. Reviews verschijnen hier zodra gasten ze met ons delen."
+                  : "Our residences have just opened. Reviews will appear here as guests share them with us."}
+              </p>
+            </div>
+          ) : (
+            <StaggerGroup
+              staggerChildren={0.08}
+              className="mt-16 grid md:grid-cols-2 gap-x-10 gap-y-8 max-w-5xl mx-auto"
+            >
+              {reviews.map((r) => (
+                <StaggerItem key={r.id}>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-white text-sm font-semibold ${colourFor(r.guest_name)}`}
+                      >
+                        {initial(r.guest_name)}
+                      </span>
+                      <div>
+                        <p className="text-white font-medium text-[14px] leading-tight">
+                          {r.guest_name}
+                        </p>
+                        <p className="text-white/50 text-[12px]">Curaçao</p>
+                      </div>
+                    </div>
+                    {r.body && (
+                      <p className="text-white/85 text-[14px] leading-relaxed">
+                        “{r.body}”
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3 text-[12px] text-white/55">
+                      <StarRow rating={r.rating} />
+                      <span>
+                        {r.rating.toFixed(1)} ·{" "}
+                        {new Date(r.created_at).toLocaleDateString(
+                          lang === "nl" ? "nl-NL" : "en-GB",
+                          { month: "long", year: "numeric" },
+                        )}
+                      </span>
                     </div>
                   </div>
-                  <p className="text-white/85 text-[14px] leading-relaxed">
-                    “{r.body}”
-                  </p>
-                  <div className="flex items-center gap-3 text-[12px] text-white/55">
-                    <StarRow rating={r.rating} />
-                    <span>
-                      {r.rating.toFixed(1)} stars ·{" "}
-                      {new Date(r.created_at).toLocaleDateString(lang === "nl" ? "nl-NL" : "en-GB", {
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+          )}
         </div>
       </section>
     </SiteShell>

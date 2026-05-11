@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "@/lib/i18n/server";
-import { loadOverlay, pickText } from "@/lib/editor/overrides";
+import { loadOverlay } from "@/lib/editor/overrides";
 import { isEditorPreview } from "@/lib/editor/mode";
 import type { SiteSettings } from "@/lib/types";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
+import { CookieBanner } from "./CookieBanner";
 
 /**
  * Wraps every public-facing page (home, about, gallery, reviews, property,
@@ -13,8 +14,10 @@ import { SiteFooter } from "./SiteFooter";
 export async function SiteShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { lang } = await getTranslations();
-  const editorPreview = await isEditorPreview();
-  const { overlay } = await loadOverlay(editorPreview ? "draft" : "published");
+  // Editor preview is consulted but no overlay is read here — page-level
+  // components fetch their own overrides.
+  await isEditorPreview();
+  await loadOverlay("published");
 
   const [{ data: settingsRow }, { data: { user } }] = await Promise.all([
     supabase.from("site_settings").select("*").eq("id", 1).single(),
@@ -48,6 +51,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
       />
       <main className="flex-1 pt-[88px]">{children}</main>
       <SiteFooter settings={settings} lang={lang} />
+      <CookieBanner lang={lang} />
     </div>
   );
 }

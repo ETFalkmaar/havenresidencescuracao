@@ -115,11 +115,19 @@ export function SiteFooter({
       </div>
 
       <div className="border-t border-black/5">
-        <div className="max-w-6xl mx-auto px-6 py-5 text-xs text-ink-mute flex flex-col md:flex-row md:justify-between gap-2">
+        <div className="max-w-6xl mx-auto px-6 py-5 text-xs text-ink-mute flex flex-col md:flex-row md:justify-between gap-3 flex-wrap">
           <p>
             © {year} {brand}. {lang === "nl" ? "Alle rechten voorbehouden." : "All rights reserved."}
           </p>
-          <p>Curaçao · {lang === "nl" ? "Gemaakt met zorg" : "Made with care"}</p>
+          <nav className="flex flex-wrap gap-4">
+            <Link href="/privacy" className="hover:text-ink transition">
+              {lang === "nl" ? "Privacybeleid" : "Privacy policy"}
+            </Link>
+            <Link href="/cookies" className="hover:text-ink transition">
+              {lang === "nl" ? "Cookiebeleid" : "Cookie policy"}
+            </Link>
+            <span>Curaçao</span>
+          </nav>
         </div>
       </div>
     </footer>
