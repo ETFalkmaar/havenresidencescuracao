@@ -142,7 +142,15 @@ export default async function GalleryPage() {
           <div className="grid lg:grid-cols-2 gap-10">
             {propertyPhotos.map(({ property, photos }) => (
               <Reveal key={property.id}>
-                <GalleryCarousel title={property.name} photos={photos} />
+                <GalleryCarousel
+                  title={property.name}
+                  slug={property.slug}
+                  photos={photos}
+                  viewLabel={lang === "nl" ? "Bekijk residentie" : "View property"}
+                  availabilityLabel={
+                    lang === "nl" ? "Beschikbaarheid" : "Check availability"
+                  }
+                />
               </Reveal>
             ))}
           </div>
