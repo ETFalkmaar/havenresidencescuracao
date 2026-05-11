@@ -11,6 +11,7 @@ export type CreateBookingInput = {
   checkIn: string; // YYYY-MM-DD
   checkOut: string; // YYYY-MM-DD
   numGuests: number;
+  numChildren?: number;
   stayType: StayType;
   guestName: string;
   guestPhone: string | null;
@@ -101,6 +102,7 @@ export async function createBooking(
     p_check_in: input.checkIn,
     p_check_out: input.checkOut,
     p_num_guests: input.numGuests,
+    p_num_children: input.numChildren ?? 0,
     p_stay_type: input.stayType,
     p_guest_name: input.guestName,
     p_guest_phone: input.guestPhone,

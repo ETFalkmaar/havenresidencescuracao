@@ -72,7 +72,7 @@ export function GalleryCarousel({
               {viewLabel}
             </Link>
             <Link
-              href="/contact"
+              href={`/book?property=${slug}`}
               className="inline-flex items-center px-4 py-2 rounded-full bg-paper-warm hover:bg-paper-tint text-ink text-[13px] font-medium transition border border-black/5"
             >
               {availabilityLabel}

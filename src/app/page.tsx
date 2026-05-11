@@ -142,7 +142,6 @@ export default async function Home() {
           availabilityLabel={
             lang === "nl" ? "Beschikbaarheid" : "Check availability"
           }
-          availabilityHref="/contact"
         />
       )}
 
@@ -217,7 +216,7 @@ export default async function Home() {
               {lang === "nl" ? "Meer residenties" : "View more Property"}
             </Link>
             <Link
-              href="/contact"
+              href="/book"
               className="inline-flex items-center px-5 py-2.5 rounded-full bg-paper-warm hover:bg-paper-tint text-ink text-[14px] font-medium transition border border-black/5"
             >
               {lang === "nl" ? "Beschikbaarheid" : "Check Availability"}
@@ -318,7 +317,7 @@ export default async function Home() {
             </p>
             <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
               <Link
-                href="/contact"
+                href="/book"
                 className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-brand-500 hover:bg-brand-600 text-white text-[14px] font-medium transition shadow-pill"
               >
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15">

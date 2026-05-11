@@ -21,14 +21,12 @@ export function HomeHero({
   viewLabel,
   comingSoonLabel,
   availabilityLabel,
-  availabilityHref,
 }: {
   title: string;
   slides: HeroSlide[];
   viewLabel: string;
   comingSoonLabel: string;
   availabilityLabel: string;
-  availabilityHref: string;
 }) {
   const [index, setIndex] = useState(0);
 
@@ -109,7 +107,7 @@ export function HomeHero({
           <div className="flex flex-wrap gap-3">
             {current.isComingSoon ? (
               <Link
-                href={availabilityHref}
+                href={current.isComingSoon ? "/contact" : `/book?property=${current.propertySlug}`}
                 className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-white text-ink text-[15px] font-medium hover:bg-paper-warm transition shadow-pill"
               >
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-white">
@@ -153,7 +151,7 @@ export function HomeHero({
                 </Link>
 
                 <Link
-                  href={availabilityHref}
+                  href={current.isComingSoon ? "/contact" : `/book?property=${current.propertySlug}`}
                   className="inline-flex items-center px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-white text-[15px] font-medium transition border border-white/30"
                 >
                   {availabilityLabel}

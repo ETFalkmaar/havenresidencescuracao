@@ -215,7 +215,7 @@ export default async function PropertyPage() {
 
           <div className="mt-16 text-center">
             <Link
-              href="/contact"
+              href="/book"
               className="group inline-flex items-center gap-2.5 pl-2 pr-6 py-2 rounded-full bg-brand-500 hover:bg-brand-600 text-white text-[14px] font-medium transition shadow-pill"
             >
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
