@@ -2,6 +2,9 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  // Disable auto-dark-mode. The site is always light; we only opt in via an
+  // explicit `class="dark"` on <html> (which we never set).
+  darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
