@@ -345,6 +345,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
             photos={galleryPhotos}
             propertyName={property.name}
             accent={accent}
+            lang={lang}
           />
         </section>
       )}
