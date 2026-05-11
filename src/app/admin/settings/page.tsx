@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getTranslations } from "@/lib/i18n/server";
 import { SettingsForm } from "./SettingsForm";
 import { AirbnbConnectCard } from "./AirbnbConnectCard";
+import { ReviewsConnectCard } from "./ReviewsConnectCard";
 
 export const dynamic = "force-dynamic";
 
@@ -41,13 +43,28 @@ export default async function SettingsPage() {
         subtitle: "Brand info, contact details, social links, and integrations.",
       };
 
-  const [settingsRes, unitsRes] = await Promise.all([
-    supabase.from("site_settings").select("*").eq("id", 1).single(),
-    supabase
-      .from("units")
-      .select("id, name, airbnb_ical_url, property_id, properties(name)")
-      .order("created_at", { ascending: true }),
-  ]);
+  // Note: the API-key columns are excluded for anon/authenticated, so we use
+  // the service-role client for them. Everything else uses the user client.
+  const admin = createAdminClient();
+  const [settingsRes, unitsRes, reviewIntegrationsRes, statusesRes] =
+    await Promise.all([
+      supabase.from("site_settings").select("*").eq("id", 1).single(),
+      supabase
+        .from("units")
+        .select("id, name, airbnb_ical_url, property_id, properties(name)")
+        .order("created_at", { ascending: true }),
+      admin
+        .from("site_settings")
+        .select(
+          "trustpilot_business_unit, trustpilot_api_key, google_place_id, google_api_key",
+        )
+        .eq("id", 1)
+        .maybeSingle(),
+      admin
+        .from("external_review_aggregates")
+        .select("source, rating, total_reviews, last_synced_at, last_sync_error")
+        .is("property_id", null),
+    ]);
 
   const settings = (settingsRes.data ?? {
     brand_name: "Haven Residence",
@@ -86,6 +103,26 @@ export default async function SettingsPage() {
       </header>
 
       <AirbnbConnectCard units={units} />
+
+      <ReviewsConnectCard
+        trustpilotBusinessUnit={
+          (reviewIntegrationsRes.data?.trustpilot_business_unit as string | null) ?? null
+        }
+        hasTrustpilotKey={!!reviewIntegrationsRes.data?.trustpilot_api_key}
+        googlePlaceId={
+          (reviewIntegrationsRes.data?.google_place_id as string | null) ?? null
+        }
+        hasGoogleKey={!!reviewIntegrationsRes.data?.google_api_key}
+        statuses={
+          (statusesRes.data ?? []) as {
+            source: "trustpilot" | "google";
+            rating: number | null;
+            total_reviews: number | null;
+            last_synced_at: string | null;
+            last_sync_error: string | null;
+          }[]
+        }
+      />
 
       <SettingsForm settings={settings} />
     </main>
