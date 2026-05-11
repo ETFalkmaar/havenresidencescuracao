@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteShell } from "@/components/site/SiteShell";
+import { PropertyHeroSlideshow } from "@/components/site/PropertyHeroSlideshow";
 import { InquiryForm } from "@/components/InquiryForm";
 import { BookingForm } from "@/components/BookingForm";
 import { PhotoGallery } from "@/components/PhotoGallery";
@@ -176,29 +177,27 @@ export default async function PropertyPage({ params }: { params: Params }) {
 
   return (
     <SiteShell>
-      {/* Hero */}
-      <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden -mt-[88px]">
-        {property.hero_video_url ? (
-          <video
-            src={property.hero_video_url}
-            poster={property.hero_image_url ?? undefined}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : property.hero_image_url ? (
-          <Image
-            src={property.hero_image_url}
-            alt={property.name}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        ) : null}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/80" />
+      {/* Hero — full-bleed photo slideshow that rotates every 5 seconds. */}
+      <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden -mt-[88px] bg-ink">
+        <PropertyHeroSlideshow
+          images={(() => {
+            const seen = new Set<string>();
+            const urls: string[] = [];
+            for (const p of photos) {
+              if (p.url && !seen.has(p.url)) {
+                seen.add(p.url);
+                urls.push(p.url);
+              }
+            }
+            // Fallback to hero_image_url if there are no photos at all.
+            if (urls.length === 0 && property.hero_image_url) {
+              urls.push(property.hero_image_url);
+            }
+            return urls;
+          })()}
+          alt={property.name}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/80 pointer-events-none" />
 
         <div className="relative h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-16 lg:pb-24 text-white">
           <Reveal delay={0.1}>
