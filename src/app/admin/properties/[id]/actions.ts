@@ -363,6 +363,43 @@ export async function removeHeroVideo({
   return { ok: true };
 }
 
+/**
+ * Set the per-property logo. URL is uploaded client-side; this just
+ * persists it.
+ */
+export async function setPropertyLogo({
+  propertyId,
+  url,
+}: {
+  propertyId: string;
+  url: string | null;
+}): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  // If we're clearing, delete the underlying file too.
+  if (url === null) {
+    const { data: prop } = await supabase
+      .from("properties")
+      .select("logo_url")
+      .eq("id", propertyId)
+      .single();
+    const current = (prop as { logo_url: string | null } | null)?.logo_url;
+    if (current) {
+      const path = extractStoragePath(current);
+      if (path) await supabase.storage.from("property-media").remove([path]);
+    }
+  }
+
+  const { error } = await supabase
+    .from("properties")
+    .update({ logo_url: url })
+    .eq("id", propertyId);
+  if (error) return { ok: false, error: error.message };
+
+  await revalidatePropertyAndPublic(supabase, propertyId);
+  return { ok: true };
+}
+
 // ========== UNIT ==========
 
 function asNumber(v: FormDataEntryValue | null): number | null {

@@ -229,7 +229,7 @@ export const translations: Record<Lang, Translations> = {
       bathrooms: "baths",
       upToGuests: "Up to {n} guests",
       cleaningFee: "Cleaning fee:",
-      requestToBook: "Request to book",
+      requestToBook: "Book now",
       features: "Features",
       whatThisOffers: "What this residence offers",
       details: "The details",
@@ -278,7 +278,7 @@ export const translations: Record<Lang, Translations> = {
     booking: {
       bookOnline: "Book online",
       bookSubtext:
-        "Pick your dates, see the price including any high-season uplift, and confirm — we'll get back within 24 hours with arrival details.",
+        "Pick your dates and confirm — your booking is reserved instantly and you'll receive a confirmation email with all the arrival details.",
       pickDates: "Pick your dates",
       guests: "Guests",
       max: "Max",
@@ -302,11 +302,11 @@ export const translations: Record<Lang, Translations> = {
       pickDatesError: "Pick check-in and check-out dates.",
       nameRequired: "Please enter the name for the booking.",
       guestsRange: "Guests must be between 1 and {n}.",
-      bookingReceived: "Booking received",
+      bookingReceived: "Booking confirmed",
       thankYou: "Thank you",
-      referenceLine1: "Your reservation reference is",
+      referenceLine1: "Your booking reference is",
       referenceLine2:
-        "We've recorded the request and a host will confirm by email within 24 hours. You can check status under",
+        "We've sent a confirmation email with all the details. You can review and manage your booking under",
       myStays: "My stays",
     },
     footer: {
@@ -408,7 +408,7 @@ export const translations: Record<Lang, Translations> = {
       bathrooms: "badkamers",
       upToGuests: "Tot {n} gasten",
       cleaningFee: "Schoonmaakkosten:",
-      requestToBook: "Aanvraag voor boeking",
+      requestToBook: "Boek nu",
       features: "Voorzieningen",
       whatThisOffers: "Wat deze residentie biedt",
       details: "De details",
@@ -455,9 +455,9 @@ export const translations: Record<Lang, Translations> = {
       validationLong: "Bericht is te lang (max 5000 tekens).",
     },
     booking: {
-      bookOnline: "Online boeken",
+      bookOnline: "Direct boeken",
       bookSubtext:
-        "Kies je data, bekijk de prijs inclusief eventuele hoogseizoentoeslag en bevestig — we komen binnen 24 uur terug met de aankomstdetails.",
+        "Kies je data en bevestig — je boeking is direct gereserveerd en je ontvangt een bevestigingsmail met alle aankomstdetails.",
       pickDates: "Kies je data",
       guests: "Gasten",
       max: "Max",
@@ -481,11 +481,11 @@ export const translations: Record<Lang, Translations> = {
       pickDatesError: "Kies een aankomst- en vertrekdatum.",
       nameRequired: "Vul de naam voor de boeking in.",
       guestsRange: "Gasten moet tussen 1 en {n} liggen.",
-      bookingReceived: "Boeking ontvangen",
+      bookingReceived: "Boeking bevestigd",
       thankYou: "Bedankt",
       referenceLine1: "Je boekingsreferentie is",
       referenceLine2:
-        "We hebben de aanvraag genoteerd en de host bevestigt binnen 24 uur per e-mail. Je kunt de status volgen onder",
+        "We hebben een bevestigingsmail gestuurd met alle details. Je kunt je boeking bekijken en beheren onder",
       myStays: "Mijn verblijven",
     },
     footer: {

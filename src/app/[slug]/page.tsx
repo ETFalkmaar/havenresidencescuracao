@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { AnimatedHeader } from "@/components/AnimatedHeader";
-import { Footer } from "@/components/Footer";
+import { SiteShell } from "@/components/site/SiteShell";
+import { PropertyHeroSlideshow } from "@/components/site/PropertyHeroSlideshow";
 import { InquiryForm } from "@/components/InquiryForm";
 import { BookingForm } from "@/components/BookingForm";
 import { PhotoGallery } from "@/components/PhotoGallery";
@@ -19,6 +19,7 @@ import {
   type Photo,
   type Amenity,
   type PricingSeason,
+  type Review,
   type SiteSettings,
 } from "@/lib/types";
 
@@ -117,31 +118,40 @@ export default async function PropertyPage({ params }: { params: Params }) {
 
   const unit = units[0];
 
-  const [amenitiesRes, seasonsRes, blockedRes, profileRes] = await Promise.all([
-    unit
-      ? supabase
-          .from("unit_amenities")
-          .select("amenity_id, amenities(name, slug, category)")
-          .eq("unit_id", unit.id)
-      : Promise.resolve({ data: [] as AmenityRow[] }),
-    unit
-      ? supabase
-          .from("pricing_seasons")
-          .select("*")
-          .eq("unit_id", unit.id)
-          .order("start_date")
-      : Promise.resolve({ data: [] as PricingSeason[] }),
-    unit
-      ? supabase.rpc("unit_blocked_ranges", { p_unit_id: unit.id })
-      : Promise.resolve({ data: [] as BlockedRange[] }),
-    signedInUser
-      ? supabase
-          .from("profiles")
-          .select("full_name, phone")
-          .eq("user_id", signedInUser.id)
-          .maybeSingle()
-      : Promise.resolve({ data: null }),
-  ]);
+  const [amenitiesRes, seasonsRes, blockedRes, profileRes, reviewsRes] =
+    await Promise.all([
+      unit
+        ? supabase
+            .from("unit_amenities")
+            .select("amenity_id, amenities(name, slug, category)")
+            .eq("unit_id", unit.id)
+        : Promise.resolve({ data: [] as AmenityRow[] }),
+      unit
+        ? supabase
+            .from("pricing_seasons")
+            .select("*")
+            .eq("unit_id", unit.id)
+            .order("start_date")
+        : Promise.resolve({ data: [] as PricingSeason[] }),
+      unit
+        ? supabase.rpc("unit_blocked_ranges", { p_unit_id: unit.id })
+        : Promise.resolve({ data: [] as BlockedRange[] }),
+      signedInUser
+        ? supabase
+            .from("profiles")
+            .select("full_name, phone")
+            .eq("user_id", signedInUser.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      unit
+        ? supabase
+            .from("reviews")
+            .select("*")
+            .eq("unit_id", unit.id)
+            .eq("is_published", true)
+            .order("created_at", { ascending: false })
+        : Promise.resolve({ data: [] as Review[] }),
+    ]);
 
   const amenities = (amenitiesRes.data ?? []) as AmenityRow[];
   const seasons = (seasonsRes.data ?? []) as PricingSeason[];
@@ -149,6 +159,11 @@ export default async function PropertyPage({ params }: { params: Params }) {
   const profile = (profileRes.data ?? null) as
     | { full_name: string | null; phone: string | null }
     | null;
+  const reviews = (reviewsRes.data ?? []) as Review[];
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+      : null;
 
   const accent = property.color_hex ?? "#1E5FBF";
   const isComingSoon = property.status === "coming_soon";
@@ -176,64 +191,87 @@ export default async function PropertyPage({ params }: { params: Params }) {
   const canBook = !isComingSoon && unit !== undefined;
 
   return (
-    <>
-      <AnimatedHeader
-        brandName={settings?.brand_name ?? "Haven Residence"}
-        lang={lang}
-        t={t.nav}
-        signedIn={Boolean(signedInUser)}
-      />
-
-      {/* Hero */}
-      <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden">
-        {property.hero_image_url && (
-          <Image
-            src={property.hero_image_url}
-            alt={property.name}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/80" />
+    <SiteShell>
+      {/* Hero — full-bleed photo slideshow that rotates every 5 seconds. */}
+      <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden -mt-[88px] bg-ink">
+        <PropertyHeroSlideshow
+          images={(() => {
+            const seen = new Set<string>();
+            const urls: string[] = [];
+            for (const p of photos) {
+              if (p.url && !seen.has(p.url)) {
+                seen.add(p.url);
+                urls.push(p.url);
+              }
+            }
+            // Fallback to hero_image_url if there are no photos at all.
+            if (urls.length === 0 && property.hero_image_url) {
+              urls.push(property.hero_image_url);
+            }
+            return urls;
+          })()}
+          alt={property.name}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/80 pointer-events-none" />
 
         <div className="relative h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-16 lg:pb-24 text-white">
           <Reveal delay={0.1}>
             <Link
               href="/"
-              className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition inline-block mb-6"
+              className="text-[12px] tracking-[0.3em] uppercase text-white/70 hover:text-white transition inline-block mb-6"
             >
               ← {td.allResidences}
             </Link>
           </Reveal>
+
+          {/* Eyebrow: CITY · COUNTRY — uses the same uppercase-tracked
+              treatment as the homepage hero caption. */}
           <Reveal delay={0.2}>
-            <div
-              className="h-0.5 w-16 mb-5"
-              style={{ backgroundColor: accent }}
-            />
+            <p className="text-[12px] md:text-[13px] tracking-[0.3em] uppercase text-white/85 mb-4">
+              {property.city} · {property.country}
+            </p>
           </Reveal>
+
+          {property.logo_url && (
+            <Reveal delay={0.25}>
+              <div className="mb-5 flex">
+                <div className="relative h-24 w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+                  <Image
+                    src={property.logo_url}
+                    alt={property.name}
+                    fill
+                    priority
+                    sizes="128px"
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </Reveal>
+          )}
+
+          {/* Residence name — same display font (Manrope bold) as the
+              homepage hero heading. */}
           <Reveal delay={0.3}>
-            <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-extralight leading-[1.05] tracking-tight">
+            <h1 className="font-display font-bold text-white text-5xl md:text-7xl lg:text-[6.5rem] leading-[0.95] tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
               {property.name}
             </h1>
           </Reveal>
+
           <Reveal delay={0.45}>
-            <p className="mt-4 text-lg md:text-xl text-white/85 max-w-2xl font-light">
+            <p className="mt-5 text-lg md:text-xl text-white/85 max-w-2xl">
               {localized(property.tagline, property.tagline_nl, lang)}
             </p>
           </Reveal>
           <Reveal delay={0.55}>
             <p className="mt-2 text-sm text-white/60">
-              {property.address} · {property.city}, {property.country}
+              {property.address}
             </p>
           </Reveal>
 
           {isComingSoon && (
             <Reveal delay={0.7}>
               <span
-                className="inline-block mt-6 text-[11px] tracking-widest uppercase px-4 py-2 rounded-full text-white shadow-xl"
-                style={{ backgroundColor: accent }}
+                className="inline-flex items-center mt-6 px-4 py-2 rounded-full bg-white text-ink text-[11px] tracking-[0.25em] uppercase font-semibold"
               >
                 {td.comingSoon}
                 {property.available_from
@@ -307,6 +345,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
             photos={galleryPhotos}
             propertyName={property.name}
             accent={accent}
+            lang={lang}
           />
         </section>
       )}
@@ -434,27 +473,106 @@ export default async function PropertyPage({ params }: { params: Params }) {
         </section>
       )}
 
-      {/* Booking or inquiry */}
-      <section
-        id="book"
-        className="border-t border-neutral-200 dark:border-neutral-900 py-20 lg:py-28"
-      >
-        <div className="max-w-3xl mx-auto px-6 lg:px-10">
-          <Reveal>
-            <p className="text-xs uppercase tracking-[0.4em] text-neutral-500 mb-4">
-              {canBook ? t.booking.bookOnline : t.home.inquire}
-            </p>
-            <h2 className="text-3xl md:text-4xl font-extralight mb-4 tracking-tight">
-              {isComingSoon
-                ? td.reserveEarlyAccess
-                : fmt(td.stayAt, { name: property.name })}
-            </h2>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
-              {isComingSoon ? td.reserveSubtext : t.booking.bookSubtext}
-            </p>
-          </Reveal>
-          <Reveal delay={0.2}>
-            {canBook && unit ? (
+      {/* Reviews — pulled from our reviews table (seeded with the Airbnb
+          reviews on import). Shows the rating, guest name, date and body. */}
+      {reviews.length > 0 && (
+        <section className="border-t border-black/5 bg-paper-tint py-20 lg:py-28">
+          <div className="max-w-5xl mx-auto px-6 lg:px-10">
+            <Reveal>
+              <div className="text-center mb-12">
+                <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                  {lang === "nl" ? "Wat gasten zeggen" : "What guests say"}
+                </p>
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <span className="text-yellow-500 text-2xl" aria-hidden>
+                    ★
+                  </span>
+                  <span className="font-display font-bold text-4xl md:text-5xl tracking-tight text-ink">
+                    {averageRating?.toFixed(1) ?? "—"}
+                  </span>
+                  <span className="text-ink-mute text-sm">
+                    · {reviews.length}{" "}
+                    {reviews.length === 1
+                      ? lang === "nl"
+                        ? "recensie"
+                        : "review"
+                      : lang === "nl"
+                      ? "recensies"
+                      : "reviews"}
+                  </span>
+                </div>
+              </div>
+            </Reveal>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {reviews.map((r, i) => (
+                <Reveal key={r.id} delay={i * 0.05}>
+                  <article className="rounded-3xl bg-white border border-black/5 shadow-pill p-6 md:p-7 h-full flex flex-col">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div
+                        className="h-12 w-12 rounded-full grid place-items-center text-white text-lg font-semibold"
+                        style={{ backgroundColor: accent }}
+                        aria-hidden
+                      >
+                        {r.guest_name.slice(0, 1).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-ink">{r.guest_name}</p>
+                        <p className="text-xs text-ink-mute">
+                          {new Date(r.created_at).toLocaleDateString(locale, {
+                            year: "numeric",
+                            month: "long",
+                          })}
+                        </p>
+                      </div>
+                      <div
+                        className="ml-auto text-yellow-500 text-sm"
+                        aria-label={`${r.rating}/5`}
+                      >
+                        {"★".repeat(r.rating)}
+                        <span className="text-black/15">
+                          {"★".repeat(5 - r.rating)}
+                        </span>
+                      </div>
+                    </div>
+                    {r.title && (
+                      <h3 className="font-display font-semibold text-lg text-ink mb-2">
+                        {r.title}
+                      </h3>
+                    )}
+                    {r.body && (
+                      <p className="text-ink-mute text-sm leading-relaxed whitespace-pre-line">
+                        {r.body}
+                      </p>
+                    )}
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Booking — only when the residence is active. Coming-soon residences
+          skip this block; guests can still use the question form below. */}
+      {canBook && unit && (
+        <section
+          id="book"
+          className="border-t border-black/5 py-20 lg:py-28 bg-paper"
+        >
+          <div className="max-w-3xl mx-auto px-6 lg:px-10">
+            <Reveal>
+              <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                {t.booking.bookOnline}
+              </p>
+              <h2 className="font-display font-bold text-3xl md:text-4xl mb-4 tracking-tight text-ink">
+                {fmt(td.stayAt, { name: property.name })}
+              </h2>
+              <p className="text-ink-mute mb-8 leading-relaxed">
+                {t.booking.bookSubtext}
+              </p>
+            </Reveal>
+            <Reveal delay={0.2}>
               <BookingForm
                 unit={{
                   id: unit.id,
@@ -490,18 +608,81 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 locale={locale}
                 t={t.booking}
               />
-            ) : (
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* Coming-soon block — replaces booking with a notify / wait-list CTA. */}
+      {isComingSoon && (
+        <section
+          id="notify"
+          className="border-t border-black/5 py-20 lg:py-28 bg-paper-tint"
+        >
+          <div className="max-w-3xl mx-auto px-6 lg:px-10 text-center">
+            <Reveal>
+              <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                {lang === "nl" ? "Binnenkort" : "Coming soon"}
+              </p>
+              <h2 className="font-display font-bold text-3xl md:text-5xl mb-4 tracking-tight text-ink">
+                {lang === "nl"
+                  ? "Boekingen openen binnenkort"
+                  : "Bookings open soon"}
+              </h2>
+              <p className="text-ink-mute leading-relaxed max-w-xl mx-auto">
+                {lang === "nl"
+                  ? `${property.name} is bijna klaar voor onze eerste gasten. Laat ons je gegevens achter en je hoort als eerste wanneer boekingen openen — geen wachtlijst, geen verplichting.`
+                  : `${property.name} is almost ready for our first guests. Leave your details and you'll be the first to hear when bookings open — no waitlist, no obligation.`}
+              </p>
+              {property.available_from && (
+                <p className="mt-4 text-[12px] uppercase tracking-[0.3em] text-ink-mute">
+                  {lang === "nl" ? "Verwacht open" : "Expected to open"} ·{" "}
+                  {new Date(property.available_from).toLocaleDateString(locale, {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* Questions section — always present, 24h reply. */}
+      <section
+        id="ask"
+        className="border-t border-black/5 py-20 lg:py-28 bg-paper-tint"
+      >
+        <div className="max-w-3xl mx-auto px-6 lg:px-10">
+          <Reveal>
+            <div className="text-center mb-10">
+              <p className="text-[12px] uppercase tracking-[0.3em] text-ink-mute mb-4">
+                {lang === "nl" ? "Vragen?" : "Questions?"}
+              </p>
+              <h2 className="font-display font-bold text-3xl md:text-5xl tracking-tight text-ink leading-tight">
+                {lang === "nl"
+                  ? "Stuur ons een bericht"
+                  : "Send us a message"}
+              </h2>
+              <p className="mt-4 text-ink-mute leading-relaxed">
+                {lang === "nl"
+                  ? "We reageren binnen 24 uur. Schoonmaak, sleutels, ligging, lange verblijven — vraag het ons gerust."
+                  : "We reply within 24 hours. Cleaning, keys, location, longer stays — ask us anything."}
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <div className="rounded-3xl bg-white border border-black/5 shadow-pill p-6 md:p-8">
               <InquiryForm
                 propertyId={property.id}
-                accent={accent}
+                accent="#0B0B0B"
                 t={t.inquiry}
               />
-            )}
+            </div>
           </Reveal>
         </div>
       </section>
 
-      <Footer settings={settings ?? null} t={t.footer} />
-    </>
+    </SiteShell>
   );
 }

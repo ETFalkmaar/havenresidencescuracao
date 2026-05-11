@@ -27,6 +27,7 @@ export type Property = {
   utilities_notes: string | null;
   hero_image_url: string | null;
   hero_video_url: string | null;
+  logo_url: string | null;
   available_from: string | null;
   position: number;
   created_at: string;
@@ -88,6 +89,19 @@ export type PricingSeason = {
   position: number;
 };
 
+export type Review = {
+  id: string;
+  unit_id: string | null;
+  booking_id: string | null;
+  guest_name: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  language: string | null;
+  is_published: boolean;
+  created_at: string;
+};
+
 export type SiteSettings = {
   id: number;
   brand_name: string;
@@ -102,4 +116,5 @@ export type SiteSettings = {
   tiktok_url: string | null;
   google_review_url: string | null;
   trustpilot_url: string | null;
+  logo_url: string | null;
 };

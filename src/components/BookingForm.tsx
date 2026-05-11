@@ -138,17 +138,46 @@ export function BookingForm({
 
   // Stable booking style override for react-day-picker
   const dpStyle = `
-    .rdp-root { --rdp-accent-color: ${accent}; --rdp-accent-background-color: ${accent}33; }
-    .rdp-day_button:hover:not([disabled]) { background-color: ${accent}22; }
-    .rdp-selected .rdp-day_button { background-color: ${accent} !important; color: white; border-color: ${accent}; }
-    .rdp-range_middle .rdp-day_button { background-color: ${accent}33 !important; }
-    .rdp-range_start .rdp-day_button, .rdp-range_end .rdp-day_button { background-color: ${accent} !important; color: white; }
+    .rdp-root {
+      --rdp-accent-color: ${accent};
+      --rdp-accent-background-color: ${accent}33;
+      color: #0b0b0b;
+      background: transparent;
+    }
+    .rdp-month_caption, .rdp-caption_label, .rdp-weekday {
+      color: #0b0b0b;
+    }
+    .rdp-weekday { color: #525252; }
+    .rdp-day { color: #0b0b0b; }
+    .rdp-day_button { color: #0b0b0b; }
+    .rdp-day_button:hover:not([disabled]) {
+      background-color: ${accent}1a;
+      color: #0b0b0b;
+    }
+    .rdp-disabled .rdp-day_button, .rdp-day_button[disabled] {
+      color: #c4c4c4;
+      text-decoration: line-through;
+    }
+    .rdp-selected .rdp-day_button {
+      background-color: ${accent} !important;
+      color: white !important;
+      border-color: ${accent};
+    }
+    .rdp-range_middle .rdp-day_button {
+      background-color: ${accent}33 !important;
+      color: #0b0b0b !important;
+    }
+    .rdp-range_start .rdp-day_button, .rdp-range_end .rdp-day_button {
+      background-color: ${accent} !important;
+      color: white !important;
+    }
+    .rdp-nav button { color: ${accent}; }
   `;
 
   if (confirmation) {
     return (
       <div
-        className="rounded-xl border p-8 text-center space-y-4 bg-white/60 dark:bg-neutral-950/60 backdrop-blur"
+        className="rounded-xl border p-8 text-center space-y-4 bg-white/90 backdrop-blur"
         style={{ borderColor: accent }}
       >
         <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
@@ -158,7 +187,7 @@ export function BookingForm({
           {t.thankYou}
           {name ? `, ${name.split(" ")[0]}` : ""}.
         </h3>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-md mx-auto">
+        <p className="text-sm text-ink-mute leading-relaxed max-w-md mx-auto">
           {t.referenceLine1}{" "}
           <span className="font-mono font-medium">{confirmation.reference}</span>
           . {t.referenceLine2}{" "}
@@ -175,7 +204,7 @@ export function BookingForm({
     <div className="space-y-6">
       <style dangerouslySetInnerHTML={{ __html: dpStyle }} />
 
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-5 space-y-5">
+      <div className="rounded-xl border border-black/10 bg-white p-5 space-y-5">
         <p className="text-xs uppercase tracking-widest text-neutral-500">
           {t.pickDates}
         </p>
@@ -191,7 +220,7 @@ export function BookingForm({
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4 space-y-3">
+        <div className="rounded-xl border border-black/10 bg-white p-4 space-y-3">
           <label className="block text-xs uppercase tracking-widest text-neutral-500">
             {t.guests}
           </label>
@@ -201,21 +230,21 @@ export function BookingForm({
             max={unit.max_guests}
             value={guests}
             onChange={(e) => setGuests(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
+            className="w-full px-3 py-2 rounded-lg border border-black/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
           />
           <p className="text-xs text-neutral-500">
             {t.max} {unit.max_guests}
           </p>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4 space-y-3">
+        <div className="rounded-xl border border-black/10 bg-white p-4 space-y-3">
           <label className="block text-xs uppercase tracking-widest text-neutral-500">
             {t.stayType}
           </label>
           <select
             value={stayPref}
             onChange={(e) => setStayPref(e.target.value as "auto" | "short" | "long")}
-            className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
+            className="w-full px-3 py-2 rounded-lg border border-black/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
           >
             <option value="auto">{t.stayAuto}</option>
             <option value="short">{t.stayShort}</option>
@@ -227,11 +256,11 @@ export function BookingForm({
       </div>
 
       {breakdown && (
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-5 space-y-3">
+        <div className="rounded-xl border border-black/10 bg-white p-5 space-y-3">
           <p className="text-xs uppercase tracking-widest text-neutral-500">
             {t.priceBreakdown}
           </p>
-          <ul className="text-sm space-y-1.5 text-neutral-700 dark:text-neutral-300">
+          <ul className="text-sm space-y-1.5 text-ink">
             {breakdown.stay_type === "long" ? (
               <li className="flex justify-between">
                 <span>
@@ -266,7 +295,7 @@ export function BookingForm({
         </div>
       )}
 
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-5 space-y-4">
+      <div className="rounded-xl border border-black/10 bg-white p-5 space-y-4">
         <p className="text-xs uppercase tracking-widest text-neutral-500">
           {t.bookingDetails}
         </p>
@@ -275,13 +304,13 @@ export function BookingForm({
             placeholder={t.yourName}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
+            className="w-full px-4 py-3 rounded-lg border border-black/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
           />
           <input
             placeholder={t.phoneOptional}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
+            className="w-full px-4 py-3 rounded-lg border border-black/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
           />
         </div>
         <textarea
@@ -289,7 +318,7 @@ export function BookingForm({
           placeholder={t.notesPlaceholder}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 resize-y"
+          className="w-full px-4 py-3 rounded-lg border border-black/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 resize-y"
         />
       </div>
 
