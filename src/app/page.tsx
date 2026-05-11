@@ -104,11 +104,12 @@ export default async function Home() {
 
   // ----- Hero copy (no fake stats / "trusted by 15k" claims) -----
   const heroTitleKey = "home.hero.title";
+  // Default to the brand name itself ("Haven Residences") rather than a
+  // marketing sentence — the brand logo sits above it so the heading
+  // should anchor the brand, not pitch.
   const heroTitle =
     pickText(overlay, heroTitleKey, "text", null) ??
-    (lang === "nl"
-      ? "Vind je volgende verblijf, voel je direct thuis"
-      : "Find your next stay, feel right at home");
+    (settings?.brand_name ?? "Haven Residences");
 
   const collectionEyebrow =
     pickText(overlay, "home.residences.eyebrow", "text", null) ??
@@ -136,6 +137,7 @@ export default async function Home() {
       {showHero && heroSlides.length > 0 && (
         <HomeHero
           title={heroTitle}
+          brandLogoUrl={settings?.logo_url ?? null}
           slides={heroSlides}
           viewLabel={lang === "nl" ? "Bekijk de residentie" : "View property"}
           comingSoonLabel={lang === "nl" ? "Binnenkort" : "Coming soon"}

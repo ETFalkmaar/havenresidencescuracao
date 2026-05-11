@@ -4,6 +4,7 @@ import { getTranslations } from "@/lib/i18n/server";
 import { SettingsForm } from "./SettingsForm";
 import { AirbnbConnectCard } from "./AirbnbConnectCard";
 import { ReviewsConnectCard } from "./ReviewsConnectCard";
+import { BrandLogoCard } from "./BrandLogoCard";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ type Settings = {
   tiktok_url: string | null;
   google_review_url: string | null;
   trustpilot_url: string | null;
+  logo_url: string | null;
 };
 
 type UnitWithProperty = {
@@ -79,6 +81,7 @@ export default async function SettingsPage() {
     tiktok_url: null,
     google_review_url: null,
     trustpilot_url: null,
+    logo_url: null,
   }) as Settings;
 
   const units = ((unitsRes.data ?? []) as UnitWithProperty[]).map((u) => {
@@ -101,6 +104,8 @@ export default async function SettingsPage() {
         <h1 className="text-3xl font-extralight">{tr.title}</h1>
         <p className="text-sm text-neutral-500 mt-1">{tr.subtitle}</p>
       </header>
+
+      <BrandLogoCard currentUrl={settings.logo_url} />
 
       <AirbnbConnectCard units={units} />
 

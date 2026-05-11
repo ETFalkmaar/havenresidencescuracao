@@ -17,12 +17,14 @@ const SLIDE_INTERVAL_MS = 5000;
 
 export function HomeHero({
   title,
+  brandLogoUrl,
   slides,
   viewLabel,
   comingSoonLabel,
   availabilityLabel,
 }: {
   title: string;
+  brandLogoUrl: string | null;
   slides: HeroSlide[];
   viewLabel: string;
   comingSoonLabel: string;
@@ -90,6 +92,20 @@ export function HomeHero({
 
       {/* Foreground content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pb-16 md:pb-24 lg:pb-32 pt-32 text-white">
+        {brandLogoUrl && (
+          <div className="mb-5 flex">
+            <div className="relative h-24 w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+              <Image
+                src={brandLogoUrl}
+                alt={title}
+                fill
+                priority
+                sizes="128px"
+                className="object-contain"
+              />
+            </div>
+          </div>
+        )}
         <h1
           className="font-display font-bold text-white text-5xl md:text-7xl lg:text-[7.5rem] leading-[0.95] tracking-tight max-w-5xl drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
           data-edit-id="home.hero.title"

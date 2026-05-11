@@ -45,6 +45,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col bg-paper">
       <SiteHeader
         brandName={brandName}
+        brandLogoUrl={settings?.logo_url ?? null}
         lang={lang}
         signedIn={!!user}
         isAdmin={isAdmin}

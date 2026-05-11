@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
@@ -11,11 +12,13 @@ type NavItem = { href: string; label: string };
 
 export function SiteHeader({
   brandName,
+  brandLogoUrl,
   lang,
   signedIn,
   isAdmin,
 }: {
   brandName: string;
+  brandLogoUrl: string | null;
   lang: Lang;
   signedIn: boolean;
   isAdmin: boolean;
@@ -64,9 +67,21 @@ export function SiteHeader({
             className="flex items-center gap-2 group shrink-0"
             aria-label={brandName}
           >
-            <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white text-[11px] font-semibold tracking-tight shadow-sm">
-              {brandName.charAt(0).toUpperCase()}
-            </span>
+            {brandLogoUrl ? (
+              <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-full bg-white overflow-hidden ring-1 ring-black/5">
+                <Image
+                  src={brandLogoUrl}
+                  alt={brandName}
+                  fill
+                  sizes="36px"
+                  className="object-contain p-0.5"
+                />
+              </span>
+            ) : (
+              <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white text-[11px] font-semibold tracking-tight shadow-sm">
+                {brandName.charAt(0).toUpperCase()}
+              </span>
+            )}
             <span className="hidden sm:inline-flex items-baseline gap-1.5">
               <span className="font-display font-bold text-ink text-[17px] leading-none tracking-tight lowercase">
                 {brandName}

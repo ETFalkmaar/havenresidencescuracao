@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Lang } from "@/lib/i18n/translations";
 
@@ -9,6 +10,7 @@ type Settings = {
   tiktok_url: string | null;
   contact_email: string | null;
   whatsapp_number: string | null;
+  logo_url: string | null;
 };
 
 export function SiteFooter({
@@ -38,9 +40,21 @@ export function SiteFooter({
       <div className="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
         <div>
           <Link href="/" className="flex items-center gap-2 group w-fit">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-ink text-white text-sm font-semibold">
-              {brand.charAt(0).toUpperCase()}
-            </span>
+            {settings?.logo_url ? (
+              <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-white overflow-hidden ring-1 ring-black/5">
+                <Image
+                  src={settings.logo_url}
+                  alt={brand}
+                  fill
+                  sizes="40px"
+                  className="object-contain p-0.5"
+                />
+              </span>
+            ) : (
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-ink text-white text-sm font-semibold">
+                {brand.charAt(0).toUpperCase()}
+              </span>
+            )}
             <span className="font-display font-bold text-ink text-xl tracking-tight lowercase">
               {brand}
             </span>

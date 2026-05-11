@@ -246,6 +246,25 @@ export async function syncExternalReviews(): Promise<ActionResult> {
   return { ok: true };
 }
 
+/**
+ * Save the brand logo URL (or clear it when null is passed).
+ */
+export async function setBrandLogo(url: string | null): Promise<ActionResult> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("site_settings")
+    .update({ logo_url: url })
+    .eq("id", 1);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/settings");
+  return { ok: true };
+}
+
 /** Remove the Trustpilot or Google aggregate (used by "Disconnect" buttons). */
 export async function disconnectExternalReviews(
   source: ReviewSource,

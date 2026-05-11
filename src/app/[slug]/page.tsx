@@ -217,6 +217,23 @@ export default async function PropertyPage({ params }: { params: Params }) {
             </p>
           </Reveal>
 
+          {property.logo_url && (
+            <Reveal delay={0.25}>
+              <div className="mb-5 flex">
+                <div className="relative h-24 w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+                  <Image
+                    src={property.logo_url}
+                    alt={property.name}
+                    fill
+                    priority
+                    sizes="128px"
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </Reveal>
+          )}
+
           {/* Residence name — same display font (Manrope bold) as the
               homepage hero heading. */}
           <Reveal delay={0.3}>
