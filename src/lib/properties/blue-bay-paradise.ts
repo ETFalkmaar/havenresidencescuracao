@@ -114,5 +114,16 @@ export const blueBayParadise: PropertyData = {
         },
       ],
     },
+    {
+      slug: 'badkamer',
+      label: 'Badkamer',
+      amenities: [],
+      photos: [
+        {
+          src: '/properties/blue-bay-paradise/badkamer/01.jpeg',
+          alt: 'Blue Bay Paradise — badkamer',
+        },
+      ],
+    },
   ],
 };
