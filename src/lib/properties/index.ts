@@ -135,16 +135,32 @@ export async function getPropertyBySlug(
   return data ? mapDbToProperty(data as unknown as DbProperty) : null;
 }
 
-export async function getAllSlugs(): Promise<string[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
+/**
+ * Cookieloze variant — voor build-time gebruik (generateStaticParams,
+ * sitemap.ts) waar geen request scope bestaat. Gebruikt anon key
+ * direct via @supabase/supabase-js (geen ssr-cookie machinery).
+ */
+async function fetchAllSlugs(): Promise<string[]> {
+  const { createClient: createBaseClient } = await import('@supabase/supabase-js');
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) return [];
+
+  const client = createBaseClient(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await client
     .from('properties')
     .select('slug')
     .eq('is_published', true);
 
   if (error) {
-    console.error('getAllSlugs failed:', error);
+    console.error('fetchAllSlugs failed:', error);
     return [];
   }
   return data?.map((p) => p.slug) ?? [];
+}
+
+export async function getAllSlugs(): Promise<string[]> {
+  return fetchAllSlugs();
 }
