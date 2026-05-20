@@ -6,10 +6,11 @@ import { IconStat } from '@/components/ui/IconStat';
 import { PropertyBookingCard } from '@/components/site/PropertyBookingCard';
 import { PropertyGallery } from '@/components/site/PropertyGallery';
 import { PropertyHero } from '@/components/site/PropertyHero';
-import { getPropertyBySlug, properties } from '@/lib/properties';
+import { getAllSlugs, getPropertyBySlug } from '@/lib/properties';
 
-export function generateStaticParams() {
-  return properties.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const slugs = await getAllSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -18,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const property = getPropertyBySlug(slug);
+  const property = await getPropertyBySlug(slug);
   if (!property) return {};
   return {
     title: property.name,
@@ -32,7 +33,7 @@ export default async function PropertyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const property = getPropertyBySlug(slug);
+  const property = await getPropertyBySlug(slug);
   if (!property) notFound();
 
   return (

@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { SectionHeading } from '@/components/ui/SectionHeading';
-import { properties } from '@/lib/properties';
+import { getProperties } from '@/lib/properties';
 import { PropertyCard } from './PropertyCard';
 
-export function PropertyGrid() {
+export async function PropertyGrid() {
+  const properties = await getProperties();
   const featured = properties.slice(0, 3);
   return (
     <section className="py-20">

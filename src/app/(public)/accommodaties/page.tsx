@@ -2,14 +2,15 @@ import type { Metadata } from 'next';
 import { Container } from '@/components/ui/Container';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { PropertyCard } from '@/components/site/PropertyCard';
-import { properties } from '@/lib/properties';
+import { getProperties } from '@/lib/properties';
 
 export const metadata: Metadata = {
   title: 'Accommodaties',
   description: 'Ontdek alle accommodaties van Haven Residences op Curaçao.',
 };
 
-export default function AccommodatiesPage() {
+export default async function AccommodatiesPage() {
+  const properties = await getProperties();
   return (
     <main className="py-20">
       <Container>
