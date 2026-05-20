@@ -125,5 +125,40 @@ export const blueBayParadise: PropertyData = {
         },
       ],
     },
+    {
+      slug: 'zwembad',
+      label: 'Zwembad',
+      amenities: ['Ligstoelen'],
+      photos: [
+        {
+          src: '/properties/blue-bay-paradise/zwembad/01.jpeg',
+          alt: 'Blue Bay Paradise — zwembad',
+        },
+        {
+          src: '/properties/blue-bay-paradise/zwembad/02.jpeg',
+          alt: 'Blue Bay Paradise — zwembad',
+        },
+        {
+          src: '/properties/blue-bay-paradise/zwembad/03.jpeg',
+          alt: 'Blue Bay Paradise — zwembad',
+        },
+        {
+          src: '/properties/blue-bay-paradise/zwembad/04.jpeg',
+          alt: 'Blue Bay Paradise — zwembad',
+        },
+        {
+          src: '/properties/blue-bay-paradise/zwembad/05.jpeg',
+          alt: 'Blue Bay Paradise — zwembad',
+        },
+        {
+          src: '/properties/blue-bay-paradise/zwembad/06.jpeg',
+          alt: 'Blue Bay Paradise — zwembad',
+        },
+        {
+          src: '/properties/blue-bay-paradise/zwembad/07.jpeg',
+          alt: 'Blue Bay Paradise — zwembad',
+        },
+      ],
+    },
   ],
 };
