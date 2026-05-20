@@ -1,14 +1,30 @@
-import { Calendar, Clock, ShieldCheck, Users } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Calendar, Clock, MessageCircle, ShieldCheck, Users } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import type { PropertyData } from '@/lib/properties';
+import { siteConfig } from '@/lib/site-config';
 
 function formatUSD(amount: number): string {
   return `$${amount.toLocaleString('nl-NL')}`;
 }
 
+function buildWhatsAppUrl(property: PropertyData): string | null {
+  const phone = siteConfig.contact.phone;
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  const message = `Hallo, ik wil graag meer info over ${property.name}.
+
+Aankomst:
+Vertrek:
+Aantal gasten:
+
+Alvast bedankt!`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
 export function PropertyBookingCard({ property }: { property: PropertyData }) {
   const { pricing, stay } = property;
+  const whatsappUrl = buildWhatsAppUrl(property);
+
   return (
     <Card className="p-6 lg:sticky lg:top-24">
       <div className="flex items-baseline gap-2">
@@ -49,9 +65,17 @@ export function PropertyBookingCard({ property }: { property: PropertyData }) {
         </div>
       </div>
 
-      <Button className="mt-6 w-full" disabled>
-        Reserveer & betaal
-      </Button>
+      {whatsappUrl ? (
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-sage-600 px-7 py-3 text-sm font-medium tracking-wide text-white transition-colors hover:bg-sage-700"
+        >
+          <MessageCircle className="h-4 w-4" strokeWidth={1.75} />
+          Reserveer via WhatsApp
+        </a>
+      ) : null}
       <p className="mt-3 text-center text-xs text-forest-dark/60">
         Online reserveren met directe betaling volgt binnenkort.
       </p>
