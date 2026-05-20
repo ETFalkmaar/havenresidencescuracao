@@ -9,6 +9,13 @@
 # Dependencies
 node_modules/
 
+# Next.js
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
 # Vercel
 .vercel
 
@@ -19,3 +26,10 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
