@@ -160,5 +160,32 @@ export const blueBayParadise: PropertyData = {
         },
       ],
     },
+    {
+      slug: 'overig',
+      label: 'Overig',
+      amenities: [],
+      photos: [
+        {
+          src: '/properties/blue-bay-paradise/overig/01.jpeg',
+          alt: 'Blue Bay Paradise — extra foto',
+        },
+        {
+          src: '/properties/blue-bay-paradise/overig/02.jpeg',
+          alt: 'Blue Bay Paradise — extra foto',
+        },
+        {
+          src: '/properties/blue-bay-paradise/overig/03.jpeg',
+          alt: 'Blue Bay Paradise — extra foto',
+        },
+        {
+          src: '/properties/blue-bay-paradise/overig/04.jpeg',
+          alt: 'Blue Bay Paradise — extra foto',
+        },
+        {
+          src: '/properties/blue-bay-paradise/overig/05.jpeg',
+          alt: 'Blue Bay Paradise — extra foto',
+        },
+      ],
+    },
   ],
 };
