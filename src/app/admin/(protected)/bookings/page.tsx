@@ -33,6 +33,14 @@ export default async function AdminBookingsPage() {
     )
     .order('created_at', { ascending: false });
 
+  function propertyName(rel: unknown): string {
+    if (!rel) return '—';
+    if (Array.isArray(rel)) {
+      return (rel[0] as { name?: string } | undefined)?.name ?? '—';
+    }
+    return (rel as { name?: string }).name ?? '—';
+  }
+
   return (
     <div>
       <div className="flex items-baseline justify-between">
@@ -84,7 +92,7 @@ export default async function AdminBookingsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-forest-dark/80">
-                    {b.properties?.name ?? '—'}
+                    {propertyName(b.properties)}
                   </td>
                   <td className="px-6 py-4 text-forest-dark/70">{b.arrival}</td>
                   <td className="px-6 py-4 text-forest-dark/70">{b.departure}</td>
