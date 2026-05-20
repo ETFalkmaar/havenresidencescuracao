@@ -103,5 +103,16 @@ export const blueBayParadise: PropertyData = {
         },
       ],
     },
+    {
+      slug: 'slaapkamer-2',
+      label: 'Slaapkamer 2',
+      amenities: ['Tweepersoonsbed', 'Airconditioning'],
+      photos: [
+        {
+          src: '/properties/blue-bay-paradise/slaapkamer-2/01.jpeg',
+          alt: 'Blue Bay Paradise — slaapkamer 2',
+        },
+      ],
+    },
   ],
 };
