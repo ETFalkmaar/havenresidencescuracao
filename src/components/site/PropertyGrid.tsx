@@ -2,12 +2,11 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { SectionHeading } from '@/components/ui/SectionHeading';
-import { blueBayParadise } from '@/lib/properties/blue-bay-paradise';
+import { properties } from '@/lib/properties';
 import { PropertyCard } from './PropertyCard';
 
-const PROPERTIES = [blueBayParadise];
-
 export function PropertyGrid() {
+  const featured = properties.slice(0, 3);
   return (
     <section className="py-20">
       <Container>
@@ -16,7 +15,7 @@ export function PropertyGrid() {
           title="Ontdek jouw perfecte verblijf"
         />
         <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {PROPERTIES.map((property) => (
+          {featured.map((property) => (
             <PropertyCard
               key={property.slug}
               property={property}
