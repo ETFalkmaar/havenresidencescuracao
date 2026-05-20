@@ -1,3 +1,10 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/airbnb-sync",
+      "schedule": "0 * * * *"
+    }
+  ]
 }
