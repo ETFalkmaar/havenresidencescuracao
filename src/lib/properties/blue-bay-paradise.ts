@@ -75,5 +75,33 @@ export const blueBayParadise: PropertyData = {
         },
       ],
     },
+    {
+      slug: 'slaapkamer-1',
+      label: 'Slaapkamer 1',
+      amenities: [
+        'Tweepersoonsbed',
+        'Airconditioning',
+        'Beddengoed',
+        'Extra kussens en dekens',
+        'Kledinghangers',
+        'Opbergruimte voor kleding',
+        'Verduisterende gordijnen',
+        'Strijkijzer',
+      ],
+      photos: [
+        {
+          src: '/properties/blue-bay-paradise/slaapkamer-1/01.jpeg',
+          alt: 'Blue Bay Paradise — slaapkamer 1',
+        },
+        {
+          src: '/properties/blue-bay-paradise/slaapkamer-1/02.jpeg',
+          alt: 'Blue Bay Paradise — slaapkamer 1',
+        },
+        {
+          src: '/properties/blue-bay-paradise/slaapkamer-1/03.jpeg',
+          alt: 'Blue Bay Paradise — slaapkamer 1',
+        },
+      ],
+    },
   ],
 };
