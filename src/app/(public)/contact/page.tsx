@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Container } from '@/components/ui/Container';
+import { InquiryForm } from '@/components/site/InquiryForm';
 import { PageHeader } from '@/components/site/PageHeader';
 import { contactContent } from '@/lib/page-content';
 import { siteConfig } from '@/lib/site-config';
@@ -109,6 +110,10 @@ export default function ContactPage() {
                   </p>
                 </Card>
               ) : null}
+            </div>
+
+            <div className="mt-16">
+              <InquiryForm />
             </div>
           </div>
         </Container>
