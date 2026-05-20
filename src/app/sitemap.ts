@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
-import { properties } from '@/lib/properties';
+import { getAllSlugs } from '@/lib/properties';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? 'https://havenresidencescuracao.com';
   const now = new Date();
@@ -23,8 +23,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === '/' ? 1.0 : 0.7,
   }));
 
-  const propertyRoutes: MetadataRoute.Sitemap = properties.map((property) => ({
-    url: `${baseUrl}/${property.slug}`,
+  const slugs = await getAllSlugs();
+  const propertyRoutes: MetadataRoute.Sitemap = slugs.map((slug) => ({
+    url: `${baseUrl}/${slug}`,
     lastModified: now,
     changeFrequency: 'weekly' as const,
     priority: 0.9,

@@ -4,7 +4,7 @@ import { ArrowRight, Bath, Bed, Users } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { IconStat } from '@/components/ui/IconStat';
 import { Pill } from '@/components/ui/Pill';
-import type { PropertyData } from '@/lib/properties/blue-bay-paradise';
+import type { PropertyData } from '@/lib/properties';
 
 export function PropertyCard({
   property,
