@@ -1,7 +1,36 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/lib/supabase/database.types';
 import type { PropertyData, Room } from './types';
 
-export type { PropertyData, Room, RoomPhoto, PropertyHighlight, PropertyPricing, PropertyStay } from './types';
+export type {
+  PropertyData,
+  Room,
+  RoomPhoto,
+  PropertyHighlight,
+  PropertyPricing,
+  PropertyStay,
+} from './types';
+
+/**
+ * Publieke Supabase-client zonder cookies. Werkt zowel tijdens build
+ * (generateStaticParams, generateMetadata, sitemap) als bij runtime
+ * SSR. RLS afdwingt public-read op published properties via anon key.
+ *
+ * Voor admin-reads waar je auth-state nodig hebt: gebruik
+ * @/lib/supabase/server createClient() vanuit een server-component/action.
+ */
+function getPublicClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY'
+    );
+  }
+  return createSupabaseClient<Database>(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
 const SELECT_QUERY = `
   *,
@@ -103,7 +132,7 @@ function mapDbToProperty(row: DbProperty): PropertyData {
 }
 
 export async function getProperties(): Promise<PropertyData[]> {
-  const supabase = await createClient();
+  const supabase = getPublicClient();
   const { data, error } = await supabase
     .from('properties')
     .select(SELECT_QUERY)
@@ -120,7 +149,7 @@ export async function getProperties(): Promise<PropertyData[]> {
 export async function getPropertyBySlug(
   slug: string
 ): Promise<PropertyData | null> {
-  const supabase = await createClient();
+  const supabase = getPublicClient();
   const { data, error } = await supabase
     .from('properties')
     .select(SELECT_QUERY)
@@ -135,32 +164,16 @@ export async function getPropertyBySlug(
   return data ? mapDbToProperty(data as unknown as DbProperty) : null;
 }
 
-/**
- * Cookieloze variant — voor build-time gebruik (generateStaticParams,
- * sitemap.ts) waar geen request scope bestaat. Gebruikt anon key
- * direct via @supabase/supabase-js (geen ssr-cookie machinery).
- */
-async function fetchAllSlugs(): Promise<string[]> {
-  const { createClient: createBaseClient } = await import('@supabase/supabase-js');
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return [];
-
-  const client = createBaseClient(url, anonKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data, error } = await client
+export async function getAllSlugs(): Promise<string[]> {
+  const supabase = getPublicClient();
+  const { data, error } = await supabase
     .from('properties')
     .select('slug')
     .eq('is_published', true);
 
   if (error) {
-    console.error('fetchAllSlugs failed:', error);
+    console.error('getAllSlugs failed:', error);
     return [];
   }
   return data?.map((p) => p.slug) ?? [];
-}
-
-export async function getAllSlugs(): Promise<string[]> {
-  return fetchAllSlugs();
 }
