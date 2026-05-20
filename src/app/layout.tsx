@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { SiteFooter } from '@/components/site/Footer';
+import { SiteHeader } from '@/components/site/Header';
+import { siteConfig } from '@/lib/site-config';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
@@ -16,7 +19,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Haven Residences',
+  title: {
+    default: siteConfig.name,
+    template: `%s — ${siteConfig.name}`,
+  },
   description: 'Boutique vakantieverhuur op Curaçao',
 };
 
@@ -27,8 +33,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="nl" className={`${cormorant.variable} ${inter.variable}`}>
-      <body className="bg-cream-100 font-sans text-forest-dark antialiased">
-        {children}
+      <body className="flex min-h-screen flex-col bg-cream-100 font-sans text-forest-dark antialiased">
+        <SiteHeader />
+        <div className="flex-1">{children}</div>
+        <SiteFooter />
       </body>
     </html>
   );
