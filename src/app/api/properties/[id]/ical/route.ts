@@ -40,12 +40,12 @@ export async function GET(
       uid: `${row.source ?? 'occupied'}-${property.id}-${index}@${new URL(SITE_URL).host}`,
       startDate: row.start_date as string,
       endDate: row.end_date as string,
-      summary: `${property.name} — geboekt`,
+      summary: `${property.name}: geboekt`,
     }));
 
   const body = buildICal({
     prodId: PROD_ID,
-    calendarName: `${property.name} — Haven Residences`,
+    calendarName: `${property.name} · Haven Residences`,
     events,
   });
 

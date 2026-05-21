@@ -42,7 +42,7 @@ export function PropertyBookingCard({ property }: { property: PropertyData }) {
           <Users className="h-4 w-4 text-sage-600" strokeWidth={1.5} />
           <span>
             Tot {stay.maxGuests} gasten
-            {stay.maxGuestsNote ? ` — ${stay.maxGuestsNote}` : ''}
+            {stay.maxGuestsNote ? ` · ${stay.maxGuestsNote}` : ''}
           </span>
         </div>
         <div className="flex items-center gap-2">

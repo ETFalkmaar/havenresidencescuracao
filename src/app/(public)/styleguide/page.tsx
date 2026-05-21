@@ -35,7 +35,7 @@ export default function StyleguidePage() {
                 Cormorant serif, 4xl light
               </h2>
               <p className="max-w-prose text-forest-dark/80">
-                Body-tekst in Inter — schoon, leesbaar, met een lichte cream-achtergrond
+                Body-tekst in Inter, schoon, leesbaar, met een lichte cream-achtergrond
                 en olijfgroene accenten voor consistentie met de boutique-uitstraling.
               </p>
             </div>
