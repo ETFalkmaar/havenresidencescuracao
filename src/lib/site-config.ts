@@ -145,7 +145,7 @@ export const siteConfig: SiteConfig = {
     eyebrow: 'Verhuur met vertrouwen',
     title: 'Beheer van jouw woning',
     description:
-      'Wij nemen de zorgen uit handen. Van gastcommunicatie en schoonmaak tot onderhoud en optimalisatie — professioneel, transparant en met oog voor jouw woning.',
+      'Jouw woning verdient meer dan alleen verhuur. Wij verzorgen het beheer met persoonlijk contact, transparantie en zorg, alsof het onze eigen woning is.',
     cta: { href: '/beheer', label: 'Ontdek onze beheerdiensten' },
     image: {
       src: '/properties/blue-bay-paradise/woonkamer/03.jpeg',
