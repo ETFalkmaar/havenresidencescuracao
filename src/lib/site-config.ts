@@ -158,7 +158,7 @@ export const siteConfig: SiteConfig = {
     address: null,
   },
   social: {
-    instagram: 'https://www.instagram.com/haven_residences/',
+    instagram: 'https://www.instagram.com/blue_haven_residences/',
     facebook: null,
     pinterest: null,
     tiktok: null,
