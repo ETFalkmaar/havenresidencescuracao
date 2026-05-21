@@ -11,12 +11,29 @@ export const metadata: Metadata = {
 };
 
 export default function BeheerPage() {
-  const { hero, services, forWho } = beheerContent;
+  const { hero, intro, services, kennismaking } = beheerContent;
   return (
     <>
       <PageHeader {...hero} />
 
+      {/* Intro — het verhaal achter ons beheer */}
       <section className="py-20">
+        <Container>
+          <div className="mx-auto max-w-2xl space-y-5 leading-relaxed text-forest-dark/80">
+            {intro.paragraphs.map((p) => (
+              <p key={p}>{p}</p>
+            ))}
+          </div>
+          <div className="mx-auto mt-12 max-w-2xl text-center font-serif text-2xl font-light leading-snug text-forest-dark">
+            {intro.statement.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Wat wij doen */}
+      <section className="border-t border-black/[0.06] bg-cream-50 py-20">
         <Container>
           <h2 className="text-center font-serif text-3xl font-light text-forest-dark">
             Wat wij doen
@@ -42,17 +59,15 @@ export default function BeheerPage() {
         </Container>
       </section>
 
-      <section
-        id="eigenaren"
-        className="border-t border-black/[0.06] bg-cream-50 py-20"
-      >
+      {/* Kennismaking */}
+      <section id="eigenaren" className="border-t border-black/[0.06] py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-serif text-3xl font-light text-forest-dark">
-              {forWho.title}
+              {kennismaking.title}
             </h2>
             <div className="mt-6 space-y-5 leading-relaxed text-forest-dark/80">
-              {forWho.paragraphs.map((p) => (
+              {kennismaking.paragraphs.map((p) => (
                 <p key={p}>{p}</p>
               ))}
             </div>

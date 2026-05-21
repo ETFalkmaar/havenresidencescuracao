@@ -77,13 +77,24 @@ export const beheerContent = {
     eyebrow: 'Voor eigenaren',
     title: 'Beheer van jouw woning',
     description:
-      'Wij nemen de zorgen uit handen. Van gastcommunicatie en schoonmaak tot onderhoud en optimalisatie — professioneel en transparant.',
+      'Persoonlijk beheer en verhuur van jouw woning op Curaçao, met aandacht, vertrouwen en oog voor detail.',
+  },
+  intro: {
+    paragraphs: [
+      'Een woning op Curaçao kopen is vaak meer dan alleen een investering: het is een droom. Een plek waar je trots op bent, waar herinneringen worden gemaakt en waar alles precies moet kloppen. Daarom begrijpen wij als geen ander hoe spannend het kan zijn om het beheer en de verhuur van jouw woning uit handen te geven.',
+      'Bij Haven Residences geloven we in persoonlijk contact, transparantie en zorg alsof het onze eigen woning is. Wij nemen niet alleen het praktische beheer uit handen, maar zorgen er ook voor dat jouw gasten een warm welkom en een zorgeloze ervaring beleven. Van reserveringen en communicatie tot schoonmaak, styling en service op locatie: wij regelen het met aandacht en oog voor detail.',
+      'Zo kun jij met een gerust gevoel genieten van het rendement van jouw woning, terwijl wij ervoor zorgen dat alles tot in de puntjes verzorgd is.',
+    ],
+    statement: [
+      'Jouw woning verdient meer dan alleen verhuur.',
+      'Het verdient aandacht, vertrouwen en de juiste uitstraling.',
+    ],
   },
   services: [
     {
       title: 'Gastcommunicatie',
       description:
-        'Wij beantwoorden alle vragen van gasten — voor, tijdens en na hun verblijf — in jouw stijl en op het juiste moment.',
+        'Voor, tijdens en na het verblijf beantwoorden wij alle vragen van gasten, in jouw stijl en op het juiste moment.',
     },
     {
       title: 'Schoonmaak & onderhoud',
@@ -98,14 +109,15 @@ export const beheerContent = {
     {
       title: 'Multi-platform sync',
       description:
-        'Eén kalender voor Airbnb, onze site en andere kanalen — geen dubbele boekingen, geen handwerk.',
+        'Eén kalender voor Airbnb, onze site en andere kanalen: geen dubbele boekingen, geen handwerk.',
     },
   ],
-  forWho: {
-    title: 'Voor wie is dit?',
+  kennismaking: {
+    title: 'Een persoonlijke kennismaking',
     paragraphs: [
-      'Voor eigenaren van een woning op Curaçao die hun verhuur volledig uit handen willen geven, maar wel grip willen houden op kwaliteit en opbrengst. We werken op basis van een vast percentage — geen verborgen kosten.',
-      'Benieuwd of jouw woning bij ons past? Neem contact op voor een vrijblijvend gesprek.',
+      'Wij geloven dat goed beheer begint met een persoonlijke kennismaking. Daarom nemen we graag de tijd om jouw wensen, verwachtingen en woning écht te leren kennen.',
+      'Of je nu op Curaçao bent, in Nederland woont of liever eerst digitaal kennismaakt: alles is mogelijk. We plannen met plezier een online gesprek, ontmoeten je op het eiland of spreken ergens in Nederland af wanneer dat beter uitkomt.',
+      'Op die manier bouwen we samen aan een samenwerking die vertrouwd voelt vanaf het eerste contact.',
     ],
   },
 };
