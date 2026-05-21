@@ -1,7 +1,7 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Facebook, Instagram, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
-import { HavenMark } from '@/components/site/HavenMark';
 import { InstagramLogo } from '@/components/site/InstagramLogo';
 import { siteConfig } from '@/lib/site-config';
 
@@ -37,7 +37,13 @@ export function SiteFooter() {
         <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-3">
-              <HavenMark className="h-12 w-12 shrink-0 text-cream-100" />
+              <Image
+                src="/branding/haven-mark-light.png"
+                alt=""
+                width={48}
+                height={48}
+                className="h-12 w-12 shrink-0 object-contain"
+              />
               <span className="font-serif text-xl">{siteConfig.name}</span>
             </div>
             <p className="mt-4 max-w-xs text-sm text-cream-100/70">
