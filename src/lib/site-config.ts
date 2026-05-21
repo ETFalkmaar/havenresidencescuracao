@@ -70,7 +70,7 @@ export type SiteConfig = {
 export const siteConfig: SiteConfig = {
   name: 'Haven Residences',
   monogram: 'HR',
-  tagline: 'Jouw thuis. Ver weg, maar precies goed.',
+  tagline: 'Jouw thuis, onder de Caribische zon.',
   nav: [
     { href: '/', label: 'Home' },
     { href: '/accommodaties', label: 'Accommodaties' },
@@ -83,9 +83,9 @@ export const siteConfig: SiteConfig = {
   hero: {
     eyebrow: 'Welkom bij',
     title: 'Haven Residences',
-    subtitle: 'Jouw thuis. Ver weg, maar precies goed.',
+    subtitle: 'Jouw thuis, onder de Caribische zon.',
     description:
-      'Boutique vakantieverhuur op Curaçao — luxe en comfort met de rust van het eiland.',
+      'Boutique vakantieverhuur op Curaçao: luxe en comfort met de rust van het eiland.',
     cta: { href: '/accommodaties', label: 'Ontdek onze accommodaties' },
     images: [
       {
