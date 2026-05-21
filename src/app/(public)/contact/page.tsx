@@ -91,7 +91,7 @@ export default function ContactPage() {
                     rel="noreferrer"
                     className="mt-2 inline-block text-sm text-forest-dark/80 transition-colors hover:text-sage-700"
                   >
-                    @haven_residences
+                    @blue_haven_residences
                   </a>
                 </Card>
               ) : null}

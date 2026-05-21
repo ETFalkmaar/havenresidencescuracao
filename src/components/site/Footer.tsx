@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
+import { InstagramLogo } from '@/components/site/InstagramLogo';
 import { siteConfig } from '@/lib/site-config';
 
 type SocialLink = {
@@ -44,7 +45,7 @@ export function SiteFooter() {
               {siteConfig.tagline}
             </p>
             {socials.length > 0 ? (
-              <div className="mt-6 flex gap-4">
+              <div className="mt-6 flex items-center gap-4">
                 {socials.map(({ href, label, icon: Icon }) => (
                   <a
                     key={label}
@@ -52,9 +53,13 @@ export function SiteFooter() {
                     aria-label={label}
                     target={href.startsWith('http') ? '_blank' : undefined}
                     rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                    className="text-cream-100/70 transition-colors hover:text-cream-100"
+                    className="text-cream-100/70 transition hover:text-cream-100 hover:opacity-80"
                   >
-                    <Icon className="h-5 w-5" strokeWidth={1.5} />
+                    {label === 'Instagram' ? (
+                      <InstagramLogo className="h-7 w-7" />
+                    ) : (
+                      <Icon className="h-5 w-5" strokeWidth={1.5} />
+                    )}
                   </a>
                 ))}
               </div>
