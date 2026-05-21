@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
+import { HavenMark } from '@/components/site/HavenMark';
 import { siteConfig } from '@/lib/site-config';
 
 export function SiteHeader() {
@@ -9,9 +10,7 @@ export function SiteHeader() {
       <Container>
         <div className="flex h-20 items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-3" aria-label={siteConfig.name}>
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-600 font-serif text-sm font-medium tracking-wider text-white">
-              {siteConfig.monogram}
-            </span>
+            <HavenMark className="h-12 w-12 shrink-0 text-sage-700" />
             <span className="hidden font-serif text-xl font-medium tracking-wide text-forest-dark sm:inline">
               {siteConfig.name}
             </span>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
+import { HavenMark } from '@/components/site/HavenMark';
 import { siteConfig } from '@/lib/site-config';
 
 type SocialLink = {
@@ -35,9 +36,7 @@ export function SiteFooter() {
         <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-600 font-serif text-sm font-medium text-white">
-                {siteConfig.monogram}
-              </span>
+              <HavenMark className="h-12 w-12 shrink-0 text-cream-100" />
               <span className="font-serif text-xl">{siteConfig.name}</span>
             </div>
             <p className="mt-4 max-w-xs text-sm text-cream-100/70">
