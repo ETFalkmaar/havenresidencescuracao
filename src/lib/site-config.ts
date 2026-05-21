@@ -90,27 +90,27 @@ export const siteConfig: SiteConfig = {
     images: [
       {
         src: '/properties/blue-bay-paradise/01-hero.jpeg',
-        alt: 'Blue Bay Paradise — zwembad met uitzicht op zee',
+        alt: 'Blue Bay Paradise, zwembad met uitzicht op zee',
       },
       {
         src: '/properties/blue-bay-paradise/02.jpeg',
-        alt: 'Blue Bay Paradise — interieur',
+        alt: 'Blue Bay Paradise, interieur',
       },
       {
         src: '/properties/blue-bay-paradise/03.jpeg',
-        alt: 'Blue Bay Paradise — woonkamer',
+        alt: 'Blue Bay Paradise, woonkamer',
       },
       {
         src: '/properties/blue-bay-paradise/04.jpeg',
-        alt: 'Blue Bay Paradise — buitenruimte',
+        alt: 'Blue Bay Paradise, buitenruimte',
       },
       {
         src: '/properties/blue-bay-paradise/05.jpeg',
-        alt: 'Blue Bay Paradise — slaapkamer',
+        alt: 'Blue Bay Paradise, slaapkamer',
       },
       {
         src: '/properties/blue-bay-paradise/06.jpeg',
-        alt: 'Blue Bay Paradise — detail',
+        alt: 'Blue Bay Paradise, detail',
       },
     ],
     intervalMs: 5000,
@@ -138,7 +138,7 @@ export const siteConfig: SiteConfig = {
       icon: 'sun',
       title: 'Ontspanning gegarandeerd',
       description:
-        'Van zee en natuur tot cultuur en gastronomie — alles binnen handbereik.',
+        'Van zee en natuur tot cultuur en gastronomie: alles binnen handbereik.',
     },
   ],
   ownerBand: {
@@ -149,7 +149,7 @@ export const siteConfig: SiteConfig = {
     cta: { href: '/beheer', label: 'Ontdek onze beheerdiensten' },
     image: {
       src: '/properties/blue-bay-paradise/woonkamer/03.jpeg',
-      alt: 'Stijlvolle interieursfeer — beheer met aandacht voor detail',
+      alt: 'Stijlvolle interieursfeer voor beheer met aandacht voor detail',
     },
   },
   contact: {

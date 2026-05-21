@@ -19,7 +19,7 @@ export default async function AccommodatiesPage() {
           title="Alle accommodaties"
         />
         <p className="mx-auto mt-6 max-w-2xl text-center leading-relaxed text-forest-dark/70">
-          Zorgvuldig geselecteerde woningen op de mooiste plekken van Curaçao —
+          Zorgvuldig geselecteerde woningen op de mooiste plekken van Curaçao,
           elk met eigen karakter en alle comfort voor een onvergetelijk verblijf.
         </p>
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

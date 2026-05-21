@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: siteConfig.name,
-    template: `%s — ${siteConfig.name}`,
+    template: `%s · ${siteConfig.name}`,
   },
   description: 'Boutique vakantieverhuur op Curaçao',
   openGraph: {

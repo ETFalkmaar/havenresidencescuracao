@@ -8,12 +8,12 @@ export const overOnsContent = {
     eyebrow: 'Wie zijn wij',
     title: 'Over Haven Residences',
     description:
-      'Boutique vakantieverhuur op Curaçao — met aandacht voor detail, comfort en persoonlijke service.',
+      'Boutique vakantieverhuur op Curaçao, met aandacht voor detail, comfort en persoonlijke service.',
   },
   intro: {
     title: 'Persoonlijke service, zorgvuldig geselecteerd',
     paragraphs: [
-      'Haven Residences staat voor een kleine, zorgvuldig samengestelde collectie vakantiewoningen op Curaçao. Geen massale verhuur, maar een persoonlijke aanpak — vanaf het eerste contact tot de check-out.',
+      'Haven Residences staat voor een kleine, zorgvuldig samengestelde collectie vakantiewoningen op Curaçao. Geen massale verhuur, maar een persoonlijke aanpak, vanaf het eerste contact tot de check-out.',
       'Elke accommodatie wordt door ons zelf gekozen op locatie, kwaliteit en sfeer. Zo weten we precies wat onze gasten krijgen, en kunnen we tijdens het verblijf direct ondersteunen wanneer nodig.',
     ],
   },
@@ -26,7 +26,7 @@ export const overOnsContent = {
     {
       title: 'Persoonlijke aandacht',
       description:
-        'We zijn bereikbaar voor onze gasten — voor, tijdens en na het verblijf.',
+        'We zijn bereikbaar voor onze gasten: voor, tijdens en na het verblijf.',
     },
     {
       title: 'Lokale verbondenheid',
@@ -46,18 +46,18 @@ export const omgevingContent = {
     eyebrow: 'Curaçao',
     title: 'De omgeving',
     description:
-      'Een unieke mix van Caribische cultuur, natuur en gastronomie — alles binnen handbereik vanaf je verblijf.',
+      'Een unieke mix van Caribische cultuur, natuur en gastronomie: alles binnen handbereik vanaf je verblijf.',
   },
   sections: [
     {
       title: 'Stranden',
       description:
-        'Curaçao staat bekend om zijn parelwitte stranden en kristalheldere zee. Blue Bay beach ligt op slechts 100 meter, en aan de westkant van het eiland vind je een reeks van rustige baaien — ideaal voor snorkelen en zwemmen.',
+        'Curaçao staat bekend om zijn parelwitte stranden en kristalheldere zee. Blue Bay beach ligt op slechts 100 meter, en aan de westkant van het eiland vind je een reeks van rustige baaien, ideaal voor snorkelen en zwemmen.',
     },
     {
       title: 'Willemstad',
       description:
-        'De kleurrijke hoofdstad — UNESCO werelderfgoed — ligt op korte rijafstand. Wandel langs de Handelskade, ontdek de drijvende markt of strijk neer bij een van de vele restaurants in het oude centrum.',
+        'De kleurrijke hoofdstad, UNESCO werelderfgoed, ligt op korte rijafstand. Wandel langs de Handelskade, ontdek de drijvende markt of strijk neer bij een van de vele restaurants in het oude centrum.',
     },
     {
       title: 'Activiteiten',
@@ -67,7 +67,7 @@ export const omgevingContent = {
     {
       title: 'Eten & drinken',
       description:
-        'Van fris ontbijt aan zee tot een fijn diner in het centrum — Curaçao heeft een rijke gastronomische scene met lokale invloeden uit Nederland, Latijns-Amerika en Afrika.',
+        'Van fris ontbijt aan zee tot een fijn diner in het centrum: Curaçao heeft een rijke gastronomische scene met lokale invloeden uit Nederland, Latijns-Amerika en Afrika.',
     },
   ],
 };

@@ -86,7 +86,7 @@ export function PropertyEditor({ property }: { property: Property }) {
           />
         </Field>
         <div className="sm:col-span-2">
-          <Field label="Korte beschrijving" hint="1 zin — verschijnt onder de hero op de detail-pagina.">
+          <Field label="Korte beschrijving" hint="1 zin, verschijnt onder de hero op de detail-pagina.">
             <textarea
               name="short_description"
               defaultValue={property.short_description}

@@ -54,7 +54,7 @@ export function RoomPhotoManager({
     setError(null);
     setUploading(true);
     const supabase = createClient();
-    const altDefault = `${propertyName} — ${room.label.toLowerCase()}`;
+    const altDefault = `${propertyName}, ${room.label.toLowerCase()}`;
 
     try {
       for (const file of files) {
