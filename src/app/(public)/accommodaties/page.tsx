@@ -24,7 +24,7 @@ export default async function AccommodatiesPage() {
         </p>
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {properties.map((property) => (
-            <PropertyCard key={property.slug} property={property} pillLabel="Blue Bay" />
+            <PropertyCard key={property.slug} property={property} pillLabel="Blue Haven" />
           ))}
         </div>
       </Container>

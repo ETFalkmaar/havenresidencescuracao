@@ -20,7 +20,7 @@ export async function PropertyGrid() {
             <PropertyCard
               key={property.slug}
               property={property}
-              pillLabel="Blue Bay"
+              pillLabel="Blue Haven"
             />
           ))}
         </div>
