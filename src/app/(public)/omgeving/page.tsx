@@ -13,7 +13,7 @@ export default function OmgevingPage() {
   return (
     <>
       <PageHeader {...hero} />
-      <section className="py-20">
+      <section className="py-14 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl space-y-12">
             {sections.map((section) => (

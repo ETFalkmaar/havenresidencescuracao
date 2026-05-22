@@ -6,7 +6,7 @@ import { siteConfig } from '@/lib/site-config';
 export function OwnerBand() {
   const { ownerBand } = siteConfig;
   return (
-    <section className="bg-cream-200/40 py-20">
+    <section className="bg-cream-200/40 py-14 sm:py-20">
       <Container>
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>

@@ -10,7 +10,7 @@ export function PageHeader({
   description?: string;
 }) {
   return (
-    <section className="border-b border-black/[0.06] bg-cream-50 py-20">
+    <section className="border-b border-black/[0.06] bg-cream-50 py-14 sm:py-20">
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           {eyebrow ? (
@@ -18,7 +18,7 @@ export function PageHeader({
               {eyebrow}
             </p>
           ) : null}
-          <h1 className="mt-3 font-serif text-5xl font-light text-forest-dark sm:text-6xl">
+          <h1 className="mt-3 font-serif text-4xl font-light text-forest-dark sm:text-6xl">
             {title}
           </h1>
           {description ? (

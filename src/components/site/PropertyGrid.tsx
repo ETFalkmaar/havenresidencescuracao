@@ -9,7 +9,7 @@ export async function PropertyGrid() {
   const properties = await getProperties();
   const featured = properties.slice(0, 3);
   return (
-    <section className="py-20">
+    <section className="py-14 sm:py-20">
       <Container>
         <SectionHeading
           eyebrow="Onze accommodaties"

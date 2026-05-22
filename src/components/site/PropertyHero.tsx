@@ -20,7 +20,7 @@ export function PropertyHero({ property }: { property: PropertyData }) {
             <p className="text-xs uppercase tracking-widest text-white/85">
               {property.location}
             </p>
-            <h1 className="mt-3 font-serif text-5xl font-light leading-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="mt-3 font-serif text-4xl font-light leading-tight text-white sm:text-6xl lg:text-7xl">
               {property.name}
             </h1>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">

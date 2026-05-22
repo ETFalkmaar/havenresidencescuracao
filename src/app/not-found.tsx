@@ -5,7 +5,7 @@ export default function NotFound() {
     <main className="flex min-h-screen items-center justify-center bg-cream-100 px-6 py-16">
       <div className="mx-auto max-w-md text-center">
         <p className="text-xs uppercase tracking-widest text-sage-600">404</p>
-        <h1 className="mt-3 font-serif text-5xl font-light text-forest-dark sm:text-6xl">
+        <h1 className="mt-3 font-serif text-4xl font-light text-forest-dark sm:text-6xl">
           Niet gevonden
         </h1>
         <p className="mt-5 leading-relaxed text-forest-dark/70">

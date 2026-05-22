@@ -15,7 +15,7 @@ export default function CookiesPage() {
         title="Cookies"
         description="Welke cookies gebruiken wij en waarom."
       />
-      <section className="py-20">
+      <section className="py-14 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl leading-relaxed text-forest-dark/80">
             <p>

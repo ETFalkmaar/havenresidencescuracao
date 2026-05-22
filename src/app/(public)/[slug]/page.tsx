@@ -40,7 +40,7 @@ export default async function PropertyPage({
     <>
       <PropertyHero property={property} />
 
-      <section className="py-16">
+      <section className="py-12 sm:py-16">
         <Container>
           <div className="grid gap-12 lg:grid-cols-[1fr_360px]">
             <div className="space-y-12">
@@ -117,7 +117,7 @@ export default async function PropertyPage({
               </div>
             </div>
 
-            <aside>
+            <aside className="order-first lg:order-none">
               <PropertyBookingCard property={property} />
             </aside>
           </div>

@@ -3,11 +3,11 @@ import { Container } from '@/components/ui/Container';
 
 export default function PublicNotFound() {
   return (
-    <main className="py-24">
+    <main className="py-16 sm:py-24">
       <Container>
         <div className="mx-auto max-w-md text-center">
           <p className="text-xs uppercase tracking-widest text-sage-600">404</p>
-          <h1 className="mt-3 font-serif text-5xl font-light text-forest-dark sm:text-6xl">
+          <h1 className="mt-3 font-serif text-4xl font-light text-forest-dark sm:text-6xl">
             Niet gevonden
           </h1>
           <p className="mt-5 leading-relaxed text-forest-dark/70">
