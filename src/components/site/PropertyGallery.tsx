@@ -205,7 +205,7 @@ export function PropertyGallery({ property }: { property: PropertyData }) {
 
   return (
     <>
-      <div className="space-y-16">
+      <div className="space-y-12 sm:space-y-16">
         {property.rooms.map((room, ri) => (
           <RoomBlock
             key={room.slug}

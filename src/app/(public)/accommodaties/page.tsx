@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function AccommodatiesPage() {
   const properties = await getProperties();
   return (
-    <main className="py-20">
+    <main className="py-14 sm:py-20">
       <Container>
         <SectionHeading
           eyebrow="Ons aanbod"
@@ -22,7 +22,7 @@ export default async function AccommodatiesPage() {
           Zorgvuldig geselecteerde woningen op de mooiste plekken van Curaçao,
           elk met eigen karakter en alle comfort voor een onvergetelijk verblijf.
         </p>
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-8 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
           {properties.map((property) => (
             <PropertyCard key={property.slug} property={property} pillLabel="Blue Haven" />
           ))}

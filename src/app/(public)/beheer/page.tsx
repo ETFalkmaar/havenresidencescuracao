@@ -17,7 +17,7 @@ export default function BeheerPage() {
       <PageHeader {...hero} />
 
       {/* Intro — het verhaal achter ons beheer */}
-      <section className="py-20">
+      <section className="py-14 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl space-y-5 leading-relaxed text-forest-dark/80">
             {intro.paragraphs.map((p) => (
@@ -33,7 +33,7 @@ export default function BeheerPage() {
       </section>
 
       {/* Wat wij doen */}
-      <section className="border-t border-black/[0.06] bg-cream-50 py-20">
+      <section className="border-t border-black/[0.06] bg-cream-50 py-14 sm:py-20">
         <Container>
           <h2 className="text-center font-serif text-3xl font-light text-forest-dark">
             Wat wij doen
@@ -60,7 +60,7 @@ export default function BeheerPage() {
       </section>
 
       {/* Kennismaking */}
-      <section id="eigenaren" className="border-t border-black/[0.06] py-20">
+      <section id="eigenaren" className="border-t border-black/[0.06] py-14 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-serif text-3xl font-light text-forest-dark">

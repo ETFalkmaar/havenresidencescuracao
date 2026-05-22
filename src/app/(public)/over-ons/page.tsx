@@ -13,7 +13,7 @@ export default function OverOnsPage() {
   return (
     <>
       <PageHeader {...hero} />
-      <section className="py-20">
+      <section className="py-14 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl">
             <h2 className="font-serif text-3xl font-light text-forest-dark">
@@ -28,7 +28,7 @@ export default function OverOnsPage() {
         </Container>
       </section>
 
-      <section className="border-t border-black/[0.06] bg-cream-50 py-20">
+      <section className="border-t border-black/[0.06] bg-cream-50 py-14 sm:py-20">
         <Container>
           <h2 className="text-center font-serif text-3xl font-light text-forest-dark">
             Waar wij voor staan

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
+import { MobileNav } from '@/components/site/MobileNav';
 import { siteConfig } from '@/lib/site-config';
 
 export function SiteHeader() {
@@ -38,9 +39,12 @@ export function SiteHeader() {
             </ul>
           </nav>
 
-          <ButtonLink href={siteConfig.reserveCta.href}>
-            {siteConfig.reserveCta.label}
-          </ButtonLink>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <ButtonLink href={siteConfig.reserveCta.href}>
+              {siteConfig.reserveCta.label}
+            </ButtonLink>
+            <MobileNav />
+          </div>
         </div>
       </Container>
     </header>

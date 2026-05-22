@@ -10,13 +10,13 @@ export function Hero() {
     <section className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
       <HeroCarousel images={hero.images} intervalMs={hero.intervalMs} />
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/60" />
-      <div className="absolute inset-0 flex items-end pb-28">
+      <div className="absolute inset-0 flex items-end pb-20 sm:pb-28">
         <Container>
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-widest text-white/85">
               {hero.eyebrow}
             </p>
-            <h1 className="mt-3 font-serif text-5xl font-light leading-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="mt-3 font-serif text-4xl font-light leading-tight text-white sm:text-6xl lg:text-7xl">
               {hero.title}
             </h1>
             <p className="mt-4 max-w-md font-serif text-xl text-white/95 sm:text-2xl">

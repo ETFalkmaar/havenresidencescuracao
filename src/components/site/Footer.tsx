@@ -34,7 +34,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-forest-dark text-cream-100">
       <Container>
-        <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 py-12 sm:py-16 md:grid-cols-2 md:gap-12 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-3">
               <Image

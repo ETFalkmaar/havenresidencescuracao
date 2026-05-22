@@ -22,7 +22,7 @@ export default function ContactPage() {
   return (
     <>
       <PageHeader {...hero} />
-      <section className="py-20">
+      <section className="py-14 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl">
             <p className="text-center leading-relaxed text-forest-dark/80">
