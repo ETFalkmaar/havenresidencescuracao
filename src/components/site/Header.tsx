@@ -42,7 +42,7 @@ export function SiteHeader() {
               priority
               className="h-12 w-12 shrink-0 object-contain"
             />
-            <span className="hidden font-serif text-xl font-medium tracking-wide text-forest-dark sm:inline">
+            <span className="whitespace-nowrap font-serif text-lg font-medium tracking-wide text-forest-dark sm:text-xl">
               {siteConfig.name}
             </span>
           </Link>
